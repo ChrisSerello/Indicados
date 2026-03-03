@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Painel Moderador • Indica Consignado</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:#0a1a12; --surface:rgba(255,255,255,.04); --surface2:rgba(255,255,255,.07);
+      --border:rgba(255,255,255,.09); --accent:#10b981;
+      --accent-g:linear-gradient(135deg,#34d399,#059669);
+      --text:#f9fafb; --muted:rgba(255,255,255,.5);
+      --green:#4ade80; --yellow:#facc15; --blue:#60a5fa; --red:#fb7185;
+      --radius:14px;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html,body{
+      font-family:"Poppins",system-ui,sans-serif;
+      background:radial-gradient(circle at top,#063b22 0,#021a0d 45%,#000d06 100%);
+      color:var(--text);min-height:100vh;
+    }
+    .bg-orbs{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:-1;}
+    .orb{position:absolute;border-radius:50%;filter:blur(40px);opacity:.5;}
+    .orb-1{width:340px;height:340px;background:rgba(16,185,129,.5);top:-80px;left:-40px;animation:float 14s ease-in-out infinite alternate;}
+    .orb-2{width:280px;height:280px;background:rgba(5,150,105,.45);bottom:-60px;right:5%;animation:float 18s ease-in-out infinite alternate-reverse;}
+    @keyframes float{from{transform:translate3d(0,0,0)}to{transform:translate3d(30px,-20px,0)}}
+
+    /* ── Login Gate ── */
+    #login-gate{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;}
+    .login-box{
+      background:rgba(4,26,14,.97);border:1px solid rgba(16,185,129,.5);
+      border-radius:22px;padding:36px 32px;width:min(420px,100%);
+      box-shadow:0 24px 60px rgba(0,0,0,.85);text-align:center;
+    }
+    .mod-logo{
+      width:52px;height:52px;border-radius:50%;background:var(--accent-g);
+      display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;
+      margin:0 auto 16px;box-shadow:0 0 24px rgba(16,185,129,.6);
+    }
+    .login-box h1{font-size:22px;margin-bottom:4px;}
+    .login-box > p{font-size:13px;color:var(--muted);margin-bottom:20px;}
+
+    /* Tabs login/signup */
+    .auth-tabs{display:flex;gap:0;border:1px solid rgba(16,185,129,.3);border-radius:10px;overflow:hidden;margin-bottom:20px;}
+    .auth-tab{
+      flex:1;padding:9px;font-size:13px;font-weight:600;cursor:pointer;
+      background:transparent;color:rgba(255,255,255,.45);border:none;font-family:inherit;
+      transition:all .2s;
+    }
+    .auth-tab.active{background:rgba(16,185,129,.2);color:#34d399;}
+
+    .auth-panel{display:none;}
+    .auth-panel.active{display:block;}
+
+    .login-box input,.login-box select{
+      width:100%;padding:11px 14px;border-radius:10px;
+      border:1px solid rgba(16,185,129,.4);background:rgba(4,16,10,.9);
+      color:var(--text);font-family:inherit;font-size:13px;outline:none;margin-bottom:10px;
+      transition:border-color .2s;
+    }
+    .login-box input:focus,.login-box select:focus{border-color:rgba(52,211,153,.8);}
+    .btn-enter{
+      width:100%;padding:12px;border-radius:10px;border:none;cursor:pointer;
+      background:var(--accent-g);color:#fff;font-family:inherit;font-weight:600;
+      font-size:14px;box-shadow:0 0 20px rgba(16,185,129,.5);transition:filter .2s;margin-top:4px;
+    }
+    .btn-enter:hover{filter:brightness(1.1);}
+    .btn-enter:disabled{opacity:.6;cursor:not-allowed;}
+    .auth-error{color:var(--red);font-size:12px;margin-top:8px;min-height:18px;}
+    .back-link{display:block;margin-top:16px;font-size:12px;color:var(--muted);text-decoration:none;}
+    .back-link:hover{color:var(--text);}
+    .auth-hint{font-size:11px;color:var(--muted);margin-top:10px;line-height:1.5;}
+
+    /* ── Moderator App ── */
+    #mod-app{display:none;flex-direction:column;min-height:100vh;}
+    #mod-app.active{display:flex;}
+
+    .mod-topbar{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:14px 28px;background:rgba(4,26,14,.95);
+      border-bottom:1px solid var(--border);backdrop-filter:blur(20px);
+      position:sticky;top:0;z-index:10;
+    }
+    .mod-topbar-left{display:flex;align-items:center;gap:12px;}
+    .mod-logo-sm{
+      width:34px;height:34px;border-radius:50%;background:var(--accent-g);
+      display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;
+    }
+    .mod-topbar h1{font-size:16px;font-weight:600;}
+    .mod-badge{
+      padding:3px 10px;border-radius:999px;font-size:11px;font-weight:600;
+      background:rgba(16,185,129,.2);border:1px solid rgba(16,185,129,.4);color:#34d399;
+    }
+    .user-label{font-size:12px;color:var(--muted);}
+    .btn-logout-mod{
+      padding:8px 16px;border-radius:8px;border:1px solid rgba(251,113,133,.35);
+      background:rgba(251,113,133,.1);color:#fb7185;
+      font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .2s;
+    }
+    .btn-logout-mod:hover{background:rgba(251,113,133,.2);}
+    .btn-refresh-mod{
+      padding:8px 14px;border-radius:9px;border:1px solid rgba(16,185,129,.4);
+      background:rgba(16,185,129,.15);color:var(--accent);
+      font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .2s;
+    }
+    .btn-refresh-mod:hover{background:rgba(16,185,129,.25);}
+
+    .mod-content{flex:1;padding:28px 28px 40px;}
+
+    /* Share link card */
+    .share-card{
+      background:linear-gradient(135deg,rgba(16,185,129,.15),rgba(5,150,105,.1));
+      border:1px solid rgba(16,185,129,.4);border-radius:18px;
+      padding:22px 24px;margin-bottom:24px;
+      display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
+    }
+    .share-card-left{}
+    .share-card-label{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:rgba(52,211,153,.8);font-weight:600;margin-bottom:6px;}
+    .share-card-title{font-size:16px;font-weight:700;margin-bottom:4px;}
+    .share-card-desc{font-size:13px;color:rgba(255,255,255,.55);}
+    .share-link-row{display:flex;align-items:center;gap:8px;margin-top:12px;flex-wrap:wrap;}
+    .share-link-input{
+      flex:1;min-width:200px;padding:9px 12px;border-radius:9px;
+      border:1px solid rgba(16,185,129,.4);background:rgba(4,16,10,.9);
+      color:#34d399;font-size:13px;font-family:inherit;outline:none;cursor:text;
+    }
+    .btn-copy{
+      padding:9px 16px;border-radius:9px;border:none;cursor:pointer;
+      background:var(--accent-g);color:#fff;font-size:13px;font-weight:600;font-family:inherit;
+      white-space:nowrap;transition:filter .2s;
+    }
+    .btn-copy:hover{filter:brightness(1.1);}
+    .btn-copy.copied{background:linear-gradient(135deg,#4ade80,#22c55e);}
+    .share-code-badge{
+      padding:4px 12px;border-radius:999px;font-size:13px;font-weight:700;
+      background:rgba(16,185,129,.2);border:1px solid rgba(16,185,129,.4);color:#34d399;
+      letter-spacing:.08em;
+    }
+
+    /* KPI row */
+    .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;}
+    .kpi-box{
+      background:var(--surface);border:1px solid var(--border);
+      border-radius:var(--radius);padding:16px 18px;
+      display:flex;align-items:center;gap:14px;
+    }
+    .kpi-icon{font-size:26px;}
+    .kpi-label{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:4px;}
+    .kpi-val{font-size:22px;font-weight:700;}
+
+    /* Filter bar */
+    .filter-bar{display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap;}
+    .filter-bar input{
+      padding:8px 12px;border-radius:9px;border:1px solid rgba(16,185,129,.35);
+      background:rgba(4,16,10,.9);color:var(--text);font-family:inherit;font-size:13px;outline:none;
+      min-width:260px;
+    }
+    .filter-bar input::placeholder{color:var(--muted);}
+    .filter-bar input:focus{border-color:rgba(52,211,153,.7);}
+
+    /* Client card */
+    .client-card{
+      background:var(--surface);border:1px solid var(--border);
+      border-radius:18px;margin-bottom:12px;overflow:hidden;
+      transition:border-color .2s;
+    }
+    .client-card.open{border-color:rgba(16,185,129,.45);}
+    .client-header{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:14px 20px;cursor:pointer;transition:background .15s;user-select:none;
+    }
+    .client-header:hover{background:var(--surface2);}
+    .client-left{display:flex;align-items:center;gap:12px;}
+    .client-avatar{
+      width:40px;height:40px;border-radius:50%;flex-shrink:0;
+      background:linear-gradient(135deg,rgba(16,185,129,.6),rgba(5,150,105,.5));
+      display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;
+      box-shadow:0 0 10px rgba(16,185,129,.3);
+    }
+    .client-name{font-size:14px;font-weight:600;margin-bottom:2px;}
+    .client-meta{font-size:12px;color:var(--muted);}
+    .client-stats{display:flex;gap:8px;align-items:center;}
+    .stat-pill{
+      padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600;
+      background:rgba(255,255,255,.07);border:1px solid var(--border);white-space:nowrap;
+    }
+    .stat-pill.green{background:rgba(74,222,128,.12);border-color:rgba(74,222,128,.3);color:var(--green);}
+    .chevron{
+      width:26px;height:26px;border-radius:50%;
+      background:rgba(255,255,255,.06);border:1px solid var(--border);
+      display:flex;align-items:center;justify-content:center;
+      font-size:11px;color:var(--muted);transition:transform .3s,background .2s;margin-left:10px;flex-shrink:0;
+    }
+    .client-card.open .chevron{transform:rotate(180deg);background:rgba(16,185,129,.2);border-color:rgba(16,185,129,.4);}
+
+    .client-body{
+      display:none;border-top:1px solid var(--border);padding:14px 20px 18px;
+      animation:fadeDown .2s ease;
+    }
+    .client-card.open .client-body{display:block;}
+    @keyframes fadeDown{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+
+    /* Table */
+    .ref-table-wrap{overflow-x:auto;border-radius:12px;border:1px solid var(--border);}
+    table{width:100%;border-collapse:collapse;font-size:13px;}
+    thead th{
+      padding:10px 14px;text-align:left;font-size:11px;font-weight:600;
+      text-transform:uppercase;letter-spacing:.5px;color:var(--muted);
+      background:rgba(255,255,255,.03);border-bottom:1px solid var(--border);
+    }
+    tbody td{padding:11px 14px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle;}
+    tbody tr:last-child td{border-bottom:none;}
+    tbody tr:hover{background:rgba(255,255,255,.03);}
+
+    .wa-link{display:inline-flex;align-items:center;gap:5px;color:#25d366;font-size:13px;text-decoration:none;}
+    .wa-link:hover{text-decoration:underline;}
+
+    /* Status badges */
+    .status-badge{
+      display:inline-flex;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:600;
+    }
+    .s-em_analise{background:rgba(250,204,21,.14);color:#facc15;}
+    .s-em_contato{background:rgba(96,165,250,.16);color:#60a5fa;}
+    .s-aprovado{background:rgba(74,222,128,.15);color:#4ade80;}
+    .s-reprovado{background:rgba(251,113,133,.12);color:#fb7185;}
+
+    /* Nivel tag */
+    .nivel-tag{
+      display:inline-block;padding:2px 10px;border-radius:999px;
+      font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+    }
+    .n-plus{background:linear-gradient(135deg,#e879f9,#a855f7);color:#fff;}
+    .n-bronze{background:linear-gradient(135deg,#f59e0b,#b45309);color:#fff;}
+    .n-prata{background:linear-gradient(135deg,#9ca3af,#d1d5db);color:#111;}
+    .n-ouro{background:linear-gradient(135deg,#facc15,#f59e0b);color:#111;}
+    .n-platinum{background:linear-gradient(135deg,#a855f7,#6366f1);color:#fff;}
+
+    .empty-msg{text-align:center;padding:20px;color:var(--muted);font-size:13px;}
+
+    /* Toast */
+    .toast{
+      position:fixed;bottom:24px;right:24px;z-index:999;
+      padding:12px 18px;border-radius:10px;font-size:13px;font-weight:500;
+      box-shadow:0 8px 24px rgba(0,0,0,.5);border:1px solid transparent;
+      opacity:0;transition:opacity .3s;pointer-events:none;
+    }
+    .toast.show{opacity:1;}
+
+    @media(max-width:900px){.kpi-row{grid-template-columns:repeat(2,1fr);}}
+    @media(max-width:600px){.kpi-row{grid-template-columns:1fr;}.mod-content{padding:16px;}.client-stats{display:none;}}
+  </style>
+</head>
+<body>
+<div class="bg-orbs"><div class="orb orb-1"></div><div class="orb orb-2"></div></div>
+
+<!-- ══ LOGIN GATE ══ -->
+<div id="login-gate">
+  <div class="login-box">
+    <div class="mod-logo">M</div>
+    <h1>Painel do Moderador</h1>
+    <p>Acesso restrito a moderadores autorizados.</p>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchAuthTab('login')">Entrar</button>
+      <button class="auth-tab" onclick="switchAuthTab('signup')">Criar conta</button>
+    </div>
+
+    <!-- LOGIN -->
+    <div class="auth-panel active" id="panel-login">
+      <input type="email" id="login-email" placeholder="E-mail" autocomplete="username"/>
+      <input type="password" id="login-pass" placeholder="Senha" autocomplete="current-password"/>
+      <button class="btn-enter" id="btn-login">Entrar</button>
+      <p class="auth-error" id="login-error"></p>
+    </div>
+
+    <!-- SIGNUP -->
+    <div class="auth-panel" id="panel-signup">
+      <input type="text"  id="signup-name"  placeholder="Seu nome completo"/>
+      <input type="email" id="signup-email" placeholder="E-mail (deve estar pré-cadastrado)" autocomplete="username"/>
+      <input type="password" id="signup-pass" placeholder="Criar senha" autocomplete="new-password"/>
+      <button class="btn-enter" id="btn-signup">Criar conta</button>
+      <p class="auth-error" id="signup-error"></p>
+      <p class="auth-hint">⚠️ Seu e-mail deve ser cadastrado previamente por um administrador. Se ainda não foi, entre em contato com ele.</p>
+    </div>
+
+    <a class="back-link" href="index.html">← Voltar para a página principal</a>
+  </div>
+</div>
+
+<!-- ══ MODERATOR APP ══ -->
+<div id="mod-app">
+  <header class="mod-topbar">
+    <div class="mod-topbar-left">
+      <div class="mod-logo-sm">M</div>
+      <h1>Painel Moderador</h1>
+      <span class="mod-badge">Indique &amp; Ganhe 2.0</span>
+      <span class="user-label" id="mod-user-label"></span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button class="btn-refresh-mod" id="btn-refresh">↻ Atualizar</button>
+      <button class="btn-logout-mod" id="btn-logout">Sair</button>
+    </div>
+  </header>
+
+  <div class="mod-content">
+
+    <!-- SHARE LINK CARD -->
+    <div class="share-card">
+      <div class="share-card-left" style="flex:1;">
+        <p class="share-card-label">🔗 Seu link exclusivo de indicações</p>
+        <p class="share-card-title">Compartilhe este link com seus clientes</p>
+        <p class="share-card-desc">Todas as indicações feitas através deste link ficam vinculadas à sua conta.</p>
+        <div class="share-link-row">
+          <input class="share-link-input" id="share-link-input" type="text" readonly />
+          <button class="btn-copy" id="btn-copy-link">📋 Copiar</button>
+          <span class="share-code-badge" id="mod-code-badge">—</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="kpi-row">
+      <div class="kpi-box"><span class="kpi-icon">👤</span><div><p class="kpi-label">Clientes</p><p class="kpi-val" id="k-clientes">—</p></div></div>
+      <div class="kpi-box"><span class="kpi-icon">📨</span><div><p class="kpi-label">Total indicações</p><p class="kpi-val" id="k-total">—</p></div></div>
+      <div class="kpi-box"><span class="kpi-icon">✅</span><div><p class="kpi-label">Aprovadas</p><p class="kpi-val" id="k-approved">—</p></div></div>
+      <div class="kpi-box"><span class="kpi-icon">💳</span><div><p class="kpi-label">Smashcard liberado</p><p class="kpi-val" id="k-smashcard" style="font-size:16px;">—</p></div></div>
+    </div>
+
+    <!-- SEARCH -->
+    <div class="filter-bar">
+      <input type="text" id="search-clients" placeholder="🔍  Buscar cliente por nome ou telefone…"/>
+    </div>
+
+    <!-- CLIENT LIST -->
+    <div id="clients-list">
+      <p style="color:var(--muted);font-size:13px;">Carregando…</p>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL      = "https://jwnycywdmaebojqhezmg.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp3bnljeXdkbWFlYm9qcWhlem1nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwMjIyODUsImV4cCI6MjA4NzU5ODI4NX0.EuyJGfG6T_jgtTPF-Wu_rRF6kgoU2E0CKUgzVB1c-2g";
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// ── Tiers ─────────────────────────────────────────────────────
+const TIERS = [
+  {min:1,max:3,reward:50},{min:4,max:6,reward:75},
+  {min:7,max:10,reward:100},{min:11,max:14,reward:150},{min:15,max:9999,reward:200}
+];
+function rewardByPos(pos){ return (TIERS.find(t=>pos>=t.min&&pos<=t.max)||TIERS[0]).reward; }
+function calcSmashcard(n){ let t=0; for(let i=1;i<=n;i++) t+=rewardByPos(i); return t; }
+function getNivel(ap){
+  if(ap>=15) return {label:"Platinum",cls:"n-platinum"};
+  if(ap>=11) return {label:"Ouro",    cls:"n-ouro"};
+  if(ap>=7)  return {label:"Prata",   cls:"n-prata"};
+  if(ap>=4)  return {label:"Bronze",  cls:"n-bronze"};
+  return           {label:"Indiquer+",cls:"n-plus"};
+}
+
+// ── Utils ──────────────────────────────────────────────────────
+const fmt     = v => Number(v||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL",minimumFractionDigits:2});
+const fmtDate = d => { if(!d)return"-"; const dt=new Date(d); return isNaN(dt)?"-":dt.toLocaleDateString("pt-BR"); };
+const initials= n => { if(!n)return"??"; const p=n.trim().split(" "); return ((p[0]?.[0]||"")+(p.length>1?p[p.length-1][0]:"")).toUpperCase(); };
+const isApproved = s => s==="aprovado"||s==="approved";
+function waHref(phone){ const d=(phone||"").replace(/\D/g,""); if(!d)return null; return `https://wa.me/${d.startsWith("55")?d:"55"+d}`; }
+
+const STATUS_MAP = {
+  em_analise:{label:"Em análise",cls:"s-em_analise"},
+  em_contato:{label:"Em contato",cls:"s-em_contato"},
+  aprovado:  {label:"Aprovado",  cls:"s-aprovado"},
+  reprovado: {label:"Reprovado", cls:"s-reprovado"},
+  pending:   {label:"Em análise",cls:"s-em_analise"},
+  approved:  {label:"Aprovado",  cls:"s-aprovado"},
+};
+function statusBadge(s){ const x=STATUS_MAP[s]||{label:s||"-",cls:""}; return `<span class="status-badge ${x.cls}">${x.label}</span>`; }
+
+function showToast(msg,ok=true){
+  const t=document.getElementById("toast");
+  t.textContent=msg;
+  t.style.background  = ok?"rgba(74,222,128,.15)":"rgba(251,113,133,.15)";
+  t.style.borderColor = ok?"rgba(74,222,128,.4)":"rgba(251,113,133,.4)";
+  t.style.color       = ok?"#4ade80":"#fb7185";
+  t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"),2800);
+}
+
+// ── Auth Tab Toggle ────────────────────────────────────────────
+function switchAuthTab(tab){
+  document.querySelectorAll(".auth-tab").forEach((b,i)=>b.classList.toggle("active",i===(tab==="login"?0:1)));
+  document.getElementById("panel-login").classList.toggle("active",tab==="login");
+  document.getElementById("panel-signup").classList.toggle("active",tab==="signup");
+}
+
+// ── State ──────────────────────────────────────────────────────
+let currentMod = null;
+let allClients = []; // referrers
+
+// ── Login ──────────────────────────────────────────────────────
+document.getElementById("btn-login").addEventListener("click", async()=>{
+  const email = document.getElementById("login-email").value.trim();
+  const pass  = document.getElementById("login-pass").value;
+  const errEl = document.getElementById("login-error");
+  errEl.textContent="";
+  if(!email||!pass){ errEl.textContent="Preencha e-mail e senha."; return; }
+  const btn = document.getElementById("btn-login");
+  btn.textContent="Entrando…"; btn.disabled=true;
+  try {
+    const {data,error} = await sb.auth.signInWithPassword({email,password:pass});
+    if(error) throw error;
+    await verifyAndMount(data.user);
+  } catch(e){
+    errEl.textContent = "Credenciais inválidas ou acesso não autorizado.";
+  } finally {
+    btn.textContent="Entrar"; btn.disabled=false;
+  }
+});
+
+// ── Signup ─────────────────────────────────────────────────────
+document.getElementById("btn-signup").addEventListener("click", async()=>{
+  const name  = document.getElementById("signup-name").value.trim();
+  const email = document.getElementById("signup-email").value.trim();
+  const pass  = document.getElementById("signup-pass").value;
+  const errEl = document.getElementById("signup-error");
+  errEl.textContent="";
+  if(!name||!email||!pass){ errEl.textContent="Preencha todos os campos."; return; }
+  if(pass.length<6){ errEl.textContent="A senha deve ter ao menos 6 caracteres."; return; }
+  const btn = document.getElementById("btn-signup");
+  btn.textContent="Criando conta…"; btn.disabled=true;
+  try {
+    // Check if email pre-registered in moderators table
+    const {data:modRecord} = await sb.from("moderators").select("id").eq("email",email).maybeSingle();
+    if(!modRecord) throw new Error("E-mail não cadastrado como moderador. Solicite ao administrador.");
+
+    const {data,error} = await sb.auth.signUp({email,password:pass,options:{data:{name}}});
+    if(error) throw error;
+    if(!data.user) throw new Error("Erro ao criar conta. Tente novamente.");
+
+    // Link user_id
+    await sb.from("moderators").update({user_id:data.user.id,name}).eq("id",modRecord.id);
+
+    // Auto login
+    const {data:loginData,error:loginErr} = await sb.auth.signInWithPassword({email,password:pass});
+    if(loginErr) throw loginErr;
+    await verifyAndMount(loginData.user);
+  } catch(e){
+    errEl.textContent = e.message || "Erro ao criar conta.";
+  } finally {
+    btn.textContent="Criar conta"; btn.disabled=false;
+  }
+});
+
+// ── Verify & Mount ─────────────────────────────────────────────
+async function verifyAndMount(user){
+  const {data:mod} = await sb.from("moderators").select("*").eq("email",user.email).maybeSingle();
+  if(!mod){ await sb.auth.signOut(); throw new Error("Acesso não autorizado."); }
+  // Link user_id if missing
+  if(!mod.user_id) await sb.from("moderators").update({user_id:user.id}).eq("id",mod.id);
+  currentMod = {...mod, user_id: mod.user_id || user.id};
+  document.getElementById("login-gate").style.display="none";
+  document.getElementById("mod-app").classList.add("active");
+  document.getElementById("mod-user-label").textContent=`Olá, ${mod.name.split(" ")[0]}`;
+  buildShareLink();
+  loadDashboard();
+}
+
+// ── Share link ─────────────────────────────────────────────────
+function buildShareLink(){
+  const base = window.location.origin + "/index.html";
+  const link = `${base}?mod=${currentMod.code}`;
+  document.getElementById("share-link-input").value = link;
+  document.getElementById("mod-code-badge").textContent = `Código: ${currentMod.code}`;
+}
+
+document.getElementById("btn-copy-link").addEventListener("click",()=>{
+  const inp = document.getElementById("share-link-input");
+  navigator.clipboard.writeText(inp.value).then(()=>{
+    const btn = document.getElementById("btn-copy-link");
+    btn.textContent="✅ Copiado!"; btn.classList.add("copied");
+    setTimeout(()=>{ btn.textContent="📋 Copiar"; btn.classList.remove("copied"); },2000);
+  });
+});
+
+// ── Load data ──────────────────────────────────────────────────
+async function loadDashboard(){
+  if(!currentMod) return;
+  document.getElementById("clients-list").innerHTML="<p style='color:var(--muted);font-size:13px;'>Carregando…</p>";
+
+  // Get referrers for this moderator
+  const {data:referrers,error:e1} = await sb.from("referrers")
+    .select("id,name,phone,email,created_at")
+    .eq("moderator_id",currentMod.id)
+    .order("created_at",{ascending:false});
+  if(e1){ showToast("Erro ao carregar clientes.",false); return; }
+
+  // Get all referrals from those clients
+  const ids = (referrers||[]).map(r=>r.id);
+  let referrals = [];
+  if(ids.length){
+    const {data:refs} = await sb.from("referrals")
+      .select("*, indicated_clients(name,phone,profile_type)")
+      .in("referrer_id",ids)
+      .order("created_at",{ascending:false});
+    referrals = refs||[];
+  }
+
+  // Associate referrals to each client
+  const refMap = {};
+  referrals.forEach(r=>{ if(!refMap[r.referrer_id]) refMap[r.referrer_id]=[]; refMap[r.referrer_id].push(r); });
+  allClients = (referrers||[]).map(r=>({...r,referrals:refMap[r.id]||[]}));
+
+  // KPIs
+  const allRefs    = allClients.flatMap(c=>c.referrals);
+  const approved   = allRefs.filter(r=>isApproved(r.status));
+  let totalSmash   = 0;
+  allClients.forEach(c=>{
+    const ap = c.referrals.filter(r=>isApproved(r.status)).length;
+    totalSmash += calcSmashcard(ap);
+  });
+  document.getElementById("k-clientes").textContent  = allClients.length;
+  document.getElementById("k-total").textContent     = allRefs.length;
+  document.getElementById("k-approved").textContent  = approved.length;
+  document.getElementById("k-smashcard").textContent = fmt(totalSmash);
+
+  renderClients(allClients);
+}
+
+// ── Render clients ─────────────────────────────────────────────
+function renderClients(data){
+  const search = (document.getElementById("search-clients").value||"").toLowerCase();
+  const container = document.getElementById("clients-list");
+  container.innerHTML="";
+
+  const filtered = data.filter(c=>
+    !search ||
+    c.name?.toLowerCase().includes(search) ||
+    c.phone?.includes(search) ||
+    c.email?.toLowerCase().includes(search)
+  );
+
+  if(!filtered.length){
+    container.innerHTML="<p class='empty-msg'>Nenhum cliente encontrado" + (allClients.length===0?" ainda. Quando alguém usar seu link e fizer uma indicação, aparecerá aqui.":" para essa busca.") + "</p>";
+    return;
+  }
+
+  filtered.forEach(c=>{
+    const ap  = c.referrals.filter(r=>isApproved(r.status)).length;
+    const nv  = getNivel(ap);
+    const wa  = waHref(c.phone);
+    const smash = calcSmashcard(ap);
+
+    // Build approved positions for color
+    const approvedRefs = c.referrals
+      .filter(r=>isApproved(r.status))
+      .sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
+    const rewardMap = {};
+    approvedRefs.forEach((r,i)=>{ rewardMap[r.id]=rewardByPos(i+1); });
+
+    const card = document.createElement("div");
+    card.className="client-card";
+    card.innerHTML=`
+      <div class="client-header" onclick="this.closest('.client-card').classList.toggle('open')">
+        <div class="client-left">
+          <div class="client-avatar">${initials(c.name)}</div>
+          <div>
+            <div class="client-name">${c.name||"—"}</div>
+            <div class="client-meta">
+              ${wa?`<a class="wa-link" href="${wa}" target="_blank" onclick="event.stopPropagation()">📱 ${c.phone||"—"}</a>`:c.phone||"—"}
+              ${c.email?` · ${c.email}`:""}
+              · desde ${fmtDate(c.created_at)}
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="client-stats">
+            <span class="nivel-tag ${nv.cls}">${nv.label}</span>
+            <span class="stat-pill">${c.referrals.length} indicaç${c.referrals.length===1?"ão":"ões"}</span>
+            <span class="stat-pill green">${ap} aprovada${ap!==1?"s":""}</span>
+            <span class="stat-pill" style="color:#34d399;border-color:rgba(52,211,153,.35);background:rgba(16,185,129,.1);">${fmt(smash)}</span>
+          </div>
+          <div class="chevron">▼</div>
+        </div>
+      </div>
+      <div class="client-body">
+        ${c.referrals.length===0
+          ? `<p class="empty-msg">Este cliente ainda não fez indicações.</p>`
+          : `<div class="ref-table-wrap">
+              <table>
+                <thead><tr>
+                  <th>Nome indicado</th><th>WhatsApp</th><th>Perfil</th>
+                  <th>Status</th><th>Smashcard</th><th>Data</th>
+                </tr></thead>
+                <tbody>
+                  ${c.referrals.map(ref=>{
+                    const cl=ref.indicated_clients||{};
+                    const wa2=waHref(cl.phone);
+                    const isAp=isApproved(ref.status);
+                    const reward=rewardMap[ref.id];
+                    const colors={50:"#e879f9",75:"#f59e0b",100:"#9ca3af",150:"#facc15",200:"#a855f7"};
+                    return `<tr>
+                      <td><strong>${cl.name||"—"}</strong></td>
+                      <td>${wa2?`<a class="wa-link" href="${wa2}" target="_blank">📱 ${cl.phone||"—"}</a>`:(cl.phone||"—")}</td>
+                      <td style="color:var(--muted);font-size:12px;">${cl.profile_type||"—"}</td>
+                      <td>${statusBadge(ref.status)}</td>
+                      <td style="color:${isAp?(colors[reward]||"#4ade80"):"rgba(255,255,255,.3)"};font-weight:${isAp?"700":"400"};">${isAp?fmt(reward):"—"}</td>
+                      <td style="color:var(--muted);font-size:12px;">${fmtDate(ref.created_at)}</td>
+                    </tr>`;
+                  }).join("")}
+                </tbody>
+              </table>
+            </div>`
+        }
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+// ── Events ────────────────────────────────────────────────────
+document.getElementById("search-clients").addEventListener("input",()=>renderClients(allClients));
+document.getElementById("btn-refresh").addEventListener("click",loadDashboard);
+document.getElementById("btn-logout").addEventListener("click",async()=>{
+  await sb.auth.signOut(); window.location.reload();
+});
+
+// ── Auto-login ────────────────────────────────────────────────
+(async()=>{
+  const {data} = await sb.auth.getSession();
+  const user   = data?.session?.user;
+  if(user){
+    try { await verifyAndMount(user); }
+    catch(e){ /* not a moderator, show login */ }
+  }
+})();
+</script>
+</body>
+</html>

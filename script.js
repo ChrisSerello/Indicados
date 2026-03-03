@@ -1,6 +1,15 @@
 document.addEventListener("DOMContentLoaded", () => {
   const supabase = window.supabaseClient || null;
 
+  // ─── Captura parâmetro ?mod= da URL ──────────────────────────
+  // Quando um moderador compartilha seu link (ex: site.com?mod=ABC123),
+  // o código é salvo na sessão para ser vinculado à indicação.
+  const urlParams = new URLSearchParams(window.location.search);
+  const modCodeFromURL = urlParams.get("mod");
+  if (modCodeFromURL) {
+    sessionStorage.setItem("modCode", modCodeFromURL.toUpperCase().trim());
+  }
+
   // Ano atual no footer
   const yearSpan = document.getElementById("year");
   if (yearSpan) yearSpan.textContent = new Date().getFullYear();
@@ -82,10 +91,6 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // ─── CADASTRO ─────────────────────────────────────────────
-  // Lógica principal: ao criar conta, busca todos os registros
-  // em "referrers" com o mesmo CPF (feitos antes sem login) e
-  // vincula ao user_id recém criado. O cliente não perde nenhuma
-  // indicação feita antes de criar conta.
   document.getElementById("signup-form")?.addEventListener("submit", async (e) => {
     e.preventDefault();
     if (!supabase) { alert("Supabase não configurado."); return; }
@@ -106,7 +111,6 @@ document.addEventListener("DOMContentLoaded", () => {
     btn.textContent = "Criando conta…"; btn.disabled = true;
 
     try {
-      // 1. Cria usuário no Supabase Auth
       const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email,
         password: pass,
@@ -117,30 +121,38 @@ document.addEventListener("DOMContentLoaded", () => {
       const user = signUpData?.user;
       if (!user) throw new Error("Não foi possível criar o usuário.");
 
-      // 2. Busca registros em "referrers" com o mesmo CPF
-      //    (indicações feitas antes de criar conta)
       const { data: existingRows, error: searchErr } = await supabase
         .from("referrers")
         .select("id")
         .eq("cpf", cpf)
-        .is("user_id", null); // só os que ainda não têm conta vinculada
+        .is("user_id", null);
 
       if (searchErr) console.warn("Aviso ao buscar indicações anteriores:", searchErr.message);
 
       const hasPrevious = existingRows && existingRows.length > 0;
 
       if (hasPrevious) {
-        // 3a. Vincula todos os registros anteriores ao user_id novo
         const ids = existingRows.map(r => r.id);
         await supabase
           .from("referrers")
           .update({ user_id: user.id, name, phone, email })
           .in("id", ids);
       } else {
-        // 3b. Sem indicações anteriores: cria um registro base
+        // Resolve moderator_id (if the user arrived via a moderator link)
+        const savedModCode = sessionStorage.getItem("modCode");
+        let moderatorId = null;
+        if (savedModCode) {
+          const { data: modRecord } = await supabase
+            .from("moderators")
+            .select("id")
+            .eq("code", savedModCode)
+            .maybeSingle();
+          if (modRecord) moderatorId = modRecord.id;
+        }
+
         await supabase
           .from("referrers")
-          .insert({ user_id: user.id, name, cpf, phone, email });
+          .insert({ user_id: user.id, name, cpf, phone, email, moderator_id: moderatorId });
       }
 
       document.getElementById("signup-form").reset();
@@ -184,7 +196,6 @@ document.addEventListener("DOMContentLoaded", () => {
       e.preventDefault();
       if (!supabase) { alert("Supabase não configurado."); return; }
 
-      // Validação visual
       const requiredIds = [
         "referrer-name", "referrer-doc", "referrer-phone",
         "indicated-name", "indicated-doc", "indicated-phone", "profile-type"
@@ -221,12 +232,23 @@ document.addEventListener("DOMContentLoaded", () => {
       try {
         let referrerId = null;
 
-        // 1. Verifica se há sessão ativa
+        // Resolve moderator via session (set when the user arrived via mod link)
+        const savedModCode = sessionStorage.getItem("modCode");
+        let moderatorId = null;
+        if (savedModCode) {
+          const { data: modRecord } = await supabase
+            .from("moderators")
+            .select("id")
+            .eq("code", savedModCode)
+            .maybeSingle();
+          if (modRecord) moderatorId = modRecord.id;
+        }
+
+        // Check for logged-in session
         const { data: userData } = await supabase.auth.getUser();
         const loggedUser = userData?.user;
 
         if (loggedUser) {
-          // Logado: busca referrer pelo user_id
           const { data: byUser } = await supabase
             .from("referrers")
             .select("id")
@@ -236,8 +258,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         if (!referrerId) {
-          // Não logado (ou referrer ainda não criado):
-          // busca pelo CPF para reaproveitar registro existente
+          // Try to find by CPF
           const { data: byCPF } = await supabase
             .from("referrers")
             .select("id")
@@ -246,16 +267,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
           if (byCPF) {
             referrerId = byCPF.id;
+            // If a moderator is in session and this referrer has none, update
+            if (moderatorId) {
+              await supabase
+                .from("referrers")
+                .update({ moderator_id: moderatorId })
+                .eq("id", referrerId)
+                .is("moderator_id", null);
+            }
           } else {
-            // Primeira indicação deste CPF — cria registro anônimo
+            // New referrer
             const { data: newRef, error: newRefErr } = await supabase
               .from("referrers")
               .insert({
-                name:  referrerName,
-                cpf:   referrerCPF,
-                phone: referrerPhone,
-                email: referrerEmail
-                // user_id null até criar conta
+                name:         referrerName,
+                cpf:          referrerCPF,
+                phone:        referrerPhone,
+                email:        referrerEmail,
+                moderator_id: moderatorId  // ← vínculo com o moderador
               })
               .select("id")
               .single();
@@ -265,7 +294,7 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         }
 
-        // 2. Salva indicado
+        // Save indicated client
         const { data: indicated, error: indicErr } = await supabase
           .from("indicated_clients")
           .insert({ name: indicName, cpf: indicCPF, phone: indicPhone, profile_type: profileType, observations })
@@ -274,7 +303,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (indicErr) throw indicErr;
 
-        // 3. Cria vínculo em referrals
+        // Create referral link
         const { error: refErr } = await supabase
           .from("referrals")
           .insert({ referrer_id: referrerId, indicated_client_id: indicated.id, status: "em_analise" });
