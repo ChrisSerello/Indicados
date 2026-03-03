@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Painel Admin • Indica Consignado</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:#0d0119; --surface:rgba(255,255,255,.04); --surface2:rgba(255,255,255,.07);
+      --border:rgba(255,255,255,.09); --accent:#a855f7;
+      --accent-g:linear-gradient(135deg,#f973ff,#a855f7);
+      --text:#f9fafb; --muted:rgba(255,255,255,.5);
+      --green:#4ade80; --yellow:#facc15; --blue:#60a5fa; --red:#fb7185;
+      --radius:14px;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html,body{
+      font-family:"Poppins",system-ui,sans-serif;
+      background:radial-gradient(circle at top,#3b0b63 0,#1b022d 45%,#060013 100%);
+      color:var(--text);min-height:100vh;
+    }
+    .bg-orbs{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:-1;}
+    .orb{position:absolute;border-radius:50%;filter:blur(40px);opacity:.5;}
+    .orb-1{width:340px;height:340px;background:rgba(168,85,247,.5);top:-80px;left:-40px;animation:float 14s ease-in-out infinite alternate;}
+    .orb-2{width:280px;height:280px;background:rgba(236,72,153,.45);bottom:-60px;right:5%;animation:float 18s ease-in-out infinite alternate-reverse;}
+    @keyframes float{from{transform:translate3d(0,0,0)}to{transform:translate3d(30px,-20px,0)}}
+
+    /* ── Login ── */
+    #login-gate{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;}
+    .login-box{
+      background:rgba(24,6,54,.97);border:1px solid rgba(168,85,247,.5);
+      border-radius:22px;padding:36px 32px;width:min(400px,100%);
+      box-shadow:0 24px 60px rgba(0,0,0,.85);text-align:center;
+    }
+    .admin-logo{
+      width:52px;height:52px;border-radius:50%;background:var(--accent-g);
+      display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;
+      margin:0 auto 16px;box-shadow:0 0 24px rgba(168,85,247,.6);
+    }
+    .login-box h1{font-size:22px;margin-bottom:6px;}
+    .login-box p{font-size:13px;color:var(--muted);margin-bottom:24px;}
+    .login-box input{
+      width:100%;padding:11px 14px;border-radius:10px;
+      border:1px solid rgba(168,85,247,.5);background:rgba(15,10,35,.9);
+      color:var(--text);font-family:inherit;font-size:14px;outline:none;margin-bottom:12px;
+      transition:border-color .2s;
+    }
+    .login-box input:focus{border-color:rgba(248,113,255,.8);}
+    .btn-enter{
+      width:100%;padding:12px;border-radius:10px;border:none;cursor:pointer;
+      background:var(--accent-g);color:#fff;font-family:inherit;font-weight:600;
+      font-size:14px;box-shadow:0 0 20px rgba(168,85,247,.6);transition:filter .2s;
+    }
+    .btn-enter:hover{filter:brightness(1.1);}
+    .btn-enter:disabled{opacity:.6;cursor:not-allowed;}
+    .login-error{color:var(--red);font-size:12px;margin-top:8px;display:none;}
+    .back-link{display:block;margin-top:16px;font-size:12px;color:var(--muted);text-decoration:none;}
+    .back-link:hover{color:var(--text);}
+
+    /* ── App ── */
+    #admin-app{display:none;flex-direction:column;min-height:100vh;}
+    #admin-app.active{display:flex;}
+
+    .admin-topbar{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:14px 28px;background:rgba(24,6,54,.95);
+      border-bottom:1px solid var(--border);backdrop-filter:blur(20px);
+      position:sticky;top:0;z-index:10;
+    }
+    .admin-topbar-left{display:flex;align-items:center;gap:12px;}
+    .admin-logo-sm{
+      width:34px;height:34px;border-radius:50%;background:var(--accent-g);
+      display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;
+    }
+    .admin-topbar h1{font-size:16px;font-weight:600;}
+    .admin-badge{
+      padding:3px 10px;border-radius:999px;font-size:11px;font-weight:600;
+      background:rgba(168,85,247,.2);border:1px solid rgba(168,85,247,.4);color:var(--accent);
+    }
+    .admin-user-label{font-size:12px;color:var(--muted);}
+    .btn-logout-admin{
+      padding:8px 16px;border-radius:8px;border:1px solid rgba(251,113,133,.35);
+      background:rgba(251,113,133,.1);color:#fb7185;
+      font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .2s;
+    }
+    .btn-logout-admin:hover{background:rgba(251,113,133,.2);}
+    .btn-refresh{
+      padding:8px 14px;border-radius:9px;border:1px solid rgba(168,85,247,.4);
+      background:rgba(168,85,247,.15);color:var(--accent);
+      font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .2s;
+    }
+    .btn-refresh:hover{background:rgba(168,85,247,.25);}
+
+    .admin-content{flex:1;padding:28px 28px 40px;}
+
+    /* KPIs */
+    .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px;}
+    .kpi-box{
+      background:var(--surface);border:1px solid var(--border);
+      border-radius:var(--radius);padding:16px 18px;
+      display:flex;align-items:center;gap:14px;
+    }
+    .kpi-icon{font-size:26px;}
+    .kpi-label{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:4px;}
+    .kpi-val{font-size:22px;font-weight:700;}
+
+    /* Filtro global */
+    .filter-bar{display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap;}
+    .filter-bar input,.filter-bar select{
+      padding:8px 12px;border-radius:9px;
+      border:1px solid rgba(168,85,247,.4);
+      background:rgba(15,10,35,.9);color:var(--text);
+      font-family:inherit;font-size:13px;outline:none;
+    }
+    .filter-bar input{min-width:240px;}
+
+    /* ── Card do indicador ── */
+    .referrer-card{
+      background:var(--surface);border:1px solid var(--border);
+      border-radius:18px;margin-bottom:14px;overflow:hidden;
+      transition:border-color .2s;
+    }
+    .referrer-card.open{border-color:rgba(168,85,247,.45);}
+
+    /* Header clicável */
+    .referrer-header{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:16px 20px;cursor:pointer;transition:background .15s;user-select:none;
+    }
+    .referrer-header:hover{background:var(--surface2);}
+    .ref-header-left{display:flex;align-items:center;gap:14px;}
+    .ref-avatar{
+      width:42px;height:42px;border-radius:50%;flex-shrink:0;
+      background:linear-gradient(135deg,rgba(168,85,247,.6),rgba(236,72,153,.5));
+      display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;
+      box-shadow:0 0 12px rgba(168,85,247,.35);
+    }
+    .ref-name{font-size:15px;font-weight:600;margin-bottom:3px;}
+    .ref-meta{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+    .ref-meta-sep{opacity:.4;}
+    .ref-stats{display:flex;gap:8px;align-items:center;}
+    .stat-pill{
+      padding:4px 12px;border-radius:999px;font-size:12px;font-weight:600;
+      background:rgba(255,255,255,.07);border:1px solid var(--border);white-space:nowrap;
+    }
+    .stat-pill.green{background:rgba(74,222,128,.12);border-color:rgba(74,222,128,.3);color:var(--green);}
+
+    /* Chevron animado */
+    .chevron-wrap{
+      width:28px;height:28px;border-radius:50%;
+      background:rgba(255,255,255,.06);border:1px solid var(--border);
+      display:flex;align-items:center;justify-content:center;
+      font-size:11px;color:var(--muted);transition:transform .3s,background .2s;
+      margin-left:10px;flex-shrink:0;
+    }
+    .referrer-card.open .chevron-wrap{transform:rotate(180deg);background:rgba(168,85,247,.2);border-color:rgba(168,85,247,.4);}
+
+    /* Corpo expansível */
+    .referrer-body{
+      display:none;border-top:1px solid var(--border);
+      padding:16px 20px 20px;
+      animation:fadeDown .2s ease;
+    }
+    .referrer-card.open .referrer-body{display:block;}
+    @keyframes fadeDown{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+
+    /* Busca interna do card */
+    .card-search-row{
+      display:flex;align-items:center;gap:10px;margin-bottom:14px;
+    }
+    .card-search-wrap{
+      position:relative;flex:1;max-width:320px;
+    }
+    .card-search-icon{
+      position:absolute;left:10px;top:50%;transform:translateY(-50%);
+      font-size:14px;pointer-events:none;
+    }
+    .card-search-input{
+      width:100%;padding:7px 10px 7px 32px;border-radius:9px;
+      border:1px solid rgba(168,85,247,.35);
+      background:rgba(15,10,35,.9);color:var(--text);
+      font-family:inherit;font-size:13px;outline:none;transition:border-color .2s;
+    }
+    .card-search-input:focus{border-color:rgba(168,85,247,.7);}
+    .card-search-input::placeholder{color:var(--muted);}
+    .card-count{font-size:12px;color:var(--muted);}
+
+    /* Tabela interna */
+    .ref-table-wrap{overflow-x:auto;border-radius:12px;border:1px solid var(--border);}
+    table{width:100%;border-collapse:collapse;font-size:13px;}
+    thead th{
+      padding:10px 14px;text-align:left;font-size:11px;font-weight:600;
+      text-transform:uppercase;letter-spacing:.5px;color:var(--muted);
+      background:rgba(255,255,255,.03);border-bottom:1px solid var(--border);
+    }
+    tbody td{padding:11px 14px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle;}
+    tbody tr:last-child td{border-bottom:none;}
+    tbody tr:hover{background:rgba(255,255,255,.03);}
+    .row-hidden{display:none;}
+
+    .wa-link{display:inline-flex;align-items:center;gap:5px;color:#25d366;font-size:13px;text-decoration:none;}
+    .wa-link:hover{text-decoration:underline;}
+
+    .status-select{
+      padding:5px 9px;border-radius:7px;border:1px solid var(--border);
+      background:rgba(15,10,35,.9);color:var(--text);font-family:inherit;font-size:12px;cursor:pointer;outline:none;
+    }
+    .status-select.em_analise{border-color:rgba(250,204,21,.5);color:var(--yellow);}
+    .status-select.em_contato{border-color:rgba(96,165,250,.5);color:var(--blue);}
+    .status-select.aprovado{border-color:rgba(74,222,128,.5);color:var(--green);}
+    .status-select.reprovado{border-color:rgba(251,113,133,.5);color:var(--red);}
+
+    .valor-input{
+      width:88px;padding:5px 8px;border-radius:7px;
+      border:1px solid var(--border);background:rgba(15,10,35,.9);
+      color:var(--green);font-family:inherit;font-size:12px;font-weight:600;outline:none;
+    }
+    .save-btn{
+      padding:5px 12px;border-radius:7px;border:none;cursor:pointer;
+      background:rgba(168,85,247,.25);color:var(--accent);
+      font-size:12px;font-weight:600;font-family:inherit;
+      transition:background .15s;white-space:nowrap;
+    }
+    .save-btn:hover{background:rgba(168,85,247,.4);}
+    .save-btn:disabled{opacity:.5;cursor:not-allowed;}
+
+    .nivel-tag{
+      display:inline-block;padding:3px 10px;border-radius:999px;
+      font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+    }
+    .nb {background:linear-gradient(135deg,#f59e0b,#b45309);color:#fff;}
+    .np {background:linear-gradient(135deg,#9ca3af,#d1d5db);color:#111;}
+    .no {background:linear-gradient(135deg,#facc15,#f59e0b);color:#111;}
+    .npl{background:linear-gradient(135deg,#a855f7,#6366f1);color:#fff;}
+
+    .empty-msg{text-align:center;padding:22px;color:var(--muted);font-size:13px;}
+    .no-rows-msg{text-align:center;padding:16px;color:var(--muted);font-size:13px;display:none;}
+
+    /* Toast */
+    .toast{
+      position:fixed;bottom:24px;right:24px;z-index:999;
+      padding:12px 18px;border-radius:10px;font-size:13px;font-weight:500;
+      box-shadow:0 8px 24px rgba(0,0,0,.5);border:1px solid transparent;
+      opacity:0;transition:opacity .3s;pointer-events:none;
+    }
+    .toast.show{opacity:1;}
+
+    @media(max-width:900px){.kpi-row{grid-template-columns:repeat(2,1fr);}}
+    @media(max-width:640px){.kpi-row{grid-template-columns:1fr;}.admin-content{padding:16px;}.ref-stats{display:none;}}
+  </style>
+</head>
+<body>
+<div class="bg-orbs"><div class="orb orb-1"></div><div class="orb orb-2"></div></div>
+
+<!-- LOGIN GATE -->
+<div id="login-gate">
+  <div class="login-box">
+    <div class="admin-logo">⚙️</div>
+    <h1>Painel Administrativo</h1>
+    <p>Acesso restrito a administradores autorizados.</p>
+    <input type="email"    id="admin-email"    placeholder="E-mail" autocomplete="username"/>
+    <input type="password" id="admin-password" placeholder="Senha"  autocomplete="current-password"/>
+    <button class="btn-enter" id="btn-admin-login">Entrar</button>
+    <p class="login-error" id="login-error"></p>
+    <a class="back-link" href="index.html">← Voltar para a página principal</a>
+  </div>
+</div>
+
+<!-- ADMIN APP -->
+<div id="admin-app">
+  <header class="admin-topbar">
+    <div class="admin-topbar-left">
+      <div class="admin-logo-sm">⚙️</div>
+      <h1>Painel Admin</h1>
+      <span class="admin-badge">Indique &amp; Ganhe 2.0</span>
+      <span class="admin-user-label" id="admin-user-label"></span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button class="btn-refresh" id="btn-refresh">↻ Atualizar</button>
+      <button class="btn-logout-admin" id="btn-admin-logout">Sair</button>
+    </div>
+  </header>
+
+  <div class="admin-content">
+    <!-- KPIs -->
+    <div class="kpi-row">
+      <div class="kpi-box"><span class="kpi-icon">👥</span><div><p class="kpi-label">Indicadores</p><p class="kpi-val" id="k-referrers">—</p></div></div>
+      <div class="kpi-box"><span class="kpi-icon">📨</span><div><p class="kpi-label">Total indicações</p><p class="kpi-val" id="k-total">—</p></div></div>
+      <div class="kpi-box"><span class="kpi-icon">✅</span><div><p class="kpi-label">Aprovadas</p><p class="kpi-val" id="k-approved">—</p></div></div>
+      <div class="kpi-box"><span class="kpi-icon">💳</span><div><p class="kpi-label">Total liberado</p><p class="kpi-val" id="k-ganhos">—</p></div></div>
+    </div>
+
+    <!-- Filtro global -->
+    <div class="filter-bar">
+      <input type="text" id="search-global" placeholder="🔍  Buscar indicador por nome ou WhatsApp…"/>
+      <select id="status-filter">
+        <option value="">Todos os status</option>
+        <option value="em_analise">Em análise</option>
+        <option value="em_contato">Em contato</option>
+        <option value="aprovado">Aprovado</option>
+        <option value="reprovado">Reprovado</option>
+      </select>
+    </div>
+
+    <div id="referrers-list">
+      <p style="color:var(--muted);font-size:13px;padding:12px 0;">Carregando…</p>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL      = "https://jwnycywdmaebojqhezmg.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp3bnljeXdkbWFlYm9qcWhlem1nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwMjIyODUsImV4cCI6MjA4NzU5ODI4NX0.EuyJGfG6T_jgtTPF-Wu_rRF6kgoU2E0CKUgzVB1c-2g";
+
+// ── Admins autorizados ───────────────────────────────────
+const ADMIN_USERS = [
+  { email:"christianserello55@gmail.com",      name:"Christian Serello" },
+  { email:"christian.serello@starbank.tec.br", name:"Christian Serello" },
+  { email:"anasilva.starbank@gmail.com",        name:"Ana Silva"         },
+];
+const ADMIN_EMAILS = ADMIN_USERS.map(u => u.email.toLowerCase());
+const getAdminName = email => ADMIN_USERS.find(u => u.email.toLowerCase() === email?.toLowerCase())?.name || email;
+
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// ── Utilitários ──────────────────────────────────────────
+const fmt     = v  => Number(v||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL",minimumFractionDigits:2});
+const fmtDate = d  => { if(!d) return "-"; const dt=new Date(d); return isNaN(dt)?"-":dt.toLocaleDateString("pt-BR"); };
+const initials = n => { if(!n) return "??"; const p=n.trim().split(" "); return ((p[0]?.[0]||"")+(p.length>1?p[p.length-1][0]:"")).toUpperCase(); };
+
+function getNivel(ap){
+  if(ap>=15) return {label:"Platinum",cls:"npl"};
+  if(ap>=11) return {label:"Ouro",    cls:"no" };
+  if(ap>=4)  return {label:"Prata",   cls:"np" };
+  return           {label:"Bronze",  cls:"nb" };
+}
+function waHref(phone){
+  const d=(phone||"").replace(/\D/g,"");
+  if(!d) return null;
+  return `https://wa.me/${d.startsWith("55")?d:"55"+d}`;
+}
+function showToast(msg,ok=true){
+  const t=document.getElementById("toast");
+  t.textContent=msg;
+  t.style.background  = ok?"rgba(74,222,128,.15)":"rgba(251,113,133,.15)";
+  t.style.borderColor = ok?"rgba(74,222,128,.4)":"rgba(251,113,133,.4)";
+  t.style.color       = ok?"#4ade80":"#fb7185";
+  t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"),2800);
+}
+const isApproved = s => s==="aprovado"||s==="approved";
+
+// ── Estado ───────────────────────────────────────────────
+// groupedData = [ { cpf, name, phone, email, firstSeen, referrerIds[], referrals[] } ]
+let groupedData = [];
+
+// ── Login ────────────────────────────────────────────────
+const loginErrorEl = document.getElementById("login-error");
+function showErr(msg){ loginErrorEl.textContent=msg; loginErrorEl.style.display="block"; }
+
+document.getElementById("btn-admin-login").addEventListener("click", async()=>{
+  const email = document.getElementById("admin-email").value.trim().toLowerCase();
+  const pass  = document.getElementById("admin-password").value;
+  const btn   = document.getElementById("btn-admin-login");
+  if(!email||!pass){ showErr("Preencha e-mail e senha."); return; }
+  btn.textContent="Entrando…"; btn.disabled=true;
+  const {data,error} = await sb.auth.signInWithPassword({email,password:pass});
+  btn.textContent="Entrar"; btn.disabled=false;
+  if(error){ showErr("Credenciais inválidas. Verifique e tente novamente."); return; }
+  if(!ADMIN_EMAILS.includes(data.user.email.toLowerCase())){
+    await sb.auth.signOut();
+    showErr("Você não tem permissão de acesso ao painel admin.");
+    return;
+  }
+  mountApp(data.user.email);
+});
+
+document.getElementById("btn-admin-logout").addEventListener("click", async()=>{
+  await sb.auth.signOut(); window.location.reload();
+});
+document.getElementById("btn-refresh").addEventListener("click", loadAll);
+
+function mountApp(email){
+  document.getElementById("login-gate").style.display="none";
+  document.getElementById("admin-app").classList.add("active");
+  document.getElementById("admin-user-label").textContent=`Olá, ${getAdminName(email)}`;
+  loadAll();
+}
+
+// ── Carregar e agrupar por CPF ───────────────────────────
+async function loadAll(){
+  document.getElementById("referrers-list").innerHTML=
+    "<p style='color:var(--muted);font-size:13px;padding:12px 0;'>Carregando…</p>";
+
+  const [{data:referrers,error:e1},{data:referrals,error:e2}] = await Promise.all([
+    sb.from("referrers").select("id,name,cpf,phone,email,created_at").order("created_at",{ascending:true}),
+    sb.from("referrals").select("*, indicated_clients(id,name,phone,profile_type,observations)").order("created_at",{ascending:false})
+  ]);
+  if(e1||e2){ console.error(e1||e2); showToast("Erro ao carregar dados.",false); return; }
+
+  // --- Agrupa referrers por CPF ---
+  // Mesmo CPF = mesma pessoa (registros duplicados de antes da correção)
+  const cpfMap = {}; // cpf -> {name, phone, email, firstSeen, ids:[]}
+  referrers.forEach(r=>{
+    const key = (r.cpf||"").replace(/\D/g,"")||r.id; // fallback: usa id se sem CPF
+    if(!cpfMap[key]){
+      cpfMap[key]={ cpf:key, name:r.name, phone:r.phone, email:r.email, firstSeen:r.created_at, ids:[] };
+    }
+    cpfMap[key].ids.push(r.id);
+    // Mantém o dado mais recente (conta com user_id tende a ter dados mais completos)
+    if(r.email) cpfMap[key].email = r.email;
+    if(r.phone) cpfMap[key].phone = r.phone;
+    if(r.name)  cpfMap[key].name  = r.name;
+  });
+
+  // Mapeia referral_id -> referrer_id -> cpf_key
+  const idToCpf = {};
+  Object.entries(cpfMap).forEach(([cpf,v])=>{ v.ids.forEach(id=>{ idToCpf[id]=cpf; }); });
+
+  // Agrega referrals em cada grupo
+  const refByCpf = {};
+  referrals.forEach(ref=>{
+    const cpf = idToCpf[ref.referrer_id];
+    if(!cpf) return;
+    if(!refByCpf[cpf]) refByCpf[cpf]=[];
+    refByCpf[cpf].push(ref);
+  });
+
+  groupedData = Object.values(cpfMap).map(g=>({
+    ...g,
+    referrals: refByCpf[g.cpf]||[]
+  }));
+
+  // Ordena: quem tem mais indicações aparece primeiro
+  groupedData.sort((a,b)=>b.referrals.length - a.referrals.length);
+
+  // KPIs globais
+  const allRefs = groupedData.flatMap(g=>g.referrals);
+  const ap      = allRefs.filter(r=>isApproved(r.status));
+  document.getElementById("k-referrers").textContent = groupedData.length;
+  document.getElementById("k-total").textContent     = allRefs.length;
+  document.getElementById("k-approved").textContent  = ap.length;
+  document.getElementById("k-ganhos").textContent    = fmt(ap.reduce((s,r)=>s+Number(r.amount||0),0));
+
+  renderList(groupedData);
+}
+
+// ── Renderizar lista ─────────────────────────────────────
+function renderList(data){
+  const search  = (document.getElementById("search-global").value||"").toLowerCase();
+  const statusF = document.getElementById("status-filter").value;
+  const container = document.getElementById("referrers-list");
+  container.innerHTML="";
+
+  const filtered = data.filter(g=>{
+    const textOk = !search ||
+      g.name?.toLowerCase().includes(search) ||
+      g.phone?.includes(search) ||
+      g.email?.toLowerCase().includes(search);
+    const statusOk = !statusF || g.referrals.some(r=>r.status===statusF);
+    return textOk && statusOk;
+  });
+
+  if(!filtered.length){
+    container.innerHTML="<p class='empty-msg'>Nenhum resultado encontrado.</p>";
+    return;
+  }
+
+  filtered.forEach(g=>{
+    const aprovadas = g.referrals.filter(r=>isApproved(r.status)).length;
+    const nv        = getNivel(aprovadas);
+    const wa        = waHref(g.phone);
+    // Se houver filtro de status, abre o card direto
+    const isOpen    = !!statusF;
+
+    const card = document.createElement("div");
+    card.className = `referrer-card${isOpen?" open":""}`;
+    card.dataset.cpf = g.cpf;
+
+    // Filtra visualmente por status se necessário
+    const visibleRefs = statusF ? g.referrals.filter(r=>r.status===statusF) : g.referrals;
+
+    card.innerHTML = `
+      <!-- Header -->
+      <div class="referrer-header" onclick="toggleCard(this)">
+        <div class="ref-header-left">
+          <div class="ref-avatar">${initials(g.name)}</div>
+          <div>
+            <div class="ref-name">${g.name||"—"}</div>
+            <div class="ref-meta">
+              ${wa
+                ? `<a class="wa-link" href="${wa}" target="_blank" onclick="event.stopPropagation()">📱 ${g.phone||"—"}</a>`
+                : `<span>${g.phone||"—"}</span>`}
+              ${g.email?`<span class="ref-meta-sep">·</span><span>${g.email}</span>`:""}
+              <span class="ref-meta-sep">·</span>
+              <span>desde ${fmtDate(g.firstSeen)}</span>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="ref-stats">
+            <span class="nivel-tag ${nv.cls}">${nv.label}</span>
+            <span class="stat-pill">${g.referrals.length} indicaç${g.referrals.length===1?"ão":"ões"}</span>
+            <span class="stat-pill green">${aprovadas} aprovada${aprovadas!==1?"s":""}</span>
+          </div>
+          <div class="chevron-wrap">▼</div>
+        </div>
+      </div>
+
+      <!-- Corpo expansível -->
+      <div class="referrer-body">
+        <!-- Busca interna + contador -->
+        <div class="card-search-row">
+          <div class="card-search-wrap">
+            <span class="card-search-icon">🔍</span>
+            <input
+              class="card-search-input"
+              type="text"
+              placeholder="Buscar indicação…"
+              oninput="filterCardRows(this)"
+            />
+          </div>
+          <span class="card-count" id="count-${g.cpf}">
+            ${visibleRefs.length} indicaç${visibleRefs.length===1?"ão":"ões"}
+          </span>
+        </div>
+
+        ${visibleRefs.length===0
+          ? `<p class="empty-msg">Nenhuma indicação${statusF?" com esse status":""}.</p>`
+          : `<div class="ref-table-wrap">
+              <table>
+                <thead><tr>
+                  <th>Nome indicado</th>
+                  <th>WhatsApp</th>
+                  <th>Perfil</th>
+                  <th>Status</th>
+                  <th>Valor (R$)</th>
+                  <th>Data</th>
+                  <th></th>
+                </tr></thead>
+                <tbody data-cpf="${g.cpf}">
+                  ${visibleRefs.map(ref=>{
+                    const cl  = ref.indicated_clients||{};
+                    const wa2 = waHref(cl.phone);
+                    const sc  = ref.status||"em_analise";
+                    // Dados para busca interna (data-search)
+                    const searchStr = [cl.name,cl.phone,cl.profile_type,sc].join(" ").toLowerCase();
+                    return `
+                      <tr data-ref-id="${ref.id}" data-search="${searchStr}">
+                        <td>
+                          <strong>${cl.name||"—"}</strong>
+                          ${cl.observations?`<br><span style="color:var(--muted);font-size:11px;">${cl.observations}</span>`:""}
+                        </td>
+                        <td>${wa2?`<a class="wa-link" href="${wa2}" target="_blank">📱 ${cl.phone||"—"}</a>`:(cl.phone||"—")}</td>
+                        <td style="color:var(--muted);font-size:12px;">${cl.profile_type||"—"}</td>
+                        <td>
+                          <select class="status-select ${sc}" onchange="onStatusChange(this)">
+                            <option value="em_analise" ${sc==="em_analise"?"selected":""}>Em análise</option>
+                            <option value="em_contato" ${sc==="em_contato"?"selected":""}>Em contato</option>
+                            <option value="aprovado"   ${sc==="aprovado"  ?"selected":""}>Aprovado</option>
+                            <option value="reprovado"  ${sc==="reprovado" ?"selected":""}>Reprovado</option>
+                          </select>
+                        </td>
+                        <td><input class="valor-input" type="number" min="0" step="0.01" value="${ref.amount||""}" placeholder="0.00"/></td>
+                        <td style="color:var(--muted);font-size:12px;">${fmtDate(ref.created_at)}</td>
+                        <td><button class="save-btn" onclick="saveReferral(this)">Salvar</button></td>
+                      </tr>`;
+                  }).join("")}
+                </tbody>
+              </table>
+              <p class="no-rows-msg" id="norows-${g.cpf}">Nenhuma indicação encontrada para essa busca.</p>
+            </div>`
+        }
+      </div>
+    `;
+
+    container.appendChild(card);
+  });
+}
+
+// ── Toggle card ──────────────────────────────────────────
+function toggleCard(header){
+  header.closest(".referrer-card").classList.toggle("open");
+}
+
+// ── Busca interna do card ────────────────────────────────
+function filterCardRows(input){
+  const term  = input.value.toLowerCase();
+  const body  = input.closest(".referrer-body");
+  const tbody = body.querySelector("tbody");
+  if(!tbody) return;
+
+  const cpf    = tbody.dataset.cpf;
+  const rows   = tbody.querySelectorAll("tr");
+  let visible  = 0;
+
+  rows.forEach(tr=>{
+    const match = !term || tr.dataset.search?.includes(term);
+    tr.classList.toggle("row-hidden", !match);
+    if(match) visible++;
+  });
+
+  const countEl  = document.getElementById(`count-${cpf}`);
+  const noRowsEl = document.getElementById(`norows-${cpf}`);
+  if(countEl)  countEl.textContent  = `${visible} indicaç${visible===1?"ão":"ões"}`;
+  if(noRowsEl) noRowsEl.style.display = visible===0 ? "block" : "none";
+}
+
+// ── Status change ────────────────────────────────────────
+function onStatusChange(sel){ sel.className=`status-select ${sel.value}`; }
+
+// ── Salvar ───────────────────────────────────────────────
+async function saveReferral(btn){
+  const tr     = btn.closest("tr");
+  const refId  = tr.dataset.refId;
+  const status = tr.querySelector(".status-select").value;
+  const amount = parseFloat(tr.querySelector(".valor-input").value)||null;
+
+  btn.disabled=true; btn.textContent="…";
+  const {error} = await sb.from("referrals").update({status,amount}).eq("id",refId);
+  btn.disabled=false; btn.textContent="Salvar";
+
+  if(error){ showToast("Erro: "+error.message,false); return; }
+  showToast("Salvo com sucesso!");
+
+  // Atualiza memória local
+  groupedData.forEach(g=>{
+    const r=g.referrals.find(r=>r.id===refId);
+    if(r){ r.status=status; r.amount=amount; }
+  });
+
+  // Atualiza data-search da linha para busca futura
+  const sc = status;
+  const cl = tr.querySelector("td:first-child strong")?.textContent||"";
+  const ph = tr.querySelector("td:nth-child(2)")?.textContent?.trim()||"";
+  tr.dataset.search = [cl,ph,status].join(" ").toLowerCase();
+
+  // Recalcula KPIs
+  const allRefs = groupedData.flatMap(g=>g.referrals);
+  const ap = allRefs.filter(r=>isApproved(r.status));
+  document.getElementById("k-approved").textContent = ap.length;
+  document.getElementById("k-ganhos").textContent   = fmt(ap.reduce((s,r)=>s+Number(r.amount||0),0));
+}
+
+// ── Filtros globais ──────────────────────────────────────
+document.getElementById("search-global").addEventListener("input",  ()=>renderList(groupedData));
+document.getElementById("status-filter").addEventListener("change", ()=>renderList(groupedData));
+
+// ── Auto-login se sessão ativa ───────────────────────────
+(async()=>{
+  const {data} = await sb.auth.getSession();
+  const email  = data?.session?.user?.email;
+  if(email && ADMIN_EMAILS.includes(email.toLowerCase())) mountApp(email);
+})();
+</script>
+</body>
+</html>

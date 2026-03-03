@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Indicações Consignado • Indique & Ganhe 2.0</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Background animado -->
+  <div class="bg-orbs">
+    <span class="orb orb-1"></span>
+    <span class="orb orb-2"></span>
+    <span class="orb orb-3"></span>
+  </div>
+
+  <header class="topbar">
+    <div class="logo-area">
+      <div class="logo-circle">IC</div>
+      <div class="logo-text">
+        <span class="logo-title">Indica Consignado</span>
+        <span class="logo-subtitle">Indique &amp; Ganhe 2.0</span>
+      </div>
+    </div>
+
+    <nav class="nav-links">
+      <a href="#como-funciona">Como funciona</a>
+      <a href="#beneficios">Benefícios</a>
+      <a href="#ganhos">Ganhos</a>
+      <a href="#smashcard">Smashcard</a>
+      <a href="#indicacao">Indicar agora</a>
+      <button class="btn-outline" id="btn-open-login">Área do cliente</button>
+      <a href="admin.html" class="btn-outline" style="font-size:12px;opacity:0.7;">Admin </a>
+    </nav>
+  </header>
+
+  <main>
+    <!-- HERO -->
+    <section class="hero" id="topo">
+      <div class="hero-left">
+        <div class="pill-highlight">
+          Programa exclusivo • Indique &amp; Ganhe 2.0
+        </div>
+        <h1>
+          Indique outros servidores públicos, eles fecham contrato
+          e você <span class="gradient-text">ganha em Smashcard</span>.
+        </h1>
+        <p class="hero-subtext">
+          Cada indicação fechada soma benefícios reais para você usar em grandes marcas.
+          Tudo acompanhado em um portal moderno e transparente.
+        </p>
+
+        <div class="hero-actions">
+          <button class="btn-primary" onclick="scrollToSection('indicacao')">
+            Indicar agora
+          </button>
+          <button class="btn-ghost" id="btn-open-login-2">
+            Acompanhar minhas indicações
+          </button>
+        </div>
+
+        <div class="hero-metrics">
+          <div class="metric-card">
+            <span class="metric-number">2.0</span>
+            <span class="metric-label">Versão atual da campanha</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-number">R$ 75–200</span>
+            <span class="metric-label">por indicação fechada</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-number">+16</span>
+            <span class="metric-label">parceiros no Smashcard</span>
+          </div>
+        </div>
+
+        <p class="hero-footnote">
+          Valores e regras podem ser ajustados conforme regulamento interno da sua empresa.
+        </p>
+      </div>
+
+      <div class="hero-right">
+        <div class="card-glass card-floating">
+          <h3>Como funciona a jornada da indicação</h3>
+          <ul class="timeline">
+            <li>
+              <span class="badge-step">1</span>
+              <div>
+                <h4>Você indica</h4>
+                <p>Preencha os dados básicos do servidor público.</p>
+              </div>
+            </li>
+            <li>
+              <span class="badge-step">2</span>
+              <div>
+                <h4>Contato consultivo</h4>
+                <p>Nosso time faz a simulação sem compromisso.</p>
+              </div>
+            </li>
+            <li>
+              <span class="badge-step">3</span>
+              <div>
+                <h4>Contrato fechado</h4>
+                <p>Crédito consignado aprovado com segurança.</p>
+              </div>
+            </li>
+            <li>
+              <span class="badge-step">4</span>
+              <div>
+                <h4>Você recebe em Smashcard</h4>
+                <p>Seu benefício é liberado conforme o nível atingido.</p>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- COMO FUNCIONA -->
+    <section id="como-funciona" class="section">
+      <div class="section-header">
+        <h2>Como funciona a indicação</h2>
+        <p>
+          Em poucos passos, você indica alguém de confiança e acompanha tudo pela área do cliente.
+        </p>
+      </div>
+
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-icon">①</div>
+          <h3>Preencha os dados</h3>
+          <p>Informe seus dados e os da pessoa indicada.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-icon">②</div>
+          <h3>Contato com o indicado</h3>
+          <p>Nossa equipe entra em contato e faz a simulação.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-icon">③</div>
+          <h3>Aprovação do crédito</h3>
+          <p>Contrato de consignado confirmado e liberado.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-icon">④</div>
+          <h3>Smashcard para você</h3>
+          <p>Você recebe o valor por indicação fechada.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- BENEFÍCIOS -->
+    <section id="beneficios" class="section section-alt">
+      <div class="section-header">
+        <h2>Por que indicar pelo nosso portal</h2>
+        <p>
+          Mais transparência, mais segurança e uma experiência pensada para o servidor público.
+        </p>
+      </div>
+
+      <div class="benefits-layout">
+        <div class="benefits-list">
+          <div class="benefit-item">
+            <span class="benefit-tag">Controle</span>
+            <h3>Acompanhe suas indicações</h3>
+            <p>Veja status, data e valor de cada indicação fechada.</p>
+          </div>
+
+          <div class="benefit-item">
+            <span class="benefit-tag">Segurança</span>
+            <h3>Dados protegidos</h3>
+            <p>Informações tratadas com sigilo e conforme LGPD.</p>
+          </div>
+
+          <div class="benefit-item">
+            <span class="benefit-tag">Benefícios reais</span>
+            <h3>Smashcard nas melhores marcas</h3>
+            <p>Transforme indicações em compras do dia a dia.</p>
+          </div>
+        </div>
+
+        <div class="benefits-highlight card-glass">
+          <h3>Resumo das regras do programa</h3>
+          <ul class="rules-list">
+            <li>Válido para indicações de servidores públicos que fecharem contrato.</li>
+            <li>Ganhos pagos em Benefícios Smashcard, conforme regulamento.</li>
+            <li>Campanha Indique &amp; Ganhe 2.0 por período promocional.</li>
+            <li>Personalize aqui datas e condições específicas da sua empresa.</li>
+          </ul>
+          <p class="rules-footnote">
+            Em caso de dúvidas, inclua um link para o regulamento completo ou WhatsApp oficial.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- GANHOS POR INDICAÇÃO FECHADA -->
+    <section id="ganhos" class="section">
+      <div class="section-header">
+        <h2>Ganhe por cada indicação fechada</h2>
+        <p>
+          Sempre que um servidor público indicado por você fechar contrato, você recebe em Smashcard de acordo com o nível atingido.
+        </p>
+      </div>
+
+      <div class="tier-grid">
+        <div class="tier-card tier-bronze">
+          <span class="tier-badge">Bronze</span>
+          <p class="tier-range">4 a 6 indicações fechadas</p>
+          <p class="tier-value">R$ 75 <span>por cada indicação</span></p>
+        </div>
+
+        <div class="tier-card tier-silver">
+          <span class="tier-badge">Prata</span>
+          <p class="tier-range">7 a 10 indicações fechadas</p>
+          <p class="tier-value">R$ 100 <span>por cada indicação</span></p>
+        </div>
+
+        <div class="tier-card tier-gold">
+          <span class="tier-badge">Ouro</span>
+          <p class="tier-range">11 a 14 indicações fechadas</p>
+          <p class="tier-value">R$ 150 <span>por cada indicação</span></p>
+        </div>
+
+        <div class="tier-card tier-platinum">
+          <span class="tier-badge">Platinum</span>
+          <p class="tier-range">15+ indicações fechadas</p>
+          <p class="tier-value">R$ 200 <span>por cada indicação</span></p>
+        </div>
+      </div>
+
+      <p class="tier-footnote">
+        Campanha Indique &amp; Ganhe 2.0 – personalize aqui o período (ex.: 01/02 a 31/03) e demais regras.
+      </p>
+    </section>
+
+    <!-- ONDE USAR SMASHCARD -->
+    <section id="smashcard" class="section section-smashcard">
+      <div class="section-header">
+        <h2>Onde usar seu Smashcard?</h2>
+        <p>
+          Transforme suas indicações em benefícios reais nas maiores marcas do mercado.
+        </p>
+      </div>
+
+      <div class="smashcard-logos">
+        <!-- Troque pelos caminhos reais dos arquivos das logos -->
+        <div class="logo-item logo-item--dark">
+            <img src="https://jwnycywdmaebojqhezmg.supabase.co/storage/v1/object/public/logos/smashcard/carrefour.svg" alt="Carrefour" />
+        </div>
+        <div class="logo-item logo-item--darkZe">
+            <img src="https://jwnycywdmaebojqhezmg.supabase.co/storage/v1/object/public/logos/smashcard/ze-delivery.png" alt="Zé Delivery" />
+        </div>
+        <div class="logo-item"><img src="logos/cacau-show-removebg-preview.png" class="logo-item-cacau" alt="Cacau Show" /></div>
+        <div class="logo-item logo-item-darkNike">
+          <img src="logos/nike-removebg-preview.png" alt="Nike" />
+        </div>
+        <div class="logo-item"><img src="logos/renner.png" alt="Renner" /></div>
+        <div class="logo-item logo-item--darkR">
+          <img src="logos/riachuelo.png" alt="Riachuelo" />
+        </div>
+        <div class="logo-item"><img src="logos/uber-logo-3-1-removebg-preview.png" alt="Uber" /></div>
+        <div class="logo-item"><img src="logos/Playstation_logo_colour.png" alt="PlayStation Store" /></div>
+        <div class="logo-item"><img src="logos/mcdonalds.png" alt="McDonald's" /></div>
+        <div class="logo-item"><img src="logos/outback.png" alt="Outback" /></div>
+        <div class="logo-item"><img src="logos/shopee.png" alt="Shopee" /></div>
+        <div class="logo-item"><img src="logos/paguemenos.png" alt="Pague Menos" /></div>
+        <div class="logo-item"><img src="logos/airbnb.png" alt="Airbnb" /></div>
+        <div class="logo-item"><img src="logos/cinemark.png" alt="Cinemark" /></div>
+        <div class="logo-item"><img src="logos/netflix.png" alt="Netflix" /></div>
+        <div class="logo-item"><img src="logos/petlove.png" alt="Petlove" /></div>
+      </div>
+    </section>
+
+    <!-- FORMULÁRIO DE INDICAÇÃO -->
+    <section id="indicacao" class="section section-form">
+      <div class="section-header">
+        <h2>Indique alguém agora</h2>
+        <p>
+          Leva menos de 1 minuto. Quanto mais completo o cadastro, mais rápida é a análise.
+        </p>
+      </div>
+
+      <div class="form-grid">
+        <form class="card-glass form-card" id="referral-form">
+          <h3>Seus dados</h3>
+          <div class="form-row">
+            <div class="form-field">
+              <label for="referrer-name">Seu nome completo</label>
+              <input type="text" id="referrer-name" required placeholder="Ex: Maria Silva" />
+            </div>
+            <div class="form-field">
+              <label for="referrer-doc">CPF</label>
+              <input type="text" id="referrer-doc" required placeholder="000.000.000-00" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-field">
+              <label for="referrer-phone">Seu celular (WhatsApp)</label>
+              <input type="tel" id="referrer-phone" required placeholder="(00) 00000-0000" />
+            </div>
+            <div class="form-field">
+              <label for="referrer-email">Seu e-mail</label>
+              <input type="email" id="referrer-email" placeholder="voce@exemplo.com" />
+            </div>
+          </div>
+
+          <hr class="form-divider" />
+
+          <h3>Dados de quem você está indicando</h3>
+          <div class="form-row">
+            <div class="form-field">
+              <label for="indicated-name">Nome completo</label>
+              <input type="text" id="indicated-name" required placeholder="Nome do indicado" />
+            </div>
+            <div class="form-field">
+              <label for="indicated-doc">CPF</label>
+              <input type="text" id="indicated-doc" required placeholder="000.000.000-00" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-field">
+              <label for="indicated-phone">Celular (WhatsApp)</label>
+              <input type="tel" id="indicated-phone" required placeholder="(00) 00000-0000" />
+            </div>
+            <div class="form-field">
+              <label for="profile-type">Perfil</label>
+              <select id="profile-type" required>
+                <option value="">Selecione</option>
+                <option value="inss">Aposentado/Pensionista INSS</option>
+                <option value="servidor-publico">Servidor público</option>
+                <option value="privado">CLT / Empresa privada</option>
+                <option value="outro">Outro</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label for="indicated-message">Observações (opcional)</label>
+            <textarea id="indicated-message" rows="3" placeholder="Ex: prefere contato à tarde, já é cliente, etc."></textarea>
+          </div>
+
+          <div class="form-footer">
+            <div class="form-consent">
+              <input type="checkbox" id="lgpd-consent" required />
+              <label for="lgpd-consent">
+                Confirmo que tenho autorização da pessoa indicada para compartilhar os dados.
+              </label>
+            </div>
+            <button type="submit" class="btn-primary btn-full">
+              Enviar indicação
+            </button>
+          </div>
+
+          <p class="form-footnote">
+            Ao enviar, você concorda com a nossa Política de Privacidade. Personalize o link aqui.
+          </p>
+        </form>
+
+        <div class="card-glass form-side-info">
+          <h3>O que acontece depois da indicação?</h3>
+          <ol class="ordered-info">
+            <li>Validamos os dados enviados.</li>
+            <li>Entramos em contato com o indicado.</li>
+            <li>Você acompanha tudo pela sua conta no portal.</li>
+          </ol>
+          <p>
+            Use este espaço para reforçar segurança, sigilo bancário e diferenciais da sua empresa.
+          </p>
+
+          <div class="mini-dashboard">
+            <h4>Exemplo de painel do cliente</h4>
+            <div class="mini-list">
+              <div class="mini-row">
+                <span class="mini-name">João Pereira</span>
+                <span class="mini-status status-pending">Em análise</span>
+              </div>
+              <div class="mini-row">
+                <span class="mini-name">Ana Costa</span>
+                <span class="mini-status status-approved">Aprovado</span>
+              </div>
+              <div class="mini-row">
+                <span class="mini-name">Carlos Lima</span>
+                <span class="mini-status status-contact">Em contato</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- LOGIN MODAL -->
+  <div class="login-overlay" id="login-overlay">
+    <div class="login-modal">
+      <button class="login-close" id="btn-close-login">&times;</button>
+
+      <div class="login-left">
+        <h2>Bem-vindo de volta</h2>
+        <p>
+          Crie sua conta gratuita para acompanhar todas as suas indicações,
+          ver quais já fecharam contrato e quanto você já ganhou em Smashcard.
+        </p>
+
+        <form id="login-form" class="login-form">
+          <div class="floating-field">
+            <input type="text" id="login-id" required placeholder=" " />
+            <label for="login-id">E-mail cadastrado</label>
+          </div>
+
+          <div class="floating-field">
+            <input type="password" id="login-password" required placeholder=" " />
+            <label for="login-password">Senha</label>
+            <span class="toggle-password" id="toggle-password">Mostrar</span>
+          </div>
+
+          <button type="submit" class="btn-primary btn-full">
+            Entrar
+          </button>
+
+          <div class="login-links">
+            <a href="#">Esqueci minha senha</a>
+            <a href="#" id="open-signup">Criar minha conta</a>
+          </div>
+        </form>
+
+        <p class="login-footnote">
+          Após o cadastro, você poderá visualizar todas as suas indicações e o histórico de ganhos.
+        </p>
+      </div>
+
+      <div class="login-right">
+        <div class="login-orb orb-a"></div>
+        <div class="login-orb orb-b"></div>
+        <div class="login-orb orb-c"></div>
+        <div class="login-copy">
+          <h3>Painel interativo</h3>
+          <p>
+            Visualize indicações aprovadas, linha do tempo de contratos e saldo estimado em Smashcard.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE CADASTRO -->
+  <div class="signup-overlay" id="signup-overlay">
+    <div class="login-modal">
+      <button class="login-close" id="btn-close-signup">&times;</button>
+
+      <div class="login-left">
+        <h2>Criar minha conta</h2>
+        <p>
+          Cadastre-se para salvar suas indicações e acompanhar seus ganhos por indicação fechada.
+        </p>
+
+        <form id="signup-form" class="login-form">
+          <div class="floating-field">
+            <input type="text" id="signup-name" required placeholder=" " />
+            <label for="signup-name">Nome completo</label>
+          </div>
+
+          <div class="floating-field">
+            <input type="text" id="signup-cpf" required placeholder=" " />
+            <label for="signup-cpf">CPF</label>
+          </div>
+
+          <div class="floating-field">
+            <input type="tel" id="signup-phone" required placeholder=" " />
+            <label for="signup-phone">Celular (WhatsApp)</label>
+          </div>
+
+          <div class="floating-field">
+            <input type="email" id="signup-email" required placeholder=" " />
+            <label for="signup-email">E-mail</label>
+          </div>
+
+          <div class="floating-field">
+            <input type="password" id="signup-password" required placeholder=" " />
+            <label for="signup-password">Senha</label>
+          </div>
+
+          <button type="submit" class="btn-primary btn-full">
+            Criar conta
+          </button>
+        </form>
+
+        <p class="login-footnote">
+          Seus dados são armazenados com segurança e utilizados apenas para gestão das indicações.
+        </p>
+      </div>
+
+      <!-- DASHBOARD - Será mostrado após login -->
+    <div class="dashboard-overlay" id="dashboard-overlay" style="display: none;">
+    <div class="dashboard-container">
+        <!-- Header do Dashboard -->
+        <div class="dashboard-header">
+        <div class="dashboard-title">
+            <h1>Painel do Indicador</h1>
+            <p>Acompanhe suas indicações e ganhos</p>
+        </div>
+        <button class="btn-logout" id="btn-logout">Sair</button>
+        </div>
+
+        <!-- Cards de Estatísticas -->
+        <div class="dashboard-stats">
+        <div class="stat-card">
+            <div class="stat-icon">📊</div>
+            <div class="stat-content">
+            <p class="stat-label">Total de Indicações</p>
+            <h3 class="stat-value" id="total-indicacoes">0</h3>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">✅</div>
+            <div class="stat-content">
+            <p class="stat-label">Aprovadas</p>
+            <h3 class="stat-value" id="indicacoes-aprovadas">0</h3>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">⏳</div>
+            <div class="stat-content">
+            <p class="stat-label">Em Análise</p>
+            <h3 class="stat-value" id="indicacoes-analise">0</h3>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">💰</div>
+            <div class="stat-content">
+            <p class="stat-label">Ganhos Acumulados</p>
+            <h3 class="stat-value" id="ganhos-totais">R$ 0,00</h3>
+            </div>
+        </div>
+        </div>
+
+        <!-- Seu Nível -->
+        <div class="dashboard-section">
+        <h2>Seu Nível</h2>
+        <div class="nivel-container">
+            <div class="nivel-card" id="nivel-atual">
+            <div class="nivel-badge bronze">BRONZE</div>
+            <p class="nivel-descricao">4 a 6 indicações fechadas</p>
+            <p class="nivel-valor">R$ 75 por cada indicação</p>
+            </div>
+            <div class="nivel-progress">
+            <h4>Próximo Nível</h4>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+            <p class="progress-text" id="progress-text">0 de 7 indicações aprovadas</p>
+            </div>
+        </div>
+        </div>
+
+        <!-- Histórico de Indicações -->
+        <div class="dashboard-section">
+        <h2>Histórico de Indicações</h2>
+        
+        <!-- Filtros -->
+        <div class="indicacoes-filters">
+            <button class="filter-btn active" data-filter="todos">Todas</button>
+            <button class="filter-btn" data-filter="em_analise">Em Análise</button>
+            <button class="filter-btn" data-filter="aprovado">Aprovadas</button>
+            <button class="filter-btn" data-filter="reprovado">Reprovadas</button>
+        </div>
+
+        <!-- Tabela de Indicações -->
+        <div class="indicacoes-table-container">
+            <table class="indicacoes-table">
+            <thead>
+                <tr>
+                <th>Nome</th>
+                <th>Perfil</th>
+                <th>Status</th>
+                <th>Data</th>
+                <th>Ação</th>
+                </tr>
+            </thead>
+            <tbody id="indicacoes-tbody">
+                <tr class="empty-state">
+                <td colspan="5">Nenhuma indicação realizada ainda</td>
+                </tr>
+            </tbody>
+            </table>
+        </div>
+        </div>
+
+        <!-- Informações Úteis -->
+        <div class="dashboard-section">
+        <h2>Como Ganhar Mais</h2>
+        <div class="dicas-container">
+            <div class="dica-card">
+            <h4>🎯 Dica 1</h4>
+            <p>Indique pessoas que realmente precisem do crédito consignado para aumentar suas chances de aprovação.</p>
+            </div>
+            <div class="dica-card">
+            <h4>📱 Dica 2</h4>
+            <p>Certifique-se de compartilhar os dados corretos. Isso acelera o processo de aprovação.</p>
+            </div>
+            <div class="dica-card">
+            <h4>📈 Dica 3</h4>
+            <p>Quanto mais indicações aprovadas, maior será seu nível e maior será sua recompensa por indicação!</p>
+            </div>
+        </div>
+        </div>
+
+        <!-- Regulamento -->
+        <div class="dashboard-section">
+        <h2>Informações Importantes</h2>
+        <div class="info-box">
+            <p>💡 <strong>Período da Campanha:</strong> 01/02/2026 a 31/03/2026 (Personalize conforme necessário)</p>
+            <p>⏱️ <strong>Prazo de Análise:</strong> As indicações são analisadas em até 5 dias úteis</p>
+            <p>💳 <strong>Recompensa:</strong> Creditada automaticamente no seu Smashcard após aprovação</p>
+            <p>📋 <strong>Regulamento Completo:</strong> <a href="#" target="_blank">Clique aqui para ver o regulamento</a></p>
+        </div>
+        </div>
+    </div>
+    </div>
+
+
+      <div class="login-right">
+        <div class="login-orb orb-a"></div>
+        <div class="login-orb orb-b"></div>
+        <div class="login-orb orb-c"></div>
+        <div class="login-copy">
+          <h3>Comece a indicar hoje</h3>
+          <p>
+            Em poucos cliques você cria sua conta, indica colegas e acompanha todo o retorno em Smashcard.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div>
+      <span>© <span id="year"></span> Sua Empresa de Crédito Consignado.</span>
+      <span>Todos os direitos reservados.</span>
+    </div>
+    <div class="footer-links">
+      <a href="#">Termos de uso</a>
+      <a href="#">Política de Privacidade</a>
+      <a href="#">Atendimento via WhatsApp</a>
+    </div>
+  </footer>
+
+    <!-- TELA DE AGRADECIMENTO -->
+  <div class="thankyou-overlay" id="thankyou-overlay">
+    <div class="thankyou-modal">
+      <h2>Obrigado pela sua indicação! 🎉</h2>
+      <p>
+        Nosso time já recebeu os dados e em breve entrará em contato com a pessoa indicada.
+        Você poderá acompanhar tudo pela sua área do cliente.
+      </p>
+      <button class="btn-primary" id="thankyou-close">
+        Fazer outra indicação
+      </button>
+    </div>
+  </div>
+
+
+  <!-- Supabase JS via CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script>
+    const SUPABASE_URL = "https://jwnycywdmaebojqhezmg.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp3bnljeXdkbWFlYm9qcWhlem1nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwMjIyODUsImV4cCI6MjA4NzU5ODI4NX0.EuyJGfG6T_jgtTPF-Wu_rRF6kgoU2E0CKUgzVB1c-2g";
+    window.supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    </script>
+
+  <script src="script.js"></script>
+</body>
+</html>

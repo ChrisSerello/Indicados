@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Minha área • Indicações Consignado</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="bg-orbs">
+    <div class="orb orb-1"></div><div class="orb orb-2"></div><div class="orb orb-3"></div>
+  </div>
+
+  <div class="dashboard-overlay active">
+    <aside class="dash-sidebar">
+      <div class="logo-area">
+        <div class="logo-circle">IG</div>
+        <div class="logo-text">
+          <span class="logo-title">Indique &amp; Ganhe 2.0</span>
+          <span class="logo-subtitle">Área do cliente</span>
+        </div>
+      </div>
+      <nav class="dash-nav">
+        <button class="dash-nav-item active" data-tab="overview-tab">
+          <span class="dash-nav-icon">📊</span><span>Resumo</span>
+        </button>
+        <button class="dash-nav-item" data-tab="referrals-tab">
+          <span class="dash-nav-icon">👥</span><span>Minhas indicações</span>
+        </button>
+        <button class="dash-nav-item" data-tab="new-referral-tab">
+          <span class="dash-nav-icon">➕</span><span>Indicar agora</span>
+        </button>
+      </nav>
+      <div class="dash-user-card">
+        <div class="dash-avatar" id="dash-avatar-initials">US</div>
+        <div class="dash-user-info">
+          <p class="dash-user-name"  id="dash-user-name">Carregando...</p>
+          <p class="dash-user-email" id="dash-user-email">---</p>
+        </div>
+      </div>
+      <button class="dash-logout" id="btn-logout"><span>⏏</span><span>Sair</span></button>
+    </aside>
+
+    <main class="dash-main">
+      <div class="dash-topbar-mobile">
+        <button class="dash-mobile-menu" id="btn-mobile-menu">☰</button>
+        <div class="dash-mobile-title">Minha área</div>
+        <button class="dash-mobile-logout" id="btn-logout-mobile">Sair</button>
+      </div>
+
+      <!-- RESUMO -->
+      <section class="dash-tab active" id="overview-tab">
+        <header class="dash-header">
+          <div>
+            <h1 class="dash-title">Olá, <span id="overview-name">cliente</span> 👋</h1>
+            <p class="dash-subtitle">Acompanhe suas indicações e quanto já ganhou em Smashcard.</p>
+          </div>
+          <div class="dash-period-badge">Campanha Indique &amp; Ganhe 2.0</div>
+        </header>
+        <div class="kpi-grid">
+          <div class="kpi-card kpi-total">
+            <div class="kpi-icon-wrap">📨</div>
+            <div class="kpi-body"><p class="kpi-label">Total de indicações</p><p class="kpi-value" id="kpi-total-indicacoes">0</p></div>
+          </div>
+          <div class="kpi-card kpi-approved">
+            <div class="kpi-icon-wrap">✅</div>
+            <div class="kpi-body"><p class="kpi-label">Indicações aprovadas</p><p class="kpi-value" id="kpi-aprovadas">0</p></div>
+          </div>
+          <div class="kpi-card kpi-pending">
+            <div class="kpi-icon-wrap">⏳</div>
+            <div class="kpi-body"><p class="kpi-label">Em análise / contato</p><p class="kpi-value" id="kpi-pendentes">0</p></div>
+          </div>
+          <div class="kpi-card kpi-earnings">
+            <div class="kpi-icon-wrap">💳</div>
+            <div class="kpi-body"><p class="kpi-label">Smashcard liberado</p><p class="kpi-value kpi-money" id="kpi-ganhos">R$ 0,00</p></div>
+          </div>
+        </div>
+        <section class="nivel-section" id="nivel-section-wrap">
+          <p style="color:rgba(255,255,255,.4);font-size:13px;">Carregando nível...</p>
+        </section>
+      </section>
+
+      <!-- MINHAS INDICACOES -->
+      <section class="dash-tab" id="referrals-tab">
+        <header class="dash-header">
+          <div>
+            <h1 class="dash-title">Minhas indicações</h1>
+            <p class="dash-subtitle">Status, data e Smashcard de cada pessoa que você indicou.</p>
+          </div>
+        </header>
+        <div class="nivel-section">
+          <h2 class="section-title">Lista de indicações</h2>
+          <div id="referrals-empty" style="font-size:14px;color:rgba(255,255,255,.6);display:none;">
+            Você ainda não possui indicações. Use a aba <strong>Indicar agora</strong> para começar!
+          </div>
+          <div class="referrals-table-wrapper" id="referrals-table-wrapper" style="display:none;overflow-x:auto;margin-top:10px;">
+            <table class="referrals-table" style="width:100%;border-collapse:collapse;font-size:13px;">
+              <thead><tr id="referrals-thead-row" style="text-align:left;border-bottom:1px solid rgba(255,255,255,.12);"></tr></thead>
+              <tbody id="referrals-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- INDICAR AGORA -->
+      <section class="dash-tab" id="new-referral-tab">
+        <header class="dash-header">
+          <div>
+            <h1 class="dash-title">Indicar agora</h1>
+            <p class="dash-subtitle">Leva menos de 1 minuto. Quanto mais completo, mais rápida é a análise.</p>
+          </div>
+        </header>
+        <div style="display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:20px;align-items:flex-start;">
+          <!-- Form -->
+          <div class="nivel-section" style="padding:24px;">
+            <h2 class="section-title" style="margin-bottom:18px;">Dados de quem você está indicando</h2>
+            <div id="dash-form-feedback" style="display:none;padding:10px 14px;border-radius:10px;font-size:13px;margin-bottom:14px;"></div>
+            <form id="dash-referral-form">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+                <div style="display:flex;flex-direction:column;gap:4px;font-size:13px;">
+                  <label style="color:rgba(196,181,253,.85);">Nome completo *</label>
+                  <input type="text" id="d-indicated-name" required placeholder="Nome do indicado" />
+                </div>
+                <div style="display:flex;flex-direction:column;gap:4px;font-size:13px;">
+                  <label style="color:rgba(196,181,253,.85);">CPF *</label>
+                  <input type="text" id="d-indicated-doc" required placeholder="000.000.000-00" />
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+                <div style="display:flex;flex-direction:column;gap:4px;font-size:13px;">
+                  <label style="color:rgba(196,181,253,.85);">WhatsApp *</label>
+                  <input type="tel" id="d-indicated-phone" required placeholder="(00) 00000-0000" />
+                </div>
+                <div style="display:flex;flex-direction:column;gap:4px;font-size:13px;">
+                  <label style="color:rgba(196,181,253,.85);">Perfil *</label>
+                  <select id="d-profile-type" required>
+                    <option value="">Selecione</option>
+                    <option value="inss">Aposentado/Pensionista INSS</option>
+                    <option value="servidor-publico">Servidor público</option>
+                    <option value="privado">CLT / Empresa privada</option>
+                    <option value="outro">Outro</option>
+                  </select>
+                </div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:4px;font-size:13px;margin-bottom:16px;">
+                <label style="color:rgba(196,181,253,.85);">Observações (opcional)</label>
+                <textarea id="d-observations" rows="3" placeholder="Ex: prefere contato à tarde, já tem interesse em crédito, etc."></textarea>
+              </div>
+              <div style="display:flex;align-items:flex-start;gap:8px;font-size:12px;color:rgba(196,181,253,.75);margin-bottom:16px;">
+                <input type="checkbox" id="d-lgpd-consent" style="margin-top:2px;width:14px;height:14px;" required />
+                <label for="d-lgpd-consent">Confirmo que tenho autorização da pessoa indicada para compartilhar os dados.</label>
+              </div>
+              <button type="submit" class="btn-primary btn-full" id="dash-submit-btn">Enviar indicação</button>
+            </form>
+          </div>
+          <!-- Lateral -->
+          <div class="nivel-section" style="padding:24px;">
+            <h2 class="section-title" style="margin-bottom:12px;">Como funciona</h2>
+            <ol style="padding-left:18px;font-size:13px;color:rgba(255,255,255,.65);line-height:1.7;margin-bottom:20px;">
+              <li>Preencha os dados da pessoa que você quer indicar.</li>
+              <li>Nossa equipe entra em contato e faz a simulação sem compromisso.</li>
+              <li>Se fechar contrato, o valor é creditado no seu Smashcard.</li>
+            </ol>
+            <hr style="border:none;border-top:1px dashed rgba(167,139,250,.3);margin-bottom:16px;" />
+            <p style="font-size:11px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;">Ganhos por nível</p>
+            <div id="tier-sidebar" style="display:flex;flex-direction:column;gap:7px;"></div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script>
+    const SUPABASE_URL      = "https://jwnycywdmaebojqhezmg.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp3bnljeXdkbWFlYm9qcWhlem1nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwMjIyODUsImV4cCI6MjA4NzU5ODI4NX0.EuyJGfG6T_jgtTPF-Wu_rRF6kgoU2E0CKUgzVB1c-2g";
+    window.supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  </script>
+  <script src="dashboard.js"></script>
+</body>
+</html>
