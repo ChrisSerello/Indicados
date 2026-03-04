@@ -471,6 +471,7 @@ const ADMIN_USERS = [
   { email:"christianserello55@gmail.com",      name:"Christian Serello" },
   { email:"christian.serello@starbank.tec.br", name:"Christian Serello" },
   { email:"anasilva.starbank@gmail.com",        name:"Ana Silva"         },
+  { email: "brunno@starbank.tec.br",            name:"Brunno"            }
 ];
 const ADMIN_EMAILS   = ADMIN_USERS.map(u=>u.email.toLowerCase());
 const getAdminName   = email => ADMIN_USERS.find(u=>u.email.toLowerCase()===email?.toLowerCase())?.name||email;
