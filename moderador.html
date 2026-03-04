@@ -264,6 +264,7 @@
     <div class="auth-tabs">
       <button class="auth-tab active" onclick="switchAuthTab('login')">Entrar</button>
       <button class="auth-tab" onclick="switchAuthTab('signup')">Criar conta</button>
+      <button class="auth-tab" onclick="switchAuthTab('reset')">Esqueci a senha</button>
     </div>
 
     <!-- LOGIN -->
@@ -282,6 +283,17 @@
       <button class="btn-enter" id="btn-signup">Criar conta</button>
       <p class="auth-error" id="signup-error"></p>
       <p class="auth-hint">⚠️ Seu e-mail deve ser cadastrado previamente por um administrador. Se ainda não foi, entre em contato com ele.</p>
+    </div>
+
+    <!-- RESET -->
+    <div class="auth-panel" id="panel-reset">
+      <p style="font-size:13px;color:rgba(255,255,255,.5);margin-bottom:14px;text-align:left;">
+        Informe seu e-mail de moderador. Enviaremos um link para redefinir sua senha.
+      </p>
+      <input type="email" id="reset-email" placeholder="Seu e-mail"/>
+      <button class="btn-enter" id="btn-send-reset">Enviar link de redefinição</button>
+      <p class="auth-error"   id="reset-error"></p>
+      <p class="auth-hint"    id="reset-success" style="color:#4ade80;display:none;"></p>
     </div>
 
     <a class="back-link" href="index.html">← Voltar para a página principal</a>
@@ -392,9 +404,15 @@ function showToast(msg,ok=true){
 
 // ── Auth Tab Toggle ────────────────────────────────────────────
 function switchAuthTab(tab){
-  document.querySelectorAll(".auth-tab").forEach((b,i)=>b.classList.toggle("active",i===(tab==="login"?0:1)));
-  document.getElementById("panel-login").classList.toggle("active",tab==="login");
-  document.getElementById("panel-signup").classList.toggle("active",tab==="signup");
+  const tabs=["login","signup","reset"];
+  document.querySelectorAll(".auth-tab").forEach((b,i)=>b.classList.toggle("active",b.getAttribute("onclick").includes(`'${tab}'`)));
+  tabs.forEach(t=>{
+    const panel=document.getElementById(`panel-${t}`);
+    if(panel) panel.classList.toggle("active",t===tab);
+  });
+  ["login-error","signup-error","reset-error","reset-success"].forEach(id=>{
+    const el=document.getElementById(id); if(el){ el.textContent=""; el.style.display=""; }
+  });
 }
 
 // ── State ──────────────────────────────────────────────────────
@@ -628,7 +646,49 @@ document.getElementById("btn-logout").addEventListener("click",async()=>{
   await sb.auth.signOut(); window.location.reload();
 });
 
-// ── Auto-login ────────────────────────────────────────────────
+// ── Reset password ─────────────────────────────────────────────
+document.getElementById("btn-send-reset").addEventListener("click", async()=>{
+  const email  = document.getElementById("reset-email").value.trim().toLowerCase();
+  const errEl  = document.getElementById("reset-error");
+  const okEl   = document.getElementById("reset-success");
+  errEl.textContent=""; okEl.style.display="none";
+
+  if(!email){ errEl.textContent="Informe seu e-mail."; return; }
+
+  // Check if email exists in moderators
+  const {data:mod} = await sb.from("moderators").select("id").eq("email",email).maybeSingle();
+  if(!mod){ errEl.textContent="E-mail não encontrado como moderador."; return; }
+
+  const btn=document.getElementById("btn-send-reset");
+  btn.textContent="Enviando…"; btn.disabled=true;
+
+  const {error}=await sb.auth.resetPasswordForEmail(email,{
+    redirectTo: window.location.origin+"/moderator.html"
+  });
+
+  btn.textContent="Enviar link de redefinição"; btn.disabled=false;
+
+  if(error){
+    errEl.textContent="Erro: "+error.message;
+  } else {
+    okEl.textContent="✅ Link enviado! Verifique sua caixa de entrada e spam.";
+    okEl.style.display="block";
+    document.getElementById("reset-email").value="";
+  }
+});
+
+// ── Handle password reset redirect ────────────────────────────
+(async()=>{
+  const hash=window.location.hash;
+  if(hash.includes("type=recovery")){
+    const newPass=prompt("Digite sua nova senha (mínimo 6 caracteres):");
+    if(!newPass||newPass.length<6){ alert("Senha muito curta. Tente novamente."); return; }
+    const {error}=await sb.auth.updateUser({password:newPass});
+    if(error){ alert("Erro ao definir senha: "+error.message); }
+    else { alert("✅ Senha definida com sucesso! Faça login agora."); window.location.hash=""; }
+  }
+})();
+
 (async()=>{
   const {data} = await sb.auth.getSession();
   const user   = data?.session?.user;

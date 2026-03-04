@@ -55,8 +55,16 @@
     .btn-enter:hover{filter:brightness(1.1);}
     .btn-enter:disabled{opacity:.6;cursor:not-allowed;}
     .login-error{color:var(--red);font-size:12px;margin-top:8px;display:none;}
+    .login-success{color:var(--green);font-size:12px;margin-top:8px;display:none;}
     .back-link{display:block;margin-top:16px;font-size:12px;color:var(--muted);text-decoration:none;}
     .back-link:hover{color:var(--text);}
+    .forgot-link{display:block;margin-top:10px;font-size:12px;color:rgba(168,85,247,.8);cursor:pointer;text-decoration:underline;background:none;border:none;font-family:inherit;width:100%;}
+    .forgot-link:hover{color:var(--accent);}
+    .auth-panel-admin{display:none;}
+    .auth-panel-admin.active{display:block;}
+    .auth-tabs-admin{display:flex;gap:0;border:1px solid rgba(168,85,247,.3);border-radius:10px;overflow:hidden;margin-bottom:18px;}
+    .auth-tab-admin{flex:1;padding:9px;font-size:13px;font-weight:600;cursor:pointer;background:transparent;color:rgba(255,255,255,.4);border:none;font-family:inherit;transition:all .2s;}
+    .auth-tab-admin.active{background:rgba(168,85,247,.2);color:#d8b4fe;}
 
     /* ── App ── */
     #admin-app{display:none;flex-direction:column;min-height:100vh;}
@@ -365,10 +373,31 @@
     <div class="admin-logo">⚙️</div>
     <h1>Painel Administrativo</h1>
     <p>Acesso restrito a administradores autorizados.</p>
-    <input type="email"    id="admin-email"    placeholder="E-mail" autocomplete="username"/>
-    <input type="password" id="admin-password" placeholder="Senha"  autocomplete="current-password"/>
-    <button class="btn-enter" id="btn-admin-login">Entrar</button>
-    <p class="login-error" id="login-error"></p>
+
+    <div class="auth-tabs-admin">
+      <button class="auth-tab-admin active" onclick="switchAdminTab('login')">Entrar</button>
+      <button class="auth-tab-admin" onclick="switchAdminTab('reset')">Esqueci minha senha</button>
+    </div>
+
+    <!-- LOGIN -->
+    <div class="auth-panel-admin active" id="admin-panel-login">
+      <input type="email"    id="admin-email"    placeholder="E-mail" autocomplete="username"/>
+      <input type="password" id="admin-password" placeholder="Senha"  autocomplete="current-password"/>
+      <button class="btn-enter" id="btn-admin-login">Entrar</button>
+      <p class="login-error"   id="login-error"></p>
+    </div>
+
+    <!-- RESET PASSWORD -->
+    <div class="auth-panel-admin" id="admin-panel-reset">
+      <p style="font-size:13px;color:var(--muted);margin-bottom:14px;text-align:left;">
+        Informe seu e-mail. Enviaremos um link para você criar ou redefinir sua senha.
+      </p>
+      <input type="email" id="reset-email" placeholder="Seu e-mail de admin" autocomplete="username"/>
+      <button class="btn-enter" id="btn-send-reset">Enviar link de redefinição</button>
+      <p class="login-error"   id="reset-error"></p>
+      <p class="login-success" id="reset-success"></p>
+    </div>
+
     <a class="back-link" href="index.html">← Voltar para a página principal</a>
   </div>
 </div>
@@ -470,9 +499,9 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const ADMIN_USERS = [
   { email:"christianserello55@gmail.com",      name:"Christian Serello" },
   { email:"christian.serello@starbank.tec.br", name:"Christian Serello" },
-  { email:"anasilva.starbank@gmail.com",        name:"Ana Silva"         },
-  { email: "brunno@starbank.tec.br",            name:"Brunno"            },
-  { email: "ana.Caroline@starbank.tec.br",      name:"Ana Silva"   },
+  { email:"ana.caroline@starbank.tec.br",      name:"Ana Caroline"      },
+  { email:"anasilva.starbank@gmail.com",        name:"Ana Caroline"      },
+  { email:"brunno@starbank.tec.br",             name:"Brunno"            },
 ];
 const ADMIN_EMAILS   = ADMIN_USERS.map(u=>u.email.toLowerCase());
 const getAdminName   = email => ADMIN_USERS.find(u=>u.email.toLowerCase()===email?.toLowerCase())?.name||email;
@@ -513,7 +542,64 @@ function showToast(msg,ok=true){
   setTimeout(()=>t.classList.remove("show"),2800);
 }
 
-// ── Login ──────────────────────────────────────────────────────
+// ── Auth tab toggle ───────────────────────────────────────────
+function switchAdminTab(tab){
+  document.querySelectorAll(".auth-tab-admin").forEach((b,i)=>b.classList.toggle("active",i===(tab==="login"?0:1)));
+  document.getElementById("admin-panel-login").classList.toggle("active",tab==="login");
+  document.getElementById("admin-panel-reset").classList.toggle("active",tab==="reset");
+  // Clear messages
+  ["login-error","reset-error","reset-success"].forEach(id=>{
+    const el=document.getElementById(id); if(el){ el.textContent=""; el.style.display="none"; }
+  });
+}
+
+// ── Reset password ────────────────────────────────────────────
+document.getElementById("btn-send-reset").addEventListener("click", async()=>{
+  const email  = document.getElementById("reset-email").value.trim().toLowerCase();
+  const errEl  = document.getElementById("reset-error");
+  const okEl   = document.getElementById("reset-success");
+  errEl.style.display="none"; okEl.style.display="none";
+
+  if(!email){ errEl.textContent="Informe seu e-mail."; errEl.style.display="block"; return; }
+  if(!ADMIN_EMAILS.includes(email)){
+    errEl.textContent="Este e-mail não está autorizado como administrador.";
+    errEl.style.display="block"; return;
+  }
+
+  const btn=document.getElementById("btn-send-reset");
+  btn.textContent="Enviando…"; btn.disabled=true;
+
+  const {error}=await sb.auth.resetPasswordForEmail(email,{
+    redirectTo: window.location.origin+"/admin.html"
+  });
+
+  btn.textContent="Enviar link de redefinição"; btn.disabled=false;
+
+  if(error){
+    errEl.textContent="Erro: "+error.message; errEl.style.display="block";
+  } else {
+    okEl.textContent="✅ Link enviado! Verifique sua caixa de entrada e spam.";
+    okEl.style.display="block";
+    document.getElementById("reset-email").value="";
+  }
+});
+
+// ── Handle password reset redirect (Supabase redirects back with token) ──
+(async()=>{
+  const hash = window.location.hash;
+  if(hash.includes("type=recovery")){
+    // Show password update form
+    const newPass = prompt("Digite sua nova senha (mínimo 6 caracteres):");
+    if(!newPass||newPass.length<6){ alert("Senha muito curta. Tente novamente."); return; }
+    const {error}=await sb.auth.updateUser({password:newPass});
+    if(error){ alert("Erro ao definir senha: "+error.message); }
+    else {
+      alert("✅ Senha definida com sucesso! Faça login agora.");
+      window.location.hash="";
+    }
+  }
+})();
+
 const loginErrorEl = document.getElementById("login-error");
 function showErr(msg){ loginErrorEl.textContent=msg; loginErrorEl.style.display="block"; }
 
