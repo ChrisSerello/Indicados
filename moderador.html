@@ -5,7 +5,6 @@
   <title>Painel Moderador • Indica Consignado</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="icon" type="image/png" href="logos/Planeta.png">
   <style>
     :root {
       --bg:#0a1a12; --surface:rgba(255,255,255,.04); --surface2:rgba(255,255,255,.07);
@@ -238,6 +237,42 @@
     .n-platinum{background:linear-gradient(135deg,#a855f7,#6366f1);color:#fff;}
 
     .empty-msg{text-align:center;padding:20px;color:var(--muted);font-size:13px;}
+
+    /* ── Notes ── */
+    .note-btn{
+      padding:4px 10px;border-radius:7px;border:1px solid rgba(16,185,129,.3);
+      background:rgba(16,185,129,.08);color:#34d399;
+      font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;
+      transition:background .2s;white-space:nowrap;
+    }
+    .note-btn:hover{background:rgba(16,185,129,.2);}
+    .note-btn.has-note{border-color:rgba(16,185,129,.6);background:rgba(16,185,129,.2);}
+    .note-popup{
+      position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;
+      background:rgba(0,0,0,.7);backdrop-filter:blur(4px);
+    }
+    .note-modal{
+      width:min(460px,92vw);background:rgba(4,26,14,.98);border:1px solid rgba(16,185,129,.5);
+      border-radius:18px;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.9);
+    }
+    .note-modal h3{font-size:16px;font-weight:700;margin-bottom:4px;}
+    .note-modal p{font-size:12px;color:var(--muted);margin-bottom:14px;}
+    .note-textarea{
+      width:100%;padding:10px 12px;border-radius:10px;
+      border:1px solid rgba(16,185,129,.4);background:rgba(4,16,10,.9);
+      color:var(--text);font-family:inherit;font-size:13px;outline:none;
+      resize:vertical;min-height:100px;transition:border-color .2s;
+    }
+    .note-textarea:focus{border-color:rgba(52,211,153,.8);}
+    .note-actions{display:flex;gap:8px;margin-top:12px;justify-content:flex-end;}
+    .btn-note-save{
+      padding:8px 18px;border-radius:9px;border:none;cursor:pointer;
+      background:var(--teal-g);color:#fff;font-size:13px;font-weight:600;font-family:inherit;
+    }
+    .btn-note-cancel{
+      padding:8px 18px;border-radius:9px;border:1px solid var(--border);
+      background:transparent;color:var(--muted);font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;
+    }
 
     /* Toast */
     .toast{
@@ -529,7 +564,7 @@ async function loadDashboard(){
   let referrals = [];
   if(ids.length){
     const {data:refs} = await sb.from("referrals")
-      .select("*, indicated_clients(name,phone,profile_type)")
+      .select("*, mod_note, indicated_clients(name,phone,profile_type)")
       .in("referrer_id",ids)
       .order("created_at",{ascending:false});
     referrals = refs||[];
@@ -619,7 +654,7 @@ function renderClients(data){
               <table>
                 <thead><tr>
                   <th>Nome indicado</th><th>WhatsApp</th><th>Perfil</th>
-                  <th>Status</th><th>Smashcard</th><th>Data</th>
+                  <th>Status</th><th>Smashcard</th><th>Nota</th><th>Data</th>
                 </tr></thead>
                 <tbody>
                   ${c.referrals.map(ref=>{
@@ -634,6 +669,7 @@ function renderClients(data){
                       <td style="color:var(--muted);font-size:12px;">${cl.profile_type||"—"}</td>
                       <td>${statusBadge(ref.status)}</td>
                       <td style="color:${isAp?(colors[reward]||"#4ade80"):"rgba(255,255,255,.3)"};font-weight:${isAp?"700":"400"};">${isAp?fmt(reward):"—"}</td>
+                      <td><button class="note-btn ${ref.mod_note?"has-note":""}" onclick="openNote('${ref.id}',this)" title="${ref.mod_note||""}">${ref.mod_note?"📝 Ver nota":"+ Nota"}</button></td>
                       <td style="color:var(--muted);font-size:12px;">${fmtDate(ref.created_at)}</td>
                     </tr>`;
                   }).join("")}
@@ -706,5 +742,60 @@ document.getElementById("btn-send-reset")?.addEventListener("click", async()=>{
   }
 })();
 </script>
+<!-- NOTE MODAL -->
+<div class="note-popup" id="note-popup" style="display:none;">
+  <div class="note-modal">
+    <h3>🗒️ Anotação</h3>
+    <p id="note-modal-subtitle">Adicione uma observação sobre esta indicação.</p>
+    <textarea class="note-textarea" id="note-textarea" placeholder="Ex: cliente já retornou, aguardando aprovação…"></textarea>
+    <div class="note-actions">
+      <button class="btn-note-cancel" onclick="closeNote()">Cancelar</button>
+      <button class="btn-note-save"   onclick="saveNote()">Salvar nota</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentNoteRefId = null;
+let currentNoteBtn   = null;
+
+function openNote(refId, btn){
+  currentNoteRefId = refId;
+  currentNoteBtn   = btn;
+  let note = "";
+  allClients.forEach(c=>{ const r=c.referrals.find(r=>r.id===refId); if(r) note=r.mod_note||""; });
+  document.getElementById("note-textarea").value = note;
+  const name = btn.closest("tr")?.querySelector("td:first-child strong")?.textContent||"";
+  document.getElementById("note-modal-subtitle").textContent = name ? `Sobre: ${name}` : "Adicione uma observação sobre esta indicação.";
+  document.getElementById("note-popup").style.display = "flex";
+  setTimeout(()=>document.getElementById("note-textarea").focus(), 50);
+}
+
+function closeNote(){
+  document.getElementById("note-popup").style.display = "none";
+  currentNoteRefId = null; currentNoteBtn = null;
+}
+
+async function saveNote(){
+  const note = document.getElementById("note-textarea").value.trim();
+  if(!currentNoteRefId) return;
+  const {error} = await sb.from("referrals").update({mod_note: note||null}).eq("id", currentNoteRefId);
+  if(error){ alert("Erro ao salvar nota: "+error.message); return; }
+  // Update local data
+  allClients.forEach(c=>{ const r=c.referrals.find(r=>r.id===currentNoteRefId); if(r) r.mod_note=note||null; });
+  // Update button appearance
+  if(currentNoteBtn){
+    currentNoteBtn.textContent = note ? "📝 Ver nota" : "+ Nota";
+    currentNoteBtn.classList.toggle("has-note", !!note);
+    currentNoteBtn.title = note||"";
+  }
+  closeNote();
+}
+
+document.getElementById("note-popup")?.addEventListener("click", e=>{
+  if(e.target === document.getElementById("note-popup")) closeNote();
+});
+</script>
+
 </body>
 </html>
