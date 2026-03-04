@@ -264,7 +264,6 @@
     <div class="auth-tabs">
       <button class="auth-tab active" onclick="switchAuthTab('login')">Entrar</button>
       <button class="auth-tab" onclick="switchAuthTab('signup')">Criar conta</button>
-      <button class="auth-tab" onclick="switchAuthTab('reset')">Esqueci a senha</button>
     </div>
 
     <!-- LOGIN -->
@@ -273,27 +272,24 @@
       <input type="password" id="login-pass" placeholder="Senha" autocomplete="current-password"/>
       <button class="btn-enter" id="btn-login">Entrar</button>
       <p class="auth-error" id="login-error"></p>
+      <button class="forgot-link" id="btn-show-reset">Esqueci minha senha</button>
+      <div id="reset-inline" style="display:none;margin-top:4px;padding:14px;border-radius:12px;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.25);">
+        <p style="font-size:12px;color:rgba(255,255,255,.5);margin-bottom:10px;">Informe seu e-mail para receber o link de redefinição.</p>
+        <input type="email" id="reset-email" placeholder="Seu e-mail" style="margin-bottom:8px;"/>
+        <button class="btn-enter" id="btn-send-reset" style="margin-bottom:0;">Enviar link</button>
+        <p class="auth-error"  id="reset-error"   style="margin-top:6px;"></p>
+        <p class="auth-hint"   id="reset-success" style="color:#4ade80;display:none;margin-top:6px;"></p>
+      </div>
     </div>
 
     <!-- SIGNUP -->
     <div class="auth-panel" id="panel-signup">
-      <input type="text"  id="signup-name"  placeholder="Seu nome completo"/>
-      <input type="email" id="signup-email" placeholder="E-mail (deve estar pré-cadastrado)" autocomplete="username"/>
-      <input type="password" id="signup-pass" placeholder="Criar senha" autocomplete="new-password"/>
+      <input type="text"     id="signup-name"  placeholder="Seu nome completo"/>
+      <input type="email"    id="signup-email" placeholder="E-mail (deve estar pré-cadastrado)" autocomplete="username"/>
+      <input type="password" id="signup-pass"  placeholder="Criar senha" autocomplete="new-password"/>
       <button class="btn-enter" id="btn-signup">Criar conta</button>
       <p class="auth-error" id="signup-error"></p>
       <p class="auth-hint">⚠️ Seu e-mail deve ser cadastrado previamente por um administrador. Se ainda não foi, entre em contato com ele.</p>
-    </div>
-
-    <!-- RESET -->
-    <div class="auth-panel" id="panel-reset">
-      <p style="font-size:13px;color:rgba(255,255,255,.5);margin-bottom:14px;text-align:left;">
-        Informe seu e-mail de moderador. Enviaremos um link para redefinir sua senha.
-      </p>
-      <input type="email" id="reset-email" placeholder="Seu e-mail"/>
-      <button class="btn-enter" id="btn-send-reset">Enviar link de redefinição</button>
-      <p class="auth-error"   id="reset-error"></p>
-      <p class="auth-hint"    id="reset-success" style="color:#4ade80;display:none;"></p>
     </div>
 
     <a class="back-link" href="index.html">← Voltar para a página principal</a>
@@ -404,16 +400,27 @@ function showToast(msg,ok=true){
 
 // ── Auth Tab Toggle ────────────────────────────────────────────
 function switchAuthTab(tab){
-  const tabs=["login","signup","reset"];
-  document.querySelectorAll(".auth-tab").forEach((b,i)=>b.classList.toggle("active",b.getAttribute("onclick").includes(`'${tab}'`)));
-  tabs.forEach(t=>{
-    const panel=document.getElementById(`panel-${t}`);
-    if(panel) panel.classList.toggle("active",t===tab);
+  document.querySelectorAll(".auth-tab").forEach(b=>{
+    b.classList.toggle("active", b.getAttribute("onclick").includes(`'${tab}'`));
   });
+  document.getElementById("panel-login").classList.toggle("active",  tab==="login");
+  document.getElementById("panel-signup").classList.toggle("active", tab==="signup");
+  const ri=document.getElementById("reset-inline");
+  if(ri) ri.style.display="none";
   ["login-error","signup-error","reset-error","reset-success"].forEach(id=>{
     const el=document.getElementById(id); if(el){ el.textContent=""; el.style.display=""; }
   });
 }
+
+// ── Toggle reset inline ───────────────────────────────────────
+document.getElementById("btn-show-reset").addEventListener("click",()=>{
+  const box=document.getElementById("reset-inline");
+  const isVisible=box.style.display!=="none";
+  box.style.display=isVisible?"none":"block";
+  document.getElementById("btn-show-reset").textContent=isVisible?"Esqueci minha senha":"↑ Fechar";
+});
+
+
 
 // ── State ──────────────────────────────────────────────────────
 let currentMod = null;

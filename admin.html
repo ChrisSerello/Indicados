@@ -376,7 +376,7 @@
 
     <div class="auth-tabs-admin">
       <button class="auth-tab-admin active" onclick="switchAdminTab('login')">Entrar</button>
-      <button class="auth-tab-admin" onclick="switchAdminTab('reset')">Esqueci minha senha</button>
+      <button class="auth-tab-admin" onclick="switchAdminTab('signup')">Criar conta</button>
     </div>
 
     <!-- LOGIN -->
@@ -384,18 +384,29 @@
       <input type="email"    id="admin-email"    placeholder="E-mail" autocomplete="username"/>
       <input type="password" id="admin-password" placeholder="Senha"  autocomplete="current-password"/>
       <button class="btn-enter" id="btn-admin-login">Entrar</button>
-      <p class="login-error"   id="login-error"></p>
+      <p class="login-error" id="login-error"></p>
+      <button class="forgot-link" id="btn-show-reset">Esqueci minha senha</button>
+      <!-- Reset inline (oculto por padrão) -->
+      <div id="reset-inline" style="display:none;margin-top:4px;padding:14px;border-radius:12px;background:rgba(168,85,247,.08);border:1px solid rgba(168,85,247,.25);">
+        <p style="font-size:12px;color:var(--muted);margin-bottom:10px;">Informe seu e-mail para receber o link de redefinição.</p>
+        <input type="email" id="reset-email" placeholder="Seu e-mail de admin" autocomplete="username" style="margin-bottom:8px;"/>
+        <button class="btn-enter" id="btn-send-reset" style="margin-bottom:0;">Enviar link</button>
+        <p class="login-error"   id="reset-error"   style="margin-top:6px;"></p>
+        <p class="login-success" id="reset-success" style="margin-top:6px;display:none;"></p>
+      </div>
     </div>
 
-    <!-- RESET PASSWORD -->
-    <div class="auth-panel-admin" id="admin-panel-reset">
+    <!-- CRIAR CONTA -->
+    <div class="auth-panel-admin" id="admin-panel-signup">
       <p style="font-size:13px;color:var(--muted);margin-bottom:14px;text-align:left;">
-        Informe seu e-mail. Enviaremos um link para você criar ou redefinir sua senha.
+        Use o e-mail autorizado pela equipe e escolha sua senha.
       </p>
-      <input type="email" id="reset-email" placeholder="Seu e-mail de admin" autocomplete="username"/>
-      <button class="btn-enter" id="btn-send-reset">Enviar link de redefinição</button>
-      <p class="login-error"   id="reset-error"></p>
-      <p class="login-success" id="reset-success"></p>
+      <input type="email"    id="signup-admin-email" placeholder="Seu e-mail de admin" autocomplete="username"/>
+      <input type="password" id="signup-admin-pass"  placeholder="Criar senha (mín. 6 caracteres)" autocomplete="new-password"/>
+      <input type="password" id="signup-admin-pass2" placeholder="Confirmar senha" autocomplete="new-password"/>
+      <button class="btn-enter" id="btn-admin-signup">Criar minha conta</button>
+      <p class="login-error"   id="signup-admin-error"></p>
+      <p class="login-success" id="signup-admin-success"></p>
     </div>
 
     <a class="back-link" href="index.html">← Voltar para a página principal</a>
@@ -544,14 +555,64 @@ function showToast(msg,ok=true){
 
 // ── Auth tab toggle ───────────────────────────────────────────
 function switchAdminTab(tab){
-  document.querySelectorAll(".auth-tab-admin").forEach((b,i)=>b.classList.toggle("active",i===(tab==="login"?0:1)));
-  document.getElementById("admin-panel-login").classList.toggle("active",tab==="login");
-  document.getElementById("admin-panel-reset").classList.toggle("active",tab==="reset");
-  // Clear messages
-  ["login-error","reset-error","reset-success"].forEach(id=>{
+  document.querySelectorAll(".auth-tab-admin").forEach(b=>{
+    b.classList.toggle("active", b.getAttribute("onclick").includes(`'${tab}'`));
+  });
+  document.getElementById("admin-panel-login").classList.toggle("active", tab==="login");
+  document.getElementById("admin-panel-signup").classList.toggle("active", tab==="signup");
+  // Hide reset inline when switching tabs
+  const ri=document.getElementById("reset-inline");
+  if(ri) ri.style.display="none";
+  ["login-error","signup-admin-error","signup-admin-success","reset-error","reset-success"].forEach(id=>{
     const el=document.getElementById(id); if(el){ el.textContent=""; el.style.display="none"; }
   });
 }
+
+// ── Toggle reset inline ───────────────────────────────────────
+document.getElementById("btn-show-reset").addEventListener("click",()=>{
+  const box=document.getElementById("reset-inline");
+  const isVisible=box.style.display!=="none";
+  box.style.display=isVisible?"none":"block";
+  document.getElementById("btn-show-reset").textContent=isVisible?"Esqueci minha senha":"↑ Fechar";
+});
+
+// ── Criar conta admin ─────────────────────────────────────────
+document.getElementById("btn-admin-signup").addEventListener("click", async()=>{
+  const email  = document.getElementById("signup-admin-email").value.trim().toLowerCase();
+  const pass   = document.getElementById("signup-admin-pass").value;
+  const pass2  = document.getElementById("signup-admin-pass2").value;
+  const errEl  = document.getElementById("signup-admin-error");
+  const okEl   = document.getElementById("signup-admin-success");
+  errEl.style.display="none"; okEl.style.display="none";
+
+  if(!email||!pass||!pass2){ errEl.textContent="Preencha todos os campos."; errEl.style.display="block"; return; }
+  if(!ADMIN_EMAILS.includes(email)){ errEl.textContent="Este e-mail não está autorizado como administrador."; errEl.style.display="block"; return; }
+  if(pass.length<6){ errEl.textContent="A senha deve ter ao menos 6 caracteres."; errEl.style.display="block"; return; }
+  if(pass!==pass2){ errEl.textContent="As senhas não coincidem."; errEl.style.display="block"; return; }
+
+  const btn=document.getElementById("btn-admin-signup");
+  btn.textContent="Criando conta…"; btn.disabled=true;
+
+  const {data,error}=await sb.auth.signUp({email,password:pass});
+  btn.textContent="Criar minha conta"; btn.disabled=false;
+
+  if(error){
+    // If user already exists, try to just sign in (account exists, just needs login)
+    if(error.message.includes("already registered")){
+      errEl.textContent="Este e-mail já tem uma conta. Use a aba Entrar.";
+    } else {
+      errEl.textContent="Erro: "+error.message;
+    }
+    errEl.style.display="block"; return;
+  }
+
+  okEl.textContent="✅ Conta criada! Você já pode entrar na aba Entrar.";
+  okEl.style.display="block";
+  document.getElementById("signup-admin-email").value="";
+  document.getElementById("signup-admin-pass").value="";
+  document.getElementById("signup-admin-pass2").value="";
+  setTimeout(()=>switchAdminTab("login"), 2500);
+});
 
 // ── Reset password ────────────────────────────────────────────
 document.getElementById("btn-send-reset").addEventListener("click", async()=>{
