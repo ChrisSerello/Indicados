@@ -5,6 +5,7 @@
   <title>Painel Admin • Indica Consignado</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="logos/Planeta.png">
   <style>
     :root {
       --bg:#0d0119; --surface:rgba(255,255,255,.04); --surface2:rgba(255,255,255,.07);
@@ -360,6 +361,77 @@
     .toast.show{opacity:1;}
 
     @media(max-width:1100px){.mod-section-grid{grid-template-columns:1fr;}}
+    /* ── Ranking ── */
+    .ranking-section{margin-bottom:28px;}
+    .ranking-section h2{font-size:16px;font-weight:700;margin-bottom:14px;}
+    .ranking-table-wrap{overflow-x:auto;border-radius:14px;border:1px solid var(--border);}
+    .ranking-table{width:100%;border-collapse:collapse;font-size:13px;}
+    .ranking-table thead th{
+      padding:10px 16px;text-align:left;font-size:11px;font-weight:600;
+      text-transform:uppercase;letter-spacing:.5px;color:var(--muted);
+      background:rgba(255,255,255,.03);border-bottom:1px solid var(--border);
+    }
+    .ranking-table tbody td{padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.04);}
+    .ranking-table tbody tr:last-child td{border-bottom:none;}
+    .ranking-table tbody tr:hover{background:rgba(255,255,255,.03);}
+    .rank-pos{
+      width:28px;height:28px;border-radius:50%;
+      display:inline-flex;align-items:center;justify-content:center;
+      font-size:12px;font-weight:700;flex-shrink:0;
+    }
+    .rank-1{background:linear-gradient(135deg,#facc15,#f59e0b);color:#111;}
+    .rank-2{background:linear-gradient(135deg,#e5e7eb,#9ca3af);color:#111;}
+    .rank-3{background:linear-gradient(135deg,#f59e0b,#b45309);color:#fff;}
+    .rank-other{background:rgba(255,255,255,.08);color:var(--muted);}
+    .conv-bar-wrap{width:100px;height:6px;background:rgba(255,255,255,.08);border-radius:3px;display:inline-block;vertical-align:middle;margin-left:8px;}
+    .conv-bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--teal),#059669);}
+
+    /* ── Export button ── */
+    .btn-export{
+      padding:9px 18px;border-radius:10px;border:1px solid rgba(16,185,129,.4);
+      background:rgba(16,185,129,.15);color:#34d399;
+      font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;
+      display:inline-flex;align-items:center;gap:6px;
+      transition:background .2s;
+    }
+    .btn-export:hover{background:rgba(16,185,129,.28);}
+
+    /* ── Internal notes ── */
+    .note-btn{
+      padding:4px 10px;border-radius:7px;border:1px solid rgba(250,204,21,.3);
+      background:rgba(250,204,21,.08);color:#facc15;
+      font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;
+      transition:background .2s;white-space:nowrap;
+    }
+    .note-btn:hover{background:rgba(250,204,21,.18);}
+    .note-btn.has-note{border-color:rgba(250,204,21,.6);background:rgba(250,204,21,.18);}
+    .note-popup{
+      position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;
+      background:rgba(0,0,0,.7);backdrop-filter:blur(4px);
+    }
+    .note-modal{
+      width:min(460px,92vw);background:rgba(18,6,42,.98);border:1px solid rgba(168,85,247,.5);
+      border-radius:18px;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.9);
+    }
+    .note-modal h3{font-size:16px;font-weight:700;margin-bottom:4px;}
+    .note-modal p{font-size:12px;color:var(--muted);margin-bottom:14px;}
+    .note-textarea{
+      width:100%;padding:10px 12px;border-radius:10px;
+      border:1px solid rgba(168,85,247,.4);background:rgba(15,10,35,.9);
+      color:var(--text);font-family:inherit;font-size:13px;outline:none;
+      resize:vertical;min-height:100px;transition:border-color .2s;
+    }
+    .note-textarea:focus{border-color:rgba(168,85,247,.8);}
+    .note-actions{display:flex;gap:8px;margin-top:12px;justify-content:flex-end;}
+    .btn-note-save{
+      padding:8px 18px;border-radius:9px;border:none;cursor:pointer;
+      background:var(--accent-g);color:#fff;font-size:13px;font-weight:600;font-family:inherit;
+    }
+    .btn-note-cancel{
+      padding:8px 18px;border-radius:9px;border:1px solid var(--border);
+      background:transparent;color:var(--muted);font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;
+    }
+
     @media(max-width:900px){.kpi-row,.mod-kpi-row{grid-template-columns:repeat(2,1fr);}}
     @media(max-width:640px){.kpi-row,.mod-kpi-row{grid-template-columns:1fr;}.admin-content{padding:16px;}.ref-stats,.mod-stats-row{display:none;}}
   </style>
@@ -456,6 +528,8 @@
         <select id="mod-filter">
           <option value="">Todos os moderadores</option>
         </select>
+        <button class="btn-export" id="btn-export-excel">📥 Exportar Excel</button>
+        <button class="btn-export" id="btn-export-csv" style="border-color:rgba(96,165,250,.4);background:rgba(96,165,250,.12);color:#60a5fa;">📄 Exportar CSV</button>
       </div>
       <div id="referrers-list">
         <p style="color:var(--muted);font-size:13px;padding:12px 0;">Carregando…</p>
@@ -464,6 +538,27 @@
 
     <!-- ══ SECTION: MODERADORES ══ -->
     <div class="admin-section" id="sec-moderadores">
+
+      <!-- RANKING -->
+      <div class="ranking-section">
+        <h2>🏆 Ranking de Moderadores</h2>
+        <div class="ranking-table-wrap">
+          <table class="ranking-table">
+            <thead><tr>
+              <th>#</th>
+              <th>Moderador</th>
+              <th>Clientes</th>
+              <th>Indicações</th>
+              <th>Aprovadas</th>
+              <th>Conversão</th>
+              <th>Smashcard gerado</th>
+            </tr></thead>
+            <tbody id="ranking-tbody">
+              <tr><td colspan="7" style="text-align:center;padding:20px;color:var(--muted);font-size:13px;">Carregando…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
 
       <div class="mod-section-grid">
         <!-- Create form -->
@@ -503,6 +598,7 @@
 <div class="toast" id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
 const SUPABASE_URL      = "https://jwnycywdmaebojqhezmg.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp3bnljeXdkbWFlYm9qcWhlem1nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwMjIyODUsImV4cCI6MjA4NzU5ODI4NX0.EuyJGfG6T_jgtTPF-Wu_rRF6kgoU2E0CKUgzVB1c-2g";
@@ -569,7 +665,7 @@ function switchAdminTab(tab){
 }
 
 // ── Toggle reset inline ───────────────────────────────────────
-document.getElementById("btn-show-reset").addEventListener("click",()=>{
+document.getElementById("btn-show-reset")?.addEventListener("click",()=>{
   const box=document.getElementById("reset-inline");
   const isVisible=box.style.display!=="none";
   box.style.display=isVisible?"none":"block";
@@ -577,7 +673,7 @@ document.getElementById("btn-show-reset").addEventListener("click",()=>{
 });
 
 // ── Criar conta admin ─────────────────────────────────────────
-document.getElementById("btn-admin-signup").addEventListener("click", async()=>{
+document.getElementById("btn-admin-signup")?.addEventListener("click", async()=>{
   const email  = document.getElementById("signup-admin-email").value.trim().toLowerCase();
   const pass   = document.getElementById("signup-admin-pass").value;
   const pass2  = document.getElementById("signup-admin-pass2").value;
@@ -615,7 +711,7 @@ document.getElementById("btn-admin-signup").addEventListener("click", async()=>{
 });
 
 // ── Reset password ────────────────────────────────────────────
-document.getElementById("btn-send-reset").addEventListener("click", async()=>{
+document.getElementById("btn-send-reset")?.addEventListener("click", async()=>{
   const email  = document.getElementById("reset-email").value.trim().toLowerCase();
   const errEl  = document.getElementById("reset-error");
   const okEl   = document.getElementById("reset-success");
@@ -664,7 +760,7 @@ document.getElementById("btn-send-reset").addEventListener("click", async()=>{
 const loginErrorEl = document.getElementById("login-error");
 function showErr(msg){ loginErrorEl.textContent=msg; loginErrorEl.style.display="block"; }
 
-document.getElementById("btn-admin-login").addEventListener("click", async()=>{
+document.getElementById("btn-admin-login")?.addEventListener("click", async()=>{
   const email = document.getElementById("admin-email").value.trim().toLowerCase();
   const pass  = document.getElementById("admin-password").value;
   const btn   = document.getElementById("btn-admin-login");
@@ -681,8 +777,8 @@ document.getElementById("btn-admin-login").addEventListener("click", async()=>{
   mountApp(data.user.email);
 });
 
-document.getElementById("btn-admin-logout").addEventListener("click", async()=>{ await sb.auth.signOut(); window.location.reload(); });
-document.getElementById("btn-refresh").addEventListener("click", loadAll);
+document.getElementById("btn-admin-logout")?.addEventListener("click", async()=>{ await sb.auth.signOut(); window.location.reload(); });
+document.getElementById("btn-refresh")?.addEventListener("click", loadAll);
 
 function mountApp(email){
   document.getElementById("login-gate").style.display="none";
@@ -716,7 +812,7 @@ async function loadAll(){
     {data:moderators,error:e3}
   ] = await Promise.all([
     sb.from("referrers").select("id,name,cpf,phone,email,moderator_id,created_at").order("created_at",{ascending:true}),
-    sb.from("referrals").select("*, indicated_clients(id,name,phone,profile_type,observations)").order("created_at",{ascending:false}),
+    sb.from("referrals").select("*, admin_note, indicated_clients(id,name,phone,profile_type,observations)").order("created_at",{ascending:false}),
     sb.from("moderators").select("id,name,email,code,created_at").order("created_at",{ascending:true})
   ]);
   if(e1||e2||e3){ console.error(e1||e2||e3); showToast("Erro ao carregar dados.",false); return; }
@@ -774,6 +870,7 @@ async function loadAll(){
 
   // Moderator section
   renderModeratorSection(moderators||[]);
+  renderRanking(moderators||[]);
 }
 
 // ── Render indicators list ─────────────────────────────────────
@@ -845,7 +942,7 @@ function renderList(data){
               <table>
                 <thead><tr>
                   <th>Nome indicado</th><th>WhatsApp</th><th>Perfil</th>
-                  <th>Status</th><th>Valor (R$)</th><th>Data</th><th></th>
+                  <th>Status</th><th>Valor (R$)</th><th>Nota interna</th><th>Data</th><th></th>
                 </tr></thead>
                 <tbody data-cpf="${g.cpf}">
                   ${visibleRefs.map(ref=>{
@@ -869,6 +966,7 @@ function renderList(data){
                         </select>
                       </td>
                       <td><input class="valor-input" type="number" min="0" step="0.01" value="${ref.amount||""}" placeholder="0.00"/></td>
+                      <td><button class="note-btn ${ref.admin_note?"has-note":""}" onclick="openNote('${ref.id}',this)" title="${ref.admin_note||""}">${ref.admin_note?"📝 Ver nota":"+ Nota"}</button></td>
                       <td style="color:var(--muted);font-size:12px;">${fmtDate(ref.created_at)}</td>
                       <td><button class="save-btn" onclick="saveReferral(this)">Salvar</button></td>
                     </tr>`;
@@ -984,7 +1082,7 @@ async function renderModeratorSection(moderators){
 }
 
 // ── Create moderator ──────────────────────────────────────────
-document.getElementById("btn-create-mod").addEventListener("click", async()=>{
+document.getElementById("btn-create-mod")?.addEventListener("click", async()=>{
   const name  = document.getElementById("new-mod-name").value.trim();
   const email = document.getElementById("new-mod-email").value.trim().toLowerCase();
   const fbEl  = document.getElementById("create-mod-feedback");
@@ -1079,16 +1177,211 @@ async function saveReferral(btn){
 
 // ── Filters ───────────────────────────────────────────────────
 const var_teal="#34d399";
-document.getElementById("search-global").addEventListener("input",()=>renderList(groupedData));
-document.getElementById("status-filter").addEventListener("change",()=>renderList(groupedData));
-document.getElementById("mod-filter").addEventListener("change",()=>renderList(groupedData));
+document.getElementById("search-global")?.addEventListener("input",()=>renderList(groupedData));
+document.getElementById("status-filter")?.addEventListener("change",()=>renderList(groupedData));
+document.getElementById("mod-filter")?.addEventListener("change",()=>renderList(groupedData));
 
-// ── Auto-login ────────────────────────────────────────────────
+
+// ── Render ranking ─────────────────────────────────────────────
+function renderRanking(moderators){
+  const tbody=document.getElementById("ranking-tbody");
+  if(!tbody) return;
+
+  if(!moderators.length){
+    tbody.innerHTML=`<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--muted);font-size:13px;">Nenhum moderador cadastrado.</td></tr>`;
+    return;
+  }
+
+  // Build stats per mod
+  const rows = moderators.map(mod=>{
+    const clients  = groupedData.filter(g=>g.moderator_id===mod.id);
+    const refs     = clients.flatMap(c=>c.referrals);
+    const approved = refs.filter(r=>isApproved(r.status)).length;
+    const conv     = refs.length>0 ? Math.round((approved/refs.length)*100) : 0;
+    let smash=0;
+    clients.forEach(c=>{ const ap=c.referrals.filter(r=>isApproved(r.status)).length; smash+=calcSmashcard(ap); });
+    return {mod, clients:clients.length, refs:refs.length, approved, conv, smash};
+  }).sort((a,b)=>b.approved-a.approved || b.refs-a.refs);
+
+  tbody.innerHTML = rows.map((r,i)=>{
+    const pos=i+1;
+    const cls=pos===1?"rank-1":pos===2?"rank-2":pos===3?"rank-3":"rank-other";
+    const medal=pos===1?"🥇":pos===2?"🥈":pos===3?"🥉":"";
+    return `<tr>
+      <td><span class="rank-pos ${cls}">${medal||pos}</span></td>
+      <td><strong>${r.mod.name}</strong><br><span style="font-size:11px;color:var(--muted);">${r.mod.email}</span></td>
+      <td>${r.clients}</td>
+      <td>${r.refs}</td>
+      <td><strong style="color:var(--green);">${r.approved}</strong></td>
+      <td>
+        <span style="font-size:12px;color:var(--muted);">${r.conv}%</span>
+        <span class="conv-bar-wrap"><span class="conv-bar-fill" style="width:${r.conv}%;"></span></span>
+      </td>
+      <td style="color:var(--teal);font-weight:700;">${fmt(r.smash)}</td>
+    </tr>`;
+  }).join("");
+}
+
+// ── Export Excel ───────────────────────────────────────────────
+document.getElementById("btn-export-excel")?.addEventListener("click",()=>exportData("excel"));
+document.getElementById("btn-export-csv")?.addEventListener("click",()=>exportData("csv"));
+
+function exportData(type){
+  if(!groupedData.length){ showToast("Nenhum dado para exportar.",false); return; }
+
+  const rows=[];
+  groupedData.forEach(g=>{
+    const modName = g.moderator_id ? (moderatorsMap[g.moderator_id]?.name||"—") : "Sem moderador";
+    const approvedRefs = g.referrals
+      .filter(r=>isApproved(r.status))
+      .sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
+    const rewardMap={};
+    approvedRefs.forEach((r,i)=>{ rewardMap[r.id]=rewardByPos(i+1); });
+
+    if(g.referrals.length===0){
+      rows.push({
+        "Indicador":      g.name||"—",
+        "Tel. Indicador": g.phone||"—",
+        "Email Indicador":g.email||"—",
+        "Moderador":      modName,
+        "Indicado":       "—",
+        "Tel. Indicado":  "—",
+        "Perfil":         "—",
+        "Status":         "—",
+        "Smashcard (R$)": "—",
+        "Nota Interna":   "—",
+        "Data":           "—",
+      });
+    } else {
+      g.referrals.forEach(ref=>{
+        const cl=ref.indicated_clients||{};
+        const isAp=isApproved(ref.status);
+        const statusLabels={em_analise:"Em análise",em_contato:"Em contato",aprovado:"Aprovado",reprovado:"Reprovado"};
+        rows.push({
+          "Indicador":      g.name||"—",
+          "Tel. Indicador": g.phone||"—",
+          "Email Indicador":g.email||"—",
+          "Moderador":      modName,
+          "Indicado":       cl.name||"—",
+          "Tel. Indicado":  cl.phone||"—",
+          "Perfil":         cl.profile_type||"—",
+          "Status":         statusLabels[ref.status]||ref.status||"—",
+          "Smashcard (R$)": isAp ? (rewardMap[ref.id]||0) : 0,
+          "Nota Interna":   ref.admin_note||"",
+          "Data":           fmtDate(ref.created_at),
+        });
+      });
+    }
+  });
+
+  const today=new Date().toLocaleDateString("pt-BR").replace(/\//g,"-");
+  const filename=`indicacoes_${today}`;
+
+  if(type==="csv"){
+    const headers=Object.keys(rows[0]);
+    const csv=[
+      headers.join(";"),
+      ...rows.map(r=>headers.map(h=>`"${String(r[h]||"").replace(/"/g,'""')}"`).join(";"))
+    ].join("\n");
+    const blob=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8;"});
+    const a=document.createElement("a");
+    a.href=URL.createObjectURL(blob);
+    a.download=filename+".csv";
+    a.click();
+    showToast("CSV exportado com sucesso!");
+  } else {
+    const ws=XLSX.utils.json_to_sheet(rows);
+    // Column widths
+    ws["!cols"]=[
+      {wch:24},{wch:16},{wch:26},{wch:20},
+      {wch:24},{wch:16},{wch:18},{wch:14},
+      {wch:14},{wch:30},{wch:12}
+    ];
+    const wb=XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb,ws,"Indicações");
+
+    // Ranking sheet
+    const rankRows=Object.values(moderatorsMap).map(mod=>{
+      const clients=groupedData.filter(g=>g.moderator_id===mod.id);
+      const refs=clients.flatMap(c=>c.referrals);
+      const approved=refs.filter(r=>isApproved(r.status)).length;
+      const conv=refs.length>0?Math.round((approved/refs.length)*100):0;
+      let smash=0;
+      clients.forEach(c=>{ const ap=c.referrals.filter(r=>isApproved(r.status)).length; smash+=calcSmashcard(ap); });
+      return {"Moderador":mod.name,"Email":mod.email,"Clientes":clients.length,"Total Indicações":refs.length,"Aprovadas":approved,"Conversão (%)":conv,"Smashcard Gerado (R$)":smash};
+    }).sort((a,b)=>b["Aprovadas"]-a["Aprovadas"]);
+    if(rankRows.length){
+      const ws2=XLSX.utils.json_to_sheet(rankRows);
+      ws2["!cols"]=[{wch:22},{wch:28},{wch:10},{wch:18},{wch:12},{wch:14},{wch:20}];
+      XLSX.utils.book_append_sheet(wb,ws2,"Ranking Moderadores");
+    }
+
+    XLSX.writeFile(wb,filename+".xlsx");
+    showToast("Excel exportado com sucesso!");
+  }
+}
+
+// ── Notes ──────────────────────────────────────────────────────
+let currentNoteRefId=null;
+let currentNoteBtn=null;
+
+function openNote(refId, btn){
+  currentNoteRefId=refId;
+  currentNoteBtn=btn;
+  // Find note from data
+  let note="";
+  groupedData.forEach(g=>{ const r=g.referrals.find(r=>r.id===refId); if(r) note=r.admin_note||""; });
+  document.getElementById("note-textarea").value=note;
+  const cl=btn.closest("tr")?.querySelector("td:first-child strong")?.textContent||"";
+  document.getElementById("note-modal-subtitle").textContent=cl?`Sobre: ${cl} — Visível apenas para admins.`:"Visível apenas para administradores.";
+  document.getElementById("note-popup").style.display="flex";
+  setTimeout(()=>document.getElementById("note-textarea").focus(),50);
+}
+
+function closeNote(){
+  document.getElementById("note-popup").style.display="none";
+  currentNoteRefId=null; currentNoteBtn=null;
+}
+
+async function saveNote(){
+  const note=document.getElementById("note-textarea").value.trim();
+  if(!currentNoteRefId) return;
+  const {error}=await sb.from("referrals").update({admin_note:note||null}).eq("id",currentNoteRefId);
+  if(error){ showToast("Erro ao salvar nota.",false); return; }
+  // Update local data
+  groupedData.forEach(g=>{ const r=g.referrals.find(r=>r.id===currentNoteRefId); if(r) r.admin_note=note||null; });
+  // Update button
+  if(currentNoteBtn){
+    currentNoteBtn.textContent=note?"📝 Ver nota":"+ Nota";
+    currentNoteBtn.classList.toggle("has-note",!!note);
+    currentNoteBtn.title=note||"";
+  }
+  showToast("Nota salva!");
+  closeNote();
+}
+
+// Close note on backdrop click
+document.getElementById("note-popup")?.addEventListener("click",e=>{ if(e.target===document.getElementById("note-popup")) closeNote(); });
+
+
 (async()=>{
   const {data}=await sb.auth.getSession();
   const email=data?.session?.user?.email;
   if(email&&ADMIN_EMAILS.includes(email.toLowerCase())) mountApp(email);
 })();
 </script>
+<!-- NOTE MODAL -->
+<div class="note-popup" id="note-popup" style="display:none;">
+  <div class="note-modal">
+    <h3>🗒️ Anotação interna</h3>
+    <p id="note-modal-subtitle">Visível apenas para administradores.</p>
+    <textarea class="note-textarea" id="note-textarea" placeholder="Ex: cliente já foi contatado, aguardando documentos…"></textarea>
+    <div class="note-actions">
+      <button class="btn-note-cancel" onclick="closeNote()">Cancelar</button>
+      <button class="btn-note-save"   onclick="saveNote()">Salvar nota</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>

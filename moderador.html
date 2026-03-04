@@ -5,6 +5,7 @@
   <title>Painel Moderador • Indica Consignado</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="logos/Planeta.png">
   <style>
     :root {
       --bg:#0a1a12; --surface:rgba(255,255,255,.04); --surface2:rgba(255,255,255,.07);
@@ -413,7 +414,7 @@ function switchAuthTab(tab){
 }
 
 // ── Toggle reset inline ───────────────────────────────────────
-document.getElementById("btn-show-reset").addEventListener("click",()=>{
+document.getElementById("btn-show-reset")?.addEventListener("click",()=>{
   const box=document.getElementById("reset-inline");
   const isVisible=box.style.display!=="none";
   box.style.display=isVisible?"none":"block";
@@ -427,7 +428,7 @@ let currentMod = null;
 let allClients = []; // referrers
 
 // ── Login ──────────────────────────────────────────────────────
-document.getElementById("btn-login").addEventListener("click", async()=>{
+document.getElementById("btn-login")?.addEventListener("click", async()=>{
   const email = document.getElementById("login-email").value.trim();
   const pass  = document.getElementById("login-pass").value;
   const errEl = document.getElementById("login-error");
@@ -447,7 +448,7 @@ document.getElementById("btn-login").addEventListener("click", async()=>{
 });
 
 // ── Signup ─────────────────────────────────────────────────────
-document.getElementById("btn-signup").addEventListener("click", async()=>{
+document.getElementById("btn-signup")?.addEventListener("click", async()=>{
   const name  = document.getElementById("signup-name").value.trim();
   const email = document.getElementById("signup-email").value.trim();
   const pass  = document.getElementById("signup-pass").value;
@@ -502,7 +503,7 @@ function buildShareLink(){
   document.getElementById("mod-code-badge").textContent = `Código: ${currentMod.code}`;
 }
 
-document.getElementById("btn-copy-link").addEventListener("click",()=>{
+document.getElementById("btn-copy-link")?.addEventListener("click",()=>{
   const inp = document.getElementById("share-link-input");
   navigator.clipboard.writeText(inp.value).then(()=>{
     const btn = document.getElementById("btn-copy-link");
@@ -647,14 +648,14 @@ function renderClients(data){
 }
 
 // ── Events ────────────────────────────────────────────────────
-document.getElementById("search-clients").addEventListener("input",()=>renderClients(allClients));
-document.getElementById("btn-refresh").addEventListener("click",loadDashboard);
-document.getElementById("btn-logout").addEventListener("click",async()=>{
+document.getElementById("search-clients")?.addEventListener("input",()=>renderClients(allClients));
+document.getElementById("btn-refresh")?.addEventListener("click",loadDashboard);
+document.getElementById("btn-logout")?.addEventListener("click",async()=>{
   await sb.auth.signOut(); window.location.reload();
 });
 
 // ── Reset password ─────────────────────────────────────────────
-document.getElementById("btn-send-reset").addEventListener("click", async()=>{
+document.getElementById("btn-send-reset")?.addEventListener("click", async()=>{
   const email  = document.getElementById("reset-email").value.trim().toLowerCase();
   const errEl  = document.getElementById("reset-error");
   const okEl   = document.getElementById("reset-success");
