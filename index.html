@@ -904,41 +904,9 @@
   let currentClient = null;
 
   async function loadClientDashboard(user) {
-    // Find referrer record
-    const { data: referrer } = await sb.from("referrers")
-      .select("*")
-      .eq("email", user.email)
-      .maybeSingle();
-
-    if (!referrer) {
-      // Maybe this is a legacy user without referrer record
-      // Allow them to still see dashboard but no share link
-      currentClient = { name: user.user_metadata?.name || "Usuário", email: user.email };
-    } else {
-      currentClient = referrer;
-    }
-
-    // Close login modal, open dashboard
+    // Apenas redireciona; o dashboard.html cuida de carregar os dados
     closeLoginModal();
-    document.getElementById("dashboard-overlay").style.display = "block";
-
-    // Update header
-    document.querySelector(".dashboard-title h1").textContent = `Olá, ${(currentClient.name || "").split(" ")[0]}!`;
-
-    // Show share link card if user has a code
-    if (currentClient.code) {
-      const shareCard = document.getElementById("user-share-card");
-      shareCard.style.display = "block";
-      const base = window.location.origin + window.location.pathname.replace(/[^/]*$/, "") + "index.html";
-      const shareLink = `${base}?ref=${currentClient.code}`;
-      document.getElementById("user-share-link").value = shareLink;
-      document.getElementById("user-code-pill").textContent = `Código: ${currentClient.code}`;
-      document.getElementById("user-role-pill").textContent = currentClient.role || "indiquer";
-      document.getElementById("user-role-pill").className = "share-role-pill role-" + (currentClient.role || "indiquer");
-    }
-
-    // Load referrals made BY this user
-    await refreshClientData();
+    window.location.href = 'dashboard.html';
   }
 
   async function refreshClientData() {
