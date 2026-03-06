@@ -234,7 +234,6 @@
     .empty-msg{text-align:center;padding:22px;color:var(--muted);font-size:13px;}
     .no-rows-msg{text-align:center;padding:16px;color:var(--muted);font-size:13px;display:none;}
 
-    /* ── Moderator tag in referrer card ── */
     .mod-tag{
       display:inline-flex;align-items:center;gap:4px;padding:2px 9px;
       border-radius:999px;font-size:11px;font-weight:600;
@@ -242,12 +241,20 @@
       white-space:nowrap;
     }
 
+    /* Chain code display */
+    .code-display{
+      display:inline-flex;align-items:center;gap:2px;font-family:monospace;font-size:12px;font-weight:700;
+    }
+    .code-seg{padding:2px 4px;border-radius:4px;}
+    .code-mod{background:rgba(16,185,129,.2);color:#34d399;}
+    .code-ind{background:rgba(96,165,250,.2);color:#60a5fa;}
+    .code-own{background:rgba(168,85,247,.2);color:#c084fc;}
+
     /* ════════════════════════════════════════
        MODERADORES SECTION
     ════════════════════════════════════════ */
     .mod-section-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:20px;align-items:flex-start;margin-bottom:28px;}
 
-    /* Create moderator card */
     .create-mod-card{
       background:var(--surface);border:1px solid rgba(16,185,129,.3);
       border-radius:18px;padding:22px;
@@ -269,12 +276,10 @@
     .create-mod-info{margin-top:12px;font-size:11px;color:var(--muted);line-height:1.6;}
     .create-mod-feedback{font-size:12px;margin-top:8px;min-height:18px;}
 
-    /* Moderator list (right side of grid) */
     .mod-list-section{}
     .mod-list-section h2{font-size:16px;font-weight:700;margin-bottom:14px;}
     .mod-kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
 
-    /* Moderator card */
     .mod-card{
       background:var(--surface);border:1px solid rgba(16,185,129,.25);
       border-radius:16px;margin-bottom:12px;overflow:hidden;transition:border-color .2s;
@@ -386,7 +391,6 @@
     .conv-bar-wrap{width:100px;height:6px;background:rgba(255,255,255,.08);border-radius:3px;display:inline-block;vertical-align:middle;margin-left:8px;}
     .conv-bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--teal),#059669);}
 
-    /* ── Export button ── */
     .btn-export{
       padding:9px 18px;border-radius:10px;border:1px solid rgba(16,185,129,.4);
       background:rgba(16,185,129,.15);color:#34d399;
@@ -396,7 +400,6 @@
     }
     .btn-export:hover{background:rgba(16,185,129,.28);}
 
-    /* ── Internal notes ── */
     .note-btn{
       padding:4px 10px;border-radius:7px;border:1px solid rgba(250,204,21,.3);
       background:rgba(250,204,21,.08);color:#facc15;
@@ -432,6 +435,14 @@
       background:transparent;color:var(--muted);font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;
     }
 
+    /* Chain info */
+    .chain-explainer{
+      background:rgba(168,85,247,.06);border:1px solid rgba(168,85,247,.2);
+      border-radius:12px;padding:14px 18px;margin-bottom:18px;font-size:12px;color:rgba(255,255,255,.6);line-height:1.7;
+    }
+    .chain-explainer code{background:rgba(168,85,247,.15);padding:1px 5px;border-radius:4px;font-size:11px;color:#e9d5ff;font-weight:600;}
+    .chain-explainer strong{color:#c084fc;}
+
     @media(max-width:900px){.kpi-row,.mod-kpi-row{grid-template-columns:repeat(2,1fr);}}
     @media(max-width:640px){.kpi-row,.mod-kpi-row{grid-template-columns:1fr;}.admin-content{padding:16px;}.ref-stats,.mod-stats-row{display:none;}}
   </style>
@@ -458,7 +469,6 @@
       <button class="btn-enter" id="btn-admin-login">Entrar</button>
       <p class="login-error" id="login-error"></p>
       <button class="forgot-link" id="btn-show-reset">Esqueci minha senha</button>
-      <!-- Reset inline (oculto por padrão) -->
       <div id="reset-inline" style="display:none;margin-top:4px;padding:14px;border-radius:12px;background:rgba(168,85,247,.08);border:1px solid rgba(168,85,247,.25);">
         <p style="font-size:12px;color:var(--muted);margin-bottom:10px;">Informe seu e-mail para receber o link de redefinição.</p>
         <input type="email" id="reset-email" placeholder="Seu e-mail de admin" autocomplete="username" style="margin-bottom:8px;"/>
@@ -500,7 +510,6 @@
     </div>
   </header>
 
-  <!-- Tab bar -->
   <nav class="admin-tab-bar">
     <button class="admin-tab-btn active tab-indicadores" data-section="sec-indicadores">📊 Indicadores</button>
     <button class="admin-tab-btn tab-moderadores"        data-section="sec-moderadores">🛡️ Moderadores</button>
@@ -534,10 +543,19 @@
       <div id="referrers-list">
         <p style="color:var(--muted);font-size:13px;padding:12px 0;">Carregando…</p>
       </div>
-    </div><!-- /sec-indicadores -->
+    </div>
 
     <!-- ══ SECTION: MODERADORES ══ -->
     <div class="admin-section" id="sec-moderadores">
+
+      <!-- CHAIN EXPLAINER -->
+      <div class="chain-explainer">
+        🔗 <strong>Sistema de cadeia de rastreio:</strong>
+        Moderador recebe código de <code>2 dígitos</code> (ex: <code>AB</code>).
+        Indiquer que usa o link do moderador recebe <code>4 dígitos</code>: 2 do mod + 2 aleatórios (ex: <code>AB</code><code>X7</code>).
+        Indicado que usa o link do indiquer recebe <code>6 dígitos</code>: 2 do mod + 2 do indiquer + 2 aleatórios (ex: <code>AB</code><code>X7</code><code>K3</code>).
+        De qualquer código, rastreia-se: <strong>Moderador → Indiquer → Indicado</strong>.
+      </div>
 
       <!-- RANKING -->
       <div class="ranking-section">
@@ -545,16 +563,11 @@
         <div class="ranking-table-wrap">
           <table class="ranking-table">
             <thead><tr>
-              <th>#</th>
-              <th>Moderador</th>
-              <th>Clientes</th>
-              <th>Indicações</th>
-              <th>Aprovadas</th>
-              <th>Conversão</th>
-              <th>Smashcard gerado</th>
+              <th>#</th><th>Moderador</th><th>Código</th><th>Indiquers</th><th>Indicados</th>
+              <th>Indicações</th><th>Aprovadas</th><th>Conversão</th><th>Smashcard</th>
             </tr></thead>
             <tbody id="ranking-tbody">
-              <tr><td colspan="7" style="text-align:center;padding:20px;color:var(--muted);font-size:13px;">Carregando…</td></tr>
+              <tr><td colspan="9" style="text-align:center;padding:20px;color:var(--muted);font-size:13px;">Carregando…</td></tr>
             </tbody>
           </table>
         </div>
@@ -569,9 +582,10 @@
           <button class="btn-create-mod" id="btn-create-mod">Criar moderador</button>
           <p class="create-mod-feedback" id="create-mod-feedback"></p>
           <p class="create-mod-info">
-            ℹ️ Após criar, envie ao moderador o link <strong>moderator.html</strong> e o e-mail cadastrado.
-            Ele cria a própria senha no primeiro acesso.<br><br>
-            Um código único é gerado automaticamente para o link de indicações dele.
+            ℹ️ O moderador receberá um código de <strong>2 dígitos</strong>.<br>
+            Envie o link <strong>moderador.html</strong> para ele criar a senha.<br>
+            Ele compartilha o link <code>index.html?ref=XX</code> com indiquers.<br><br>
+            <strong>Cadeia:</strong> Moderador (2) → Indiquer (4) → Indicado (6)
           </p>
         </div>
 
@@ -580,17 +594,17 @@
           <h2>🛡️ Moderadores ativos</h2>
           <div class="kpi-row mod-kpi-row" style="margin-bottom:18px;">
             <div class="kpi-box"><span class="kpi-icon">🛡️</span><div><p class="kpi-label">Moderadores</p><p class="kpi-val" id="km-total">—</p></div></div>
-            <div class="kpi-box"><span class="kpi-icon">👤</span><div><p class="kpi-label">Clientes via mods</p><p class="kpi-val" id="km-clients">—</p></div></div>
-            <div class="kpi-box"><span class="kpi-icon">📨</span><div><p class="kpi-label">Indicações via mods</p><p class="kpi-val" id="km-refs">—</p></div></div>
+            <div class="kpi-box"><span class="kpi-icon">🤝</span><div><p class="kpi-label">Indiquers</p><p class="kpi-val" id="km-indiquers">—</p></div></div>
+            <div class="kpi-box"><span class="kpi-icon">👤</span><div><p class="kpi-label">Indicados</p><p class="kpi-val" id="km-indicados">—</p></div></div>
             <div class="kpi-box"><span class="kpi-icon">✅</span><div><p class="kpi-label">Aprovadas via mods</p><p class="kpi-val" id="km-ap">—</p></div></div>
           </div>
           <div id="mod-cards-list">
             <p style="color:var(--muted);font-size:13px;">Carregando…</p>
           </div>
         </div>
-      </div><!-- /grid -->
+      </div>
 
-    </div><!-- /sec-moderadores -->
+    </div>
 
   </div>
 </div>
@@ -637,7 +651,25 @@ function getNivel(ap){
   return           {label:"Indiquer+",cls:"nip"};
 }
 function waHref(phone){ const d=(phone||"").replace(/\D/g,""); if(!d)return null; return `https://wa.me/${d.startsWith("55")?d:"55"+d}`; }
-function generateCode(){ return Math.random().toString(36).substring(2,8).toUpperCase(); }
+
+/* ═══════════════════════════════════════════════════════════════
+   CÓDIGO DE MODERADOR: APENAS 2 DÍGITOS
+   Caracteres sem ambiguidade (sem I,O,0,1)
+═══════════════════════════════════════════════════════════════ */
+const CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+function genModCode(){
+  let c = "";
+  for(let i=0;i<2;i++) c += CODE_CHARS[Math.floor(Math.random()*CODE_CHARS.length)];
+  return c;
+}
+
+function renderCodeSegments(code){
+  if(!code) return "—";
+  if(code.length===2) return `<span class="code-display"><span class="code-seg code-mod">${code}</span></span>`;
+  if(code.length===4) return `<span class="code-display"><span class="code-seg code-mod">${code.slice(0,2)}</span><span class="code-seg code-ind">${code.slice(2,4)}</span></span>`;
+  if(code.length>=6)  return `<span class="code-display"><span class="code-seg code-mod">${code.slice(0,2)}</span><span class="code-seg code-ind">${code.slice(2,4)}</span><span class="code-seg code-own">${code.slice(4,6)}</span></span>`;
+  return `<code>${code}</code>`;
+}
 
 function showToast(msg,ok=true){
   const t=document.getElementById("toast");
@@ -656,7 +688,6 @@ function switchAdminTab(tab){
   });
   document.getElementById("admin-panel-login").classList.toggle("active", tab==="login");
   document.getElementById("admin-panel-signup").classList.toggle("active", tab==="signup");
-  // Hide reset inline when switching tabs
   const ri=document.getElementById("reset-inline");
   if(ri) ri.style.display="none";
   ["login-error","signup-admin-error","signup-admin-success","reset-error","reset-success"].forEach(id=>{
@@ -664,7 +695,6 @@ function switchAdminTab(tab){
   });
 }
 
-// ── Toggle reset inline ───────────────────────────────────────
 document.getElementById("btn-show-reset")?.addEventListener("click",()=>{
   const box=document.getElementById("reset-inline");
   const isVisible=box.style.display!=="none";
@@ -688,17 +718,12 @@ document.getElementById("btn-admin-signup")?.addEventListener("click", async()=>
 
   const btn=document.getElementById("btn-admin-signup");
   btn.textContent="Criando conta…"; btn.disabled=true;
-
   const {data,error}=await sb.auth.signUp({email,password:pass});
   btn.textContent="Criar minha conta"; btn.disabled=false;
 
   if(error){
-    // If user already exists, try to just sign in (account exists, just needs login)
-    if(error.message.includes("already registered")){
-      errEl.textContent="Este e-mail já tem uma conta. Use a aba Entrar.";
-    } else {
-      errEl.textContent="Erro: "+error.message;
-    }
+    if(error.message.includes("already registered")) errEl.textContent="Este e-mail já tem uma conta. Use a aba Entrar.";
+    else errEl.textContent="Erro: "+error.message;
     errEl.style.display="block"; return;
   }
 
@@ -725,35 +750,21 @@ document.getElementById("btn-send-reset")?.addEventListener("click", async()=>{
 
   const btn=document.getElementById("btn-send-reset");
   btn.textContent="Enviando…"; btn.disabled=true;
-
-  const {error}=await sb.auth.resetPasswordForEmail(email,{
-    redirectTo: window.location.origin+"/admin.html"
-  });
-
+  const {error}=await sb.auth.resetPasswordForEmail(email,{ redirectTo: window.location.origin+"/admin.html" });
   btn.textContent="Enviar link de redefinição"; btn.disabled=false;
 
-  if(error){
-    errEl.textContent="Erro: "+error.message; errEl.style.display="block";
-  } else {
-    okEl.textContent="✅ Link enviado! Verifique sua caixa de entrada e spam.";
-    okEl.style.display="block";
-    document.getElementById("reset-email").value="";
-  }
+  if(error){ errEl.textContent="Erro: "+error.message; errEl.style.display="block"; }
+  else { okEl.textContent="✅ Link enviado! Verifique sua caixa de entrada e spam."; okEl.style.display="block"; document.getElementById("reset-email").value=""; }
 });
 
-// ── Handle password reset redirect (Supabase redirects back with token) ──
 (async()=>{
   const hash = window.location.hash;
   if(hash.includes("type=recovery")){
-    // Show password update form
-    const newPass = prompt("Digite sua nova senha (mínimo 6 caracteres):");
+    const newPass=prompt("Digite sua nova senha (mínimo 6 caracteres):");
     if(!newPass||newPass.length<6){ alert("Senha muito curta. Tente novamente."); return; }
     const {error}=await sb.auth.updateUser({password:newPass});
     if(error){ alert("Erro ao definir senha: "+error.message); }
-    else {
-      alert("✅ Senha definida com sucesso! Faça login agora.");
-      window.location.hash="";
-    }
+    else { alert("✅ Senha definida com sucesso! Faça login agora."); window.location.hash=""; }
   }
 })();
 
@@ -799,7 +810,8 @@ document.querySelectorAll(".admin-tab-btn").forEach(btn=>{
 
 // ── State ──────────────────────────────────────────────────────
 let groupedData   = [];
-let moderatorsMap = {}; // id -> moderator object
+let moderatorsMap = {};
+let allReferrersRaw = [];
 
 // ── Load all data ──────────────────────────────────────────────
 async function loadAll(){
@@ -811,38 +823,39 @@ async function loadAll(){
     {data:referrals,error:e2},
     {data:moderators,error:e3}
   ] = await Promise.all([
-    sb.from("referrers").select("id,name,cpf,phone,email,moderator_id,created_at").order("created_at",{ascending:true}),
+    sb.from("referrers").select("id,name,cpf,phone,email,code,role,ref_origin,moderator_id,created_at").order("created_at",{ascending:true}),
     sb.from("referrals").select("*, admin_note, indicated_clients(id,name,phone,profile_type,observations)").order("created_at",{ascending:false}),
-    sb.from("moderators").select("id,name,email,code,created_at").order("created_at",{ascending:true})
+    sb.from("moderators").select("id,name,email,code,user_id,created_at").order("created_at",{ascending:true})
   ]);
   if(e1||e2||e3){ console.error(e1||e2||e3); showToast("Erro ao carregar dados.",false); return; }
 
-  // Build moderators map
+  allReferrersRaw = referrers || [];
+
   moderatorsMap = {};
   (moderators||[]).forEach(m=>{ moderatorsMap[m.id]=m; });
 
-  // Populate mod filter
   const modFilter = document.getElementById("mod-filter");
-  modFilter.innerHTML=`<option value="">Todos os moderadores</option>
-    <option value="__sem_mod__">Sem moderador</option>`;
+  modFilter.innerHTML=`<option value="">Todos os moderadores</option><option value="__sem_mod__">Sem moderador</option>`;
   (moderators||[]).forEach(m=>{
     const opt=document.createElement("option");
-    opt.value=m.id; opt.textContent=m.name;
+    opt.value=m.id; opt.textContent=`${m.name} (${m.code})`;
     modFilter.appendChild(opt);
   });
 
-  // Group referrers by CPF (same as before)
+  // Group referrers by CPF
   const cpfMap = {};
   (referrers||[]).forEach(r=>{
     const key=(r.cpf||"").replace(/\D/g,"")||r.id;
     if(!cpfMap[key]){
-      cpfMap[key]={cpf:key,name:r.name,phone:r.phone,email:r.email,firstSeen:r.created_at,ids:[],moderator_id:r.moderator_id};
+      cpfMap[key]={cpf:key,name:r.name,phone:r.phone,email:r.email,firstSeen:r.created_at,ids:[],moderator_id:r.moderator_id,code:r.code,role:r.role};
     }
     cpfMap[key].ids.push(r.id);
     if(r.email)        cpfMap[key].email=r.email;
     if(r.phone)        cpfMap[key].phone=r.phone;
     if(r.name)         cpfMap[key].name=r.name;
     if(r.moderator_id) cpfMap[key].moderator_id=r.moderator_id;
+    if(r.code)         cpfMap[key].code=r.code;
+    if(r.role)         cpfMap[key].role=r.role;
   });
 
   const idToCpf={};
@@ -858,7 +871,6 @@ async function loadAll(){
   groupedData=Object.values(cpfMap).map(g=>({...g,referrals:refByCpf[g.cpf]||[]}));
   groupedData.sort((a,b)=>b.referrals.length-a.referrals.length);
 
-  // Global KPIs
   const allRefs=groupedData.flatMap(g=>g.referrals);
   const ap=allRefs.filter(r=>isApproved(r.status));
   document.getElementById("k-referrers").textContent=groupedData.length;
@@ -867,8 +879,6 @@ async function loadAll(){
   document.getElementById("k-ganhos").textContent=fmt(ap.reduce((s,r)=>s+Number(r.amount||0),0));
 
   renderList(groupedData);
-
-  // Moderator section
   renderModeratorSection(moderators||[]);
   renderRanking(moderators||[]);
 }
@@ -882,7 +892,7 @@ function renderList(data){
   container.innerHTML="";
 
   const filtered=data.filter(g=>{
-    const textOk  = !search||g.name?.toLowerCase().includes(search)||g.phone?.includes(search)||g.email?.toLowerCase().includes(search);
+    const textOk  = !search||g.name?.toLowerCase().includes(search)||g.phone?.includes(search)||g.email?.toLowerCase().includes(search)||g.code?.toLowerCase().includes(search);
     const statusOk= !statusF||g.referrals.some(r=>r.status===statusF);
     const modOk   = !modF||(modF==="__sem_mod__"?!g.moderator_id:g.moderator_id===modF);
     return textOk&&statusOk&&modOk;
@@ -910,12 +920,12 @@ function renderList(data){
         <div class="ref-header-left">
           <div class="ref-avatar">${initials(g.name)}</div>
           <div>
-            <div class="ref-name">${g.name||"—"}</div>
+            <div class="ref-name">${g.name||"—"} ${g.code?renderCodeSegments(g.code):""} ${g.role?`<span style="font-size:10px;color:var(--muted);margin-left:4px;">(${g.role})</span>`:""}</div>
             <div class="ref-meta">
               ${wa?`<a class="wa-link" href="${wa}" target="_blank" onclick="event.stopPropagation()">📱 ${g.phone||"—"}</a>`:`<span>${g.phone||"—"}</span>`}
               ${g.email?`<span class="ref-meta-sep">·</span><span>${g.email}</span>`:""}
               <span class="ref-meta-sep">·</span><span>desde ${fmtDate(g.firstSeen)}</span>
-              ${modInfo?`<span class="ref-meta-sep">·</span><span class="mod-tag">🛡️ ${modInfo.name}</span>`:""}
+              ${modInfo?`<span class="ref-meta-sep">·</span><span class="mod-tag">🛡️ ${modInfo.name} (${modInfo.code})</span>`:""}
             </div>
           </div>
         </div>
@@ -983,39 +993,40 @@ function renderList(data){
 }
 
 // ── Render moderators section ──────────────────────────────────
-async function renderModeratorSection(moderators){
+function renderModeratorSection(moderators){
   const list = document.getElementById("mod-cards-list");
   list.innerHTML="";
 
   if(!moderators.length){
     list.innerHTML="<p class='empty-msg'>Nenhum moderador cadastrado ainda.</p>";
-    document.getElementById("km-total").textContent="0";
-    document.getElementById("km-clients").textContent="0";
-    document.getElementById("km-refs").textContent="0";
-    document.getElementById("km-ap").textContent="0";
+    ["km-total","km-indiquers","km-indicados","km-ap"].forEach(id=>document.getElementById(id).textContent="0");
     return;
   }
 
-  // Per-moderator stats from groupedData
-  let totalClients=0,totalRefs=0,totalAp=0;
+  let totalIndiquers=0, totalIndicados=0, totalAp=0;
 
   moderators.forEach(mod=>{
-    const clients=groupedData.filter(g=>g.moderator_id===mod.id);
-    const refs=clients.flatMap(c=>c.referrals);
-    const approved=refs.filter(r=>isApproved(r.status));
-    let smash=0;
-    clients.forEach(c=>{ const ap=c.referrals.filter(r=>isApproved(r.status)).length; smash+=calcSmashcard(ap); });
+    // Find referrers linked to this mod
+    const modReferrers = allReferrersRaw.filter(r => r.moderator_id === mod.id);
+    const indiquers = modReferrers.filter(r => r.role === "indiquer");
+    const indicados = modReferrers.filter(r => r.role === "indicado");
 
-    totalClients+=clients.length;
-    totalRefs+=refs.length;
-    totalAp+=approved.length;
+    const clients = groupedData.filter(g => g.moderator_id === mod.id);
+    const refs = clients.flatMap(c => c.referrals);
+    const approved = refs.filter(r => isApproved(r.status));
+    let smash = 0;
+    clients.forEach(c => { const ap = c.referrals.filter(r => isApproved(r.status)).length; smash += calcSmashcard(ap); });
 
-    const shareLink=`${window.location.origin}/index.html?mod=${mod.code}`;
-    const isLinked=!!(moderatorsMap[mod.id]?.user_id);
+    totalIndiquers += indiquers.length;
+    totalIndicados += indicados.length;
+    totalAp += approved.length;
 
-    const card=document.createElement("div");
-    card.className="mod-card";
-    card.innerHTML=`
+    const shareLink = `${window.location.origin}/index.html?ref=${mod.code}`;
+    const isLinked = !!mod.user_id;
+
+    const card = document.createElement("div");
+    card.className = "mod-card";
+    card.innerHTML = `
       <div class="mod-card-header" onclick="this.closest('.mod-card').classList.toggle('open')">
         <div class="mod-card-left">
           <div class="mod-avatar">${initials(mod.name)}</div>
@@ -1028,7 +1039,8 @@ async function renderModeratorSection(moderators){
         </div>
         <div style="display:flex;align-items:center;gap:6px;">
           <div class="mod-stats-row">
-            <span class="mod-stat">${clients.length} cliente${clients.length!==1?"s":""}</span>
+            <span class="mod-stat">${indiquers.length} indiquer${indiquers.length!==1?"s":""}</span>
+            <span class="mod-stat">${indicados.length} indicado${indicados.length!==1?"s":""}</span>
             <span class="mod-stat">${refs.length} indicaç${refs.length===1?"ão":"ões"}</span>
             <span class="mod-stat green">${approved.length} aprovada${approved.length!==1?"s":""}</span>
             <span class="mod-stat teal">${fmt(smash)}</span>
@@ -1040,82 +1052,93 @@ async function renderModeratorSection(moderators){
         <div class="mod-link-row">
           <span class="mod-link-label">Link:</span>
           <input class="mod-link-input" type="text" readonly value="${shareLink}"/>
-          <span class="mod-code-pill">Código: ${mod.code}</span>
+          <span class="mod-code-pill">Código: ${renderCodeSegments(mod.code)}</span>
           <button class="btn-copy-mod" onclick="copyModLink(this,'${shareLink}')">📋 Copiar</button>
           <button class="btn-delete-mod" onclick="deleteModerator('${mod.id}','${mod.name}')">🗑️ Remover</button>
         </div>
-        ${clients.length===0
-          ?`<p class="empty-msg" style="padding:12px 0;">Nenhum cliente via este moderador ainda.</p>`
-          :`<div class="mod-clients-list">
-              <p style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:8px;">Clientes (${clients.length})</p>
-              ${clients.map(c=>{
-                const ap=c.referrals.filter(r=>isApproved(r.status)).length;
-                const nv=getNivel(ap);
-                const cSmash=calcSmashcard(ap);
-                const wa=waHref(c.phone);
-                return `<div class="mod-client-row">
-                  <div>
-                    <div class="mod-client-name">${c.name||"—"}</div>
-                    <div class="mod-client-meta">
-                      ${wa?`<a class="wa-link" href="${wa}" target="_blank">📱 ${c.phone||"—"}</a>`:c.phone||"—"}
-                    </div>
-                  </div>
-                  <div class="mod-client-stats">
-                    <span class="nivel-tag ${nv.cls}">${nv.label}</span>
-                    <span class="mod-stat">${c.referrals.length} indicaç${c.referrals.length===1?"ão":"ões"}</span>
-                    <span class="mod-stat green">${ap} aprovada${ap!==1?"s":""}</span>
-                    <span class="mod-stat teal">${fmt(cSmash)}</span>
-                  </div>
-                </div>`;
-              }).join("")}
-            </div>`
+        ${indiquers.length > 0 ? `
+          <p style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:rgba(96,165,250,.7);margin:10px 0 8px;font-weight:600;">🤝 Indiquers (${indiquers.length})</p>
+          ${indiquers.map(ind => {
+            const indClients = groupedData.filter(g => g.code === ind.code);
+            const indRefs = indClients.flatMap(c => c.referrals);
+            const indAp = indRefs.filter(r => isApproved(r.status)).length;
+            const subIndicados = indicados.filter(i => i.ref_origin === ind.code);
+            return `<div class="mod-client-row">
+              <div>
+                <div class="mod-client-name">${ind.name||"—"} ${renderCodeSegments(ind.code)}</div>
+                <div class="mod-client-meta">${ind.phone||"—"} · ${ind.email||""} · ${subIndicados.length} indicado${subIndicados.length!==1?"s":""}</div>
+              </div>
+              <div class="mod-client-stats">
+                <span class="mod-stat">${indRefs.length} indicaç${indRefs.length===1?"ão":"ões"}</span>
+                <span class="mod-stat green">${indAp} aprovada${indAp!==1?"s":""}</span>
+              </div>
+            </div>`;
+          }).join("")}
+        ` : ""}
+        ${indicados.length > 0 ? `
+          <p style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:rgba(168,85,247,.7);margin:10px 0 8px;font-weight:600;">👤 Indicados (${indicados.length})</p>
+          ${indicados.map(ind => {
+            return `<div class="mod-client-row" style="border-color:rgba(168,85,247,.15);">
+              <div>
+                <div class="mod-client-name">${ind.name||"—"} ${renderCodeSegments(ind.code)}</div>
+                <div class="mod-client-meta">${ind.phone||"—"} · ${ind.email||""} · via indiquer: <strong>${ind.ref_origin||"—"}</strong></div>
+              </div>
+            </div>`;
+          }).join("")}
+        ` : ""}
+        ${indiquers.length===0 && indicados.length===0
+          ? `<p class="empty-msg" style="padding:12px 0;">Nenhum indiquer ou indicado via este moderador ainda.</p>`
+          : ""
         }
       </div>
     `;
     list.appendChild(card);
   });
 
-  document.getElementById("km-total").textContent=moderators.length;
-  document.getElementById("km-clients").textContent=totalClients;
-  document.getElementById("km-refs").textContent=totalRefs;
-  document.getElementById("km-ap").textContent=totalAp;
+  document.getElementById("km-total").textContent = moderators.length;
+  document.getElementById("km-indiquers").textContent = totalIndiquers;
+  document.getElementById("km-indicados").textContent = totalIndicados;
+  document.getElementById("km-ap").textContent = totalAp;
 }
 
-// ── Create moderator ──────────────────────────────────────────
+// ── Create moderator (2-CHAR CODE) ────────────────────────────
 document.getElementById("btn-create-mod")?.addEventListener("click", async()=>{
   const name  = document.getElementById("new-mod-name").value.trim();
   const email = document.getElementById("new-mod-email").value.trim().toLowerCase();
   const fbEl  = document.getElementById("create-mod-feedback");
-  fbEl.textContent=""; fbEl.style.color=var_teal;
+  fbEl.textContent=""; fbEl.style.color="#34d399";
   if(!name||!email){ fbEl.textContent="Preencha nome e e-mail."; fbEl.style.color="#fb7185"; return; }
 
-  // Check duplicate
   const {data:existing} = await sb.from("moderators").select("id").eq("email",email).maybeSingle();
   if(existing){ fbEl.textContent="Este e-mail já está cadastrado como moderador."; fbEl.style.color="#fb7185"; return; }
 
   const btn=document.getElementById("btn-create-mod");
   btn.textContent="Criando…"; btn.disabled=true;
 
-  // Generate unique code (ensure uniqueness)
-  let code=generateCode();
-  const {data:codeCheck}=await sb.from("moderators").select("id").eq("code",code).maybeSingle();
-  if(codeCheck) code=generateCode()+Math.floor(Math.random()*9);
+  // Generate unique 2-char code
+  let code = genModCode();
+  let attempts = 0;
+  while(attempts < 20){
+    const {data:check} = await sb.from("moderators").select("id").eq("code",code).maybeSingle();
+    if(!check) break;
+    code = genModCode();
+    attempts++;
+  }
 
   const {data:newMod,error}=await sb.from("moderators").insert({name,email,code}).select().single();
   btn.textContent="Criar moderador"; btn.disabled=false;
 
   if(error){ fbEl.textContent="Erro: "+error.message; fbEl.style.color="#fb7185"; return; }
 
-  fbEl.textContent=`✅ Moderador criado! Código: ${newMod.code}`;
+  fbEl.textContent=`✅ Moderador criado! Código: ${newMod.code} (2 dígitos)`;
   fbEl.style.color="#4ade80";
   document.getElementById("new-mod-name").value="";
   document.getElementById("new-mod-email").value="";
-  showToast("Moderador criado com sucesso!");
+  showToast(`Moderador criado! Código: ${newMod.code}`);
   setTimeout(()=>{ fbEl.textContent=""; },5000);
   loadAll();
 });
 
-// ── Copy mod link ─────────────────────────────────────────────
 function copyModLink(btn, link){
   navigator.clipboard.writeText(link).then(()=>{
     btn.textContent="✅ Copiado!";
@@ -1123,19 +1146,60 @@ function copyModLink(btn, link){
   });
 }
 
-// ── Delete moderator ──────────────────────────────────────────
 async function deleteModerator(id, name){
-  if(!confirm(`Remover o moderador "${name}"?\n\nOs clientes vinculados a ele continuarão existindo, mas perderão o vínculo com este moderador.`)) return;
+  if(!confirm(`Remover o moderador "${name}"?\n\nOs indiquers e indicados vinculados continuarão existindo, mas perderão o vínculo.`)) return;
   const {error}=await sb.from("moderators").delete().eq("id",id);
   if(error){ showToast("Erro: "+error.message,false); return; }
   showToast(`Moderador "${name}" removido.`);
   loadAll();
 }
 
-// ── Toggle card ──────────────────────────────────────────────
-function toggleCard(header){ header.closest(".referrer-card").classList.toggle("open"); }
+// ── Render ranking ─────────────────────────────────────────────
+function renderRanking(moderators){
+  const tbody=document.getElementById("ranking-tbody");
+  if(!tbody) return;
 
-// ── Filter card rows ──────────────────────────────────────────
+  if(!moderators.length){
+    tbody.innerHTML=`<tr><td colspan="9" style="text-align:center;padding:20px;color:var(--muted);font-size:13px;">Nenhum moderador cadastrado.</td></tr>`;
+    return;
+  }
+
+  const rows = moderators.map(mod=>{
+    const modReferrers = allReferrersRaw.filter(r => r.moderator_id === mod.id);
+    const indiquers = modReferrers.filter(r => r.role === "indiquer").length;
+    const indicados = modReferrers.filter(r => r.role === "indicado").length;
+    const clients = groupedData.filter(g => g.moderator_id === mod.id);
+    const refs = clients.flatMap(c => c.referrals);
+    const approved = refs.filter(r => isApproved(r.status)).length;
+    const conv = refs.length > 0 ? Math.round((approved/refs.length)*100) : 0;
+    let smash = 0;
+    clients.forEach(c => { const ap = c.referrals.filter(r => isApproved(r.status)).length; smash += calcSmashcard(ap); });
+    return {mod, indiquers, indicados, refs:refs.length, approved, conv, smash};
+  }).sort((a,b) => b.approved - a.approved || b.refs - a.refs);
+
+  tbody.innerHTML = rows.map((r,i) => {
+    const pos = i+1;
+    const cls = pos===1?"rank-1":pos===2?"rank-2":pos===3?"rank-3":"rank-other";
+    const medal = pos===1?"🥇":pos===2?"🥈":pos===3?"🥉":"";
+    return `<tr>
+      <td><span class="rank-pos ${cls}">${medal||pos}</span></td>
+      <td><strong>${r.mod.name}</strong><br><span style="font-size:11px;color:var(--muted);">${r.mod.email}</span></td>
+      <td>${renderCodeSegments(r.mod.code)}</td>
+      <td>${r.indiquers}</td>
+      <td>${r.indicados}</td>
+      <td>${r.refs}</td>
+      <td><strong style="color:var(--green);">${r.approved}</strong></td>
+      <td>
+        <span style="font-size:12px;color:var(--muted);">${r.conv}%</span>
+        <span class="conv-bar-wrap"><span class="conv-bar-fill" style="width:${r.conv}%;"></span></span>
+      </td>
+      <td style="color:var(--teal);font-weight:700;">${fmt(r.smash)}</td>
+    </tr>`;
+  }).join("");
+}
+
+// ── Toggle / filter / status / save ────────────────────────────
+function toggleCard(header){ header.closest(".referrer-card").classList.toggle("open"); }
 function filterCardRows(input){
   const term=input.value.toLowerCase();
   const body=input.closest(".referrer-body");
@@ -1150,11 +1214,8 @@ function filterCardRows(input){
   if(countEl)  countEl.textContent=`${visible} indicaç${visible===1?"ão":"ões"}`;
   if(noRowsEl) noRowsEl.style.display=visible===0?"block":"none";
 }
-
-// ── Status change ─────────────────────────────────────────────
 function onStatusChange(sel){ sel.className=`status-select ${sel.value}`; }
 
-// ── Save referral ─────────────────────────────────────────────
 async function saveReferral(btn){
   const tr=btn.closest("tr");
   const refId=tr.dataset.refId;
@@ -1166,110 +1227,36 @@ async function saveReferral(btn){
   if(error){ showToast("Erro: "+error.message,false); return; }
   showToast("Salvo com sucesso!");
   groupedData.forEach(g=>{ const r=g.referrals.find(r=>r.id===refId); if(r){ r.status=status; r.amount=amount; } });
-  const cl=tr.querySelector("td:first-child strong")?.textContent||"";
-  const ph=tr.querySelector("td:nth-child(2)")?.textContent?.trim()||"";
-  tr.dataset.search=[cl,ph,status].join(" ").toLowerCase();
   const allRefs=groupedData.flatMap(g=>g.referrals);
   const ap=allRefs.filter(r=>isApproved(r.status));
   document.getElementById("k-approved").textContent=ap.length;
   document.getElementById("k-ganhos").textContent=fmt(ap.reduce((s,r)=>s+Number(r.amount||0),0));
 }
 
-// ── Filters ───────────────────────────────────────────────────
-const var_teal="#34d399";
 document.getElementById("search-global")?.addEventListener("input",()=>renderList(groupedData));
 document.getElementById("status-filter")?.addEventListener("change",()=>renderList(groupedData));
 document.getElementById("mod-filter")?.addEventListener("change",()=>renderList(groupedData));
 
-
-// ── Render ranking ─────────────────────────────────────────────
-function renderRanking(moderators){
-  const tbody=document.getElementById("ranking-tbody");
-  if(!tbody) return;
-
-  if(!moderators.length){
-    tbody.innerHTML=`<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--muted);font-size:13px;">Nenhum moderador cadastrado.</td></tr>`;
-    return;
-  }
-
-  // Build stats per mod
-  const rows = moderators.map(mod=>{
-    const clients  = groupedData.filter(g=>g.moderator_id===mod.id);
-    const refs     = clients.flatMap(c=>c.referrals);
-    const approved = refs.filter(r=>isApproved(r.status)).length;
-    const conv     = refs.length>0 ? Math.round((approved/refs.length)*100) : 0;
-    let smash=0;
-    clients.forEach(c=>{ const ap=c.referrals.filter(r=>isApproved(r.status)).length; smash+=calcSmashcard(ap); });
-    return {mod, clients:clients.length, refs:refs.length, approved, conv, smash};
-  }).sort((a,b)=>b.approved-a.approved || b.refs-a.refs);
-
-  tbody.innerHTML = rows.map((r,i)=>{
-    const pos=i+1;
-    const cls=pos===1?"rank-1":pos===2?"rank-2":pos===3?"rank-3":"rank-other";
-    const medal=pos===1?"🥇":pos===2?"🥈":pos===3?"🥉":"";
-    return `<tr>
-      <td><span class="rank-pos ${cls}">${medal||pos}</span></td>
-      <td><strong>${r.mod.name}</strong><br><span style="font-size:11px;color:var(--muted);">${r.mod.email}</span></td>
-      <td>${r.clients}</td>
-      <td>${r.refs}</td>
-      <td><strong style="color:var(--green);">${r.approved}</strong></td>
-      <td>
-        <span style="font-size:12px;color:var(--muted);">${r.conv}%</span>
-        <span class="conv-bar-wrap"><span class="conv-bar-fill" style="width:${r.conv}%;"></span></span>
-      </td>
-      <td style="color:var(--teal);font-weight:700;">${fmt(r.smash)}</td>
-    </tr>`;
-  }).join("");
-}
-
-// ── Export Excel ───────────────────────────────────────────────
+// ── Export ─────────────────────────────────────────────────────
 document.getElementById("btn-export-excel")?.addEventListener("click",()=>exportData("excel"));
 document.getElementById("btn-export-csv")?.addEventListener("click",()=>exportData("csv"));
 
 function exportData(type){
   if(!groupedData.length){ showToast("Nenhum dado para exportar.",false); return; }
-
   const rows=[];
   groupedData.forEach(g=>{
     const modName = g.moderator_id ? (moderatorsMap[g.moderator_id]?.name||"—") : "Sem moderador";
-    const approvedRefs = g.referrals
-      .filter(r=>isApproved(r.status))
-      .sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
-    const rewardMap={};
-    approvedRefs.forEach((r,i)=>{ rewardMap[r.id]=rewardByPos(i+1); });
-
+    const modCode = g.moderator_id ? (moderatorsMap[g.moderator_id]?.code||"—") : "—";
     if(g.referrals.length===0){
-      rows.push({
-        "Indicador":      g.name||"—",
-        "Tel. Indicador": g.phone||"—",
-        "Email Indicador":g.email||"—",
-        "Moderador":      modName,
-        "Indicado":       "—",
-        "Tel. Indicado":  "—",
-        "Perfil":         "—",
-        "Status":         "—",
-        "Smashcard (R$)": "—",
-        "Nota Interna":   "—",
-        "Data":           "—",
-      });
+      rows.push({"Indicador":g.name||"—","Código":g.code||"—","Papel":g.role||"—","Moderador":`${modName} (${modCode})`,"Indicado":"—","Tel. Indicado":"—","Perfil":"—","Status":"—","Smashcard (R$)":"—","Nota":"—","Data":"—"});
     } else {
+      const approvedRefs=g.referrals.filter(r=>isApproved(r.status)).sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
+      const rewardMap={}; approvedRefs.forEach((r,i)=>{ rewardMap[r.id]=rewardByPos(i+1); });
       g.referrals.forEach(ref=>{
         const cl=ref.indicated_clients||{};
         const isAp=isApproved(ref.status);
         const statusLabels={em_analise:"Em análise",em_contato:"Em contato",aprovado:"Aprovado",reprovado:"Reprovado"};
-        rows.push({
-          "Indicador":      g.name||"—",
-          "Tel. Indicador": g.phone||"—",
-          "Email Indicador":g.email||"—",
-          "Moderador":      modName,
-          "Indicado":       cl.name||"—",
-          "Tel. Indicado":  cl.phone||"—",
-          "Perfil":         cl.profile_type||"—",
-          "Status":         statusLabels[ref.status]||ref.status||"—",
-          "Smashcard (R$)": isAp ? (rewardMap[ref.id]||0) : 0,
-          "Nota Interna":   ref.admin_note||"",
-          "Data":           fmtDate(ref.created_at),
-        });
+        rows.push({"Indicador":g.name||"—","Código":g.code||"—","Papel":g.role||"—","Moderador":`${modName} (${modCode})`,"Indicado":cl.name||"—","Tel. Indicado":cl.phone||"—","Perfil":cl.profile_type||"—","Status":statusLabels[ref.status]||ref.status||"—","Smashcard (R$)":isAp?(rewardMap[ref.id]||0):0,"Nota":ref.admin_note||"","Data":fmtDate(ref.created_at)});
       });
     }
   });
@@ -1279,45 +1266,17 @@ function exportData(type){
 
   if(type==="csv"){
     const headers=Object.keys(rows[0]);
-    const csv=[
-      headers.join(";"),
-      ...rows.map(r=>headers.map(h=>`"${String(r[h]||"").replace(/"/g,'""')}"`).join(";"))
-    ].join("\n");
+    const csv=[headers.join(";"),...rows.map(r=>headers.map(h=>`"${String(r[h]||"").replace(/"/g,'""')}"`).join(";"))].join("\n");
     const blob=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8;"});
-    const a=document.createElement("a");
-    a.href=URL.createObjectURL(blob);
-    a.download=filename+".csv";
-    a.click();
-    showToast("CSV exportado com sucesso!");
+    const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=filename+".csv";a.click();
+    showToast("CSV exportado!");
   } else {
     const ws=XLSX.utils.json_to_sheet(rows);
-    // Column widths
-    ws["!cols"]=[
-      {wch:24},{wch:16},{wch:26},{wch:20},
-      {wch:24},{wch:16},{wch:18},{wch:14},
-      {wch:14},{wch:30},{wch:12}
-    ];
+    ws["!cols"]=[{wch:22},{wch:8},{wch:10},{wch:22},{wch:22},{wch:16},{wch:16},{wch:14},{wch:14},{wch:30},{wch:12}];
     const wb=XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb,ws,"Indicações");
-
-    // Ranking sheet
-    const rankRows=Object.values(moderatorsMap).map(mod=>{
-      const clients=groupedData.filter(g=>g.moderator_id===mod.id);
-      const refs=clients.flatMap(c=>c.referrals);
-      const approved=refs.filter(r=>isApproved(r.status)).length;
-      const conv=refs.length>0?Math.round((approved/refs.length)*100):0;
-      let smash=0;
-      clients.forEach(c=>{ const ap=c.referrals.filter(r=>isApproved(r.status)).length; smash+=calcSmashcard(ap); });
-      return {"Moderador":mod.name,"Email":mod.email,"Clientes":clients.length,"Total Indicações":refs.length,"Aprovadas":approved,"Conversão (%)":conv,"Smashcard Gerado (R$)":smash};
-    }).sort((a,b)=>b["Aprovadas"]-a["Aprovadas"]);
-    if(rankRows.length){
-      const ws2=XLSX.utils.json_to_sheet(rankRows);
-      ws2["!cols"]=[{wch:22},{wch:28},{wch:10},{wch:18},{wch:12},{wch:14},{wch:20}];
-      XLSX.utils.book_append_sheet(wb,ws2,"Ranking Moderadores");
-    }
-
     XLSX.writeFile(wb,filename+".xlsx");
-    showToast("Excel exportado com sucesso!");
+    showToast("Excel exportado!");
   }
 }
 
@@ -1326,43 +1285,27 @@ let currentNoteRefId=null;
 let currentNoteBtn=null;
 
 function openNote(refId, btn){
-  currentNoteRefId=refId;
-  currentNoteBtn=btn;
-  // Find note from data
+  currentNoteRefId=refId; currentNoteBtn=btn;
   let note="";
   groupedData.forEach(g=>{ const r=g.referrals.find(r=>r.id===refId); if(r) note=r.admin_note||""; });
   document.getElementById("note-textarea").value=note;
   const cl=btn.closest("tr")?.querySelector("td:first-child strong")?.textContent||"";
-  document.getElementById("note-modal-subtitle").textContent=cl?`Sobre: ${cl} — Visível apenas para admins.`:"Visível apenas para administradores.";
+  document.getElementById("note-modal-subtitle").textContent=cl?`Sobre: ${cl}`:"Visível apenas para administradores.";
   document.getElementById("note-popup").style.display="flex";
   setTimeout(()=>document.getElementById("note-textarea").focus(),50);
 }
-
-function closeNote(){
-  document.getElementById("note-popup").style.display="none";
-  currentNoteRefId=null; currentNoteBtn=null;
-}
-
+function closeNote(){ document.getElementById("note-popup").style.display="none"; currentNoteRefId=null; currentNoteBtn=null; }
 async function saveNote(){
   const note=document.getElementById("note-textarea").value.trim();
   if(!currentNoteRefId) return;
   const {error}=await sb.from("referrals").update({admin_note:note||null}).eq("id",currentNoteRefId);
   if(error){ showToast("Erro ao salvar nota.",false); return; }
-  // Update local data
   groupedData.forEach(g=>{ const r=g.referrals.find(r=>r.id===currentNoteRefId); if(r) r.admin_note=note||null; });
-  // Update button
-  if(currentNoteBtn){
-    currentNoteBtn.textContent=note?"📝 Ver nota":"+ Nota";
-    currentNoteBtn.classList.toggle("has-note",!!note);
-    currentNoteBtn.title=note||"";
-  }
+  if(currentNoteBtn){ currentNoteBtn.textContent=note?"📝 Ver nota":"+ Nota"; currentNoteBtn.classList.toggle("has-note",!!note); currentNoteBtn.title=note||""; }
   showToast("Nota salva!");
   closeNote();
 }
-
-// Close note on backdrop click
 document.getElementById("note-popup")?.addEventListener("click",e=>{ if(e.target===document.getElementById("note-popup")) closeNote(); });
-
 
 (async()=>{
   const {data}=await sb.auth.getSession();
@@ -1370,7 +1313,7 @@ document.getElementById("note-popup")?.addEventListener("click",e=>{ if(e.target
   if(email&&ADMIN_EMAILS.includes(email.toLowerCase())) mountApp(email);
 })();
 </script>
-<!-- NOTE MODAL -->
+
 <div class="note-popup" id="note-popup" style="display:none;">
   <div class="note-modal">
     <h3>🗒️ Anotação interna</h3>
