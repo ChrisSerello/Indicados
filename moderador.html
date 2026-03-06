@@ -42,7 +42,6 @@
     .login-box h1{font-size:22px;margin-bottom:4px;}
     .login-box > p{font-size:13px;color:var(--muted);margin-bottom:20px;}
 
-    /* Tabs login/signup */
     .auth-tabs{display:flex;gap:0;border:1px solid rgba(16,185,129,.3);border-radius:10px;overflow:hidden;margin-bottom:20px;}
     .auth-tab{
       flex:1;padding:9px;font-size:13px;font-weight:600;cursor:pointer;
@@ -72,6 +71,8 @@
     .back-link{display:block;margin-top:16px;font-size:12px;color:var(--muted);text-decoration:none;}
     .back-link:hover{color:var(--text);}
     .auth-hint{font-size:11px;color:var(--muted);margin-top:10px;line-height:1.5;}
+    .forgot-link{background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;font-family:inherit;margin-top:8px;}
+    .forgot-link:hover{color:var(--text);}
 
     /* ── Moderator App ── */
     #mod-app{display:none;flex-direction:column;min-height:100vh;}
@@ -139,8 +140,20 @@
       letter-spacing:.08em;
     }
 
+    /* Chain info box */
+    .chain-info{
+      background:rgba(168,85,247,.08);border:1px solid rgba(168,85,247,.25);
+      border-radius:14px;padding:18px 22px;margin-bottom:24px;
+    }
+    .chain-info h3{font-size:14px;font-weight:700;color:#c084fc;margin-bottom:10px;}
+    .chain-info p{font-size:12px;color:rgba(255,255,255,.5);line-height:1.7;}
+    .chain-info code{
+      background:rgba(168,85,247,.15);padding:2px 6px;border-radius:4px;
+      font-size:11px;color:#e9d5ff;font-weight:600;
+    }
+
     /* KPI row */
-    .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;}
+    .kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:24px;}
     .kpi-box{
       background:var(--surface);border:1px solid var(--border);
       border-radius:var(--radius);padding:16px 18px;
@@ -149,6 +162,15 @@
     .kpi-icon{font-size:26px;}
     .kpi-label{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:4px;}
     .kpi-val{font-size:22px;font-weight:700;}
+
+    /* Tabs: Indiquers / Indicados / All Referrals */
+    .view-tabs{display:flex;gap:0;border:1px solid rgba(16,185,129,.3);border-radius:10px;overflow:hidden;margin-bottom:18px;}
+    .view-tab{
+      flex:1;padding:10px;font-size:13px;font-weight:600;cursor:pointer;text-align:center;
+      background:transparent;color:rgba(255,255,255,.45);border:none;font-family:inherit;
+      transition:all .2s;
+    }
+    .view-tab.active{background:rgba(16,185,129,.2);color:#34d399;}
 
     /* Filter bar */
     .filter-bar{display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap;}
@@ -202,6 +224,14 @@
     .client-card.open .client-body{display:block;}
     @keyframes fadeDown{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
 
+    /* Role tag */
+    .role-tag{
+      display:inline-block;padding:2px 10px;border-radius:999px;
+      font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+    }
+    .role-indiquer{background:rgba(96,165,250,.15);border:1px solid rgba(96,165,250,.3);color:#60a5fa;}
+    .role-indicado{background:rgba(168,85,247,.15);border:1px solid rgba(168,85,247,.3);color:#c084fc;}
+
     /* Table */
     .ref-table-wrap{overflow-x:auto;border-radius:12px;border:1px solid var(--border);}
     table{width:100%;border-collapse:collapse;font-size:13px;}
@@ -239,7 +269,7 @@
 
     .empty-msg{text-align:center;padding:20px;color:var(--muted);font-size:13px;}
 
-    /* ── Notes ── */
+    /* Notes */
     .note-btn{
       padding:4px 10px;border-radius:7px;border:1px solid rgba(16,185,129,.3);
       background:rgba(16,185,129,.08);color:#34d399;
@@ -268,12 +298,29 @@
     .note-actions{display:flex;gap:8px;margin-top:12px;justify-content:flex-end;}
     .btn-note-save{
       padding:8px 18px;border-radius:9px;border:none;cursor:pointer;
-      background:var(--teal-g);color:#fff;font-size:13px;font-weight:600;font-family:inherit;
+      background:var(--accent-g);color:#fff;font-size:13px;font-weight:600;font-family:inherit;
     }
     .btn-note-cancel{
       padding:8px 18px;border-radius:9px;border:1px solid var(--border);
       background:transparent;color:var(--muted);font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;
     }
+
+    /* Sub-referrer tree */
+    .sub-tree{
+      margin-top:14px;padding:14px 16px;
+      background:rgba(168,85,247,.05);border:1px solid rgba(168,85,247,.15);
+      border-radius:12px;
+    }
+    .sub-tree h4{font-size:12px;color:#c084fc;font-weight:700;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;}
+    .sub-item{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:8px 12px;margin-bottom:6px;
+      background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);
+      border-radius:8px;font-size:12px;
+    }
+    .sub-item-name{font-weight:600;}
+    .sub-item-code{color:var(--muted);font-size:11px;}
+    .sub-item-refs{color:var(--green);font-size:11px;font-weight:600;}
 
     /* Toast */
     .toast{
@@ -314,16 +361,16 @@
         <p style="font-size:12px;color:rgba(255,255,255,.5);margin-bottom:10px;">Informe seu e-mail para receber o link de redefinição.</p>
         <input type="email" id="reset-email" placeholder="Seu e-mail" style="margin-bottom:8px;"/>
         <button class="btn-enter" id="btn-send-reset" style="margin-bottom:0;">Enviar link</button>
-        <p class="auth-error"  id="reset-error"   style="margin-top:6px;"></p>
-        <p class="auth-hint"   id="reset-success" style="color:#4ade80;display:none;margin-top:6px;"></p>
+        <p class="auth-error" id="reset-error" style="margin-top:6px;"></p>
+        <p class="auth-hint" id="reset-success" style="color:#4ade80;display:none;margin-top:6px;"></p>
       </div>
     </div>
 
     <!-- SIGNUP -->
     <div class="auth-panel" id="panel-signup">
-      <input type="text"     id="signup-name"  placeholder="Seu nome completo"/>
-      <input type="email"    id="signup-email" placeholder="E-mail (deve estar pré-cadastrado)" autocomplete="username"/>
-      <input type="password" id="signup-pass"  placeholder="Criar senha" autocomplete="new-password"/>
+      <input type="text" id="signup-name" placeholder="Seu nome completo"/>
+      <input type="email" id="signup-email" placeholder="E-mail (deve estar pré-cadastrado)" autocomplete="username"/>
+      <input type="password" id="signup-pass" placeholder="Criar senha" autocomplete="new-password"/>
       <button class="btn-enter" id="btn-signup">Criar conta</button>
       <p class="auth-error" id="signup-error"></p>
       <p class="auth-hint">⚠️ Seu e-mail deve ser cadastrado previamente por um administrador. Se ainda não foi, entre em contato com ele.</p>
@@ -353,9 +400,9 @@
     <!-- SHARE LINK CARD -->
     <div class="share-card">
       <div class="share-card-left" style="flex:1;">
-        <p class="share-card-label">🔗 Seu link exclusivo de indicações</p>
-        <p class="share-card-title">Compartilhe este link com seus clientes</p>
-        <p class="share-card-desc">Todas as indicações feitas através deste link ficam vinculadas à sua conta.</p>
+        <p class="share-card-label">🔗 Seu link exclusivo para recrutar Indiquers</p>
+        <p class="share-card-title">Compartilhe este link com seus indiquers</p>
+        <p class="share-card-desc">Quem criar conta por este link será vinculado como <strong>Indiquer</strong> da sua rede. Eles terão seu próprio link para enviar a indicados.</p>
         <div class="share-link-row">
           <input class="share-link-input" id="share-link-input" type="text" readonly />
           <button class="btn-copy" id="btn-copy-link">📋 Copiar</button>
@@ -364,21 +411,40 @@
       </div>
     </div>
 
+    <!-- CHAIN EXPLANATION -->
+    <div class="chain-info">
+      <h3>🔗 Como funciona a cadeia de rastreio</h3>
+      <p>
+        Seu código de moderador tem <code>2 dígitos</code> (ex: <code>AB</code>).<br>
+        Indiquers que usam seu link ganham código de <code>4 dígitos</code>: seus 2 + 2 aleatórios (ex: <code>ABXY</code>).<br>
+        Indicados que usam o link do indiquer ganham código de <code>6 dígitos</code>: seus 2 + 2 do indiquer + 2 aleatórios (ex: <code>ABXYZW</code>).<br><br>
+        Assim, de qualquer código é possível rastrear toda a cadeia: <strong>Moderador → Indiquer → Indicado</strong>.
+      </p>
+    </div>
+
     <!-- KPIs -->
     <div class="kpi-row">
-      <div class="kpi-box"><span class="kpi-icon">👤</span><div><p class="kpi-label">Clientes</p><p class="kpi-val" id="k-clientes">—</p></div></div>
+      <div class="kpi-box"><span class="kpi-icon">🤝</span><div><p class="kpi-label">Indiquers</p><p class="kpi-val" id="k-indiquers">—</p></div></div>
+      <div class="kpi-box"><span class="kpi-icon">👤</span><div><p class="kpi-label">Indicados</p><p class="kpi-val" id="k-indicados">—</p></div></div>
       <div class="kpi-box"><span class="kpi-icon">📨</span><div><p class="kpi-label">Total indicações</p><p class="kpi-val" id="k-total">—</p></div></div>
       <div class="kpi-box"><span class="kpi-icon">✅</span><div><p class="kpi-label">Aprovadas</p><p class="kpi-val" id="k-approved">—</p></div></div>
-      <div class="kpi-box"><span class="kpi-icon">💳</span><div><p class="kpi-label">Smashcard liberado</p><p class="kpi-val" id="k-smashcard" style="font-size:16px;">—</p></div></div>
+      <div class="kpi-box"><span class="kpi-icon">💳</span><div><p class="kpi-label">Smashcard total</p><p class="kpi-val" id="k-smashcard" style="font-size:16px;">—</p></div></div>
+    </div>
+
+    <!-- VIEW TABS -->
+    <div class="view-tabs">
+      <button class="view-tab active" data-view="indiquers">🤝 Indiquers</button>
+      <button class="view-tab" data-view="indicados">👤 Indicados</button>
+      <button class="view-tab" data-view="referrals">📨 Todas as Indicações</button>
     </div>
 
     <!-- SEARCH -->
     <div class="filter-bar">
-      <input type="text" id="search-clients" placeholder="🔍  Buscar cliente por nome ou telefone…"/>
+      <input type="text" id="search-clients" placeholder="🔍  Buscar por nome, telefone ou código…"/>
     </div>
 
-    <!-- CLIENT LIST -->
-    <div id="clients-list">
+    <!-- CONTENT AREA -->
+    <div id="content-area">
       <p style="color:var(--muted);font-size:13px;">Carregando…</p>
     </div>
 
@@ -449,7 +515,6 @@ function switchAuthTab(tab){
   });
 }
 
-// ── Toggle reset inline ───────────────────────────────────────
 document.getElementById("btn-show-reset")?.addEventListener("click",()=>{
   const box=document.getElementById("reset-inline");
   const isVisible=box.style.display!=="none";
@@ -457,11 +522,12 @@ document.getElementById("btn-show-reset")?.addEventListener("click",()=>{
   document.getElementById("btn-show-reset").textContent=isVisible?"Esqueci minha senha":"↑ Fechar";
 });
 
-
-
 // ── State ──────────────────────────────────────────────────────
 let currentMod = null;
-let allClients = []; // referrers
+let allIndiquers = [];
+let allIndicados = [];
+let allReferrals = [];
+let currentView = "indiquers";
 
 // ── Login ──────────────────────────────────────────────────────
 document.getElementById("btn-login")?.addEventListener("click", async()=>{
@@ -495,7 +561,6 @@ document.getElementById("btn-signup")?.addEventListener("click", async()=>{
   const btn = document.getElementById("btn-signup");
   btn.textContent="Criando conta…"; btn.disabled=true;
   try {
-    // Check if email pre-registered in moderators table
     const {data:modRecord} = await sb.from("moderators").select("id").eq("email",email).maybeSingle();
     if(!modRecord) throw new Error("E-mail não cadastrado como moderador. Solicite ao administrador.");
 
@@ -503,10 +568,8 @@ document.getElementById("btn-signup")?.addEventListener("click", async()=>{
     if(error) throw error;
     if(!data.user) throw new Error("Erro ao criar conta. Tente novamente.");
 
-    // Link user_id
     await sb.from("moderators").update({user_id:data.user.id,name}).eq("id",modRecord.id);
 
-    // Auto login
     const {data:loginData,error:loginErr} = await sb.auth.signInWithPassword({email,password:pass});
     if(loginErr) throw loginErr;
     await verifyAndMount(loginData.user);
@@ -521,7 +584,6 @@ document.getElementById("btn-signup")?.addEventListener("click", async()=>{
 async function verifyAndMount(user){
   const {data:mod} = await sb.from("moderators").select("*").eq("email",user.email).maybeSingle();
   if(!mod){ await sb.auth.signOut(); throw new Error("Acesso não autorizado."); }
-  // Link user_id if missing
   if(!mod.user_id) await sb.from("moderators").update({user_id:user.id}).eq("id",mod.id);
   currentMod = {...mod, user_id: mod.user_id || user.id};
   document.getElementById("login-gate").style.display="none";
@@ -533,10 +595,11 @@ async function verifyAndMount(user){
 
 // ── Share link ─────────────────────────────────────────────────
 function buildShareLink(){
+  // Moderator link uses ?ref= with their 2-char code
   const base = window.location.origin + "/index.html";
-  const link = `${base}?mod=${currentMod.code}`;
+  const link = `${base}?ref=${currentMod.code}`;
   document.getElementById("share-link-input").value = link;
-  document.getElementById("mod-code-badge").textContent = `Código: ${currentMod.code}`;
+  document.getElementById("mod-code-badge").textContent = `Código: ${currentMod.code} (${currentMod.code.length} dígitos)`;
 }
 
 document.getElementById("btn-copy-link")?.addEventListener("click",()=>{
@@ -551,89 +614,113 @@ document.getElementById("btn-copy-link")?.addEventListener("click",()=>{
 // ── Load data ──────────────────────────────────────────────────
 async function loadDashboard(){
   if(!currentMod) return;
-  document.getElementById("clients-list").innerHTML="<p style='color:var(--muted);font-size:13px;'>Carregando…</p>";
+  document.getElementById("content-area").innerHTML="<p style='color:var(--muted);font-size:13px;'>Carregando…</p>";
 
-  // Get referrers for this moderator
+  // Get ALL referrers linked to this moderator
   const {data:referrers,error:e1} = await sb.from("referrers")
-    .select("id,name,phone,email,created_at")
+    .select("id,name,phone,email,code,role,ref_origin,parent_referrer_id,created_at")
     .eq("moderator_id",currentMod.id)
     .order("created_at",{ascending:false});
-  if(e1){ showToast("Erro ao carregar clientes.",false); return; }
 
-  // Get all referrals from those clients
-  const ids = (referrers||[]).map(r=>r.id);
-  let referrals = [];
+  if(e1){ showToast("Erro ao carregar dados.",false); return; }
+
+  const allRefs = referrers || [];
+  allIndiquers = allRefs.filter(r => r.role === "indiquer");
+  allIndicados = allRefs.filter(r => r.role === "indicado");
+
+  // Get all referrals from ALL referrers in this moderator's network
+  const ids = allRefs.map(r => r.id);
+  allReferrals = [];
   if(ids.length){
     const {data:refs} = await sb.from("referrals")
       .select("*, mod_note, indicated_clients(name,phone,profile_type)")
-      .in("referrer_id",ids)
+      .in("referrer_id", ids)
       .order("created_at",{ascending:false});
-    referrals = refs||[];
+    allReferrals = refs || [];
   }
 
-  // Associate referrals to each client
+  // Associate referrals to each referrer
   const refMap = {};
-  referrals.forEach(r=>{ if(!refMap[r.referrer_id]) refMap[r.referrer_id]=[]; refMap[r.referrer_id].push(r); });
-  allClients = (referrers||[]).map(r=>({...r,referrals:refMap[r.id]||[]}));
+  allReferrals.forEach(r => { if(!refMap[r.referrer_id]) refMap[r.referrer_id]=[]; refMap[r.referrer_id].push(r); });
+  allRefs.forEach(r => r.referrals = refMap[r.id] || []);
+  allIndiquers.forEach(r => r.referrals = refMap[r.id] || []);
+  allIndicados.forEach(r => r.referrals = refMap[r.id] || []);
+
+  // Also find sub-referrers (indicados) for each indiquer
+  allIndiquers.forEach(indiquer => {
+    indiquer.subReferrers = allIndicados.filter(ind => ind.ref_origin === indiquer.code);
+  });
 
   // KPIs
-  const allRefs    = allClients.flatMap(c=>c.referrals);
-  const approved   = allRefs.filter(r=>isApproved(r.status));
-  let totalSmash   = 0;
-  allClients.forEach(c=>{
-    const ap = c.referrals.filter(r=>isApproved(r.status)).length;
+  const approved = allReferrals.filter(r => isApproved(r.status));
+  let totalSmash = 0;
+  allRefs.forEach(c => {
+    const ap = (c.referrals || []).filter(r => isApproved(r.status)).length;
     totalSmash += calcSmashcard(ap);
   });
-  document.getElementById("k-clientes").textContent  = allClients.length;
-  document.getElementById("k-total").textContent     = allRefs.length;
+
+  document.getElementById("k-indiquers").textContent = allIndiquers.length;
+  document.getElementById("k-indicados").textContent = allIndicados.length;
+  document.getElementById("k-total").textContent     = allReferrals.length;
   document.getElementById("k-approved").textContent  = approved.length;
   document.getElementById("k-smashcard").textContent = fmt(totalSmash);
 
-  renderClients(allClients);
+  renderCurrentView();
 }
 
-// ── Render clients ─────────────────────────────────────────────
-function renderClients(data){
-  const search = (document.getElementById("search-clients").value||"").toLowerCase();
-  const container = document.getElementById("clients-list");
-  container.innerHTML="";
+// ── View Tabs ──────────────────────────────────────────────────
+document.querySelectorAll(".view-tab").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".view-tab").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    currentView = btn.dataset.view;
+    renderCurrentView();
+  });
+});
 
-  const filtered = data.filter(c=>
-    !search ||
-    c.name?.toLowerCase().includes(search) ||
-    c.phone?.includes(search) ||
-    c.email?.toLowerCase().includes(search)
+function renderCurrentView() {
+  if (currentView === "indiquers") renderIndiquers();
+  else if (currentView === "indicados") renderIndicados();
+  else renderAllReferrals();
+}
+
+// ── Render Indiquers ───────────────────────────────────────────
+function renderIndiquers(){
+  const search = (document.getElementById("search-clients").value||"").toLowerCase();
+  const container = document.getElementById("content-area");
+  container.innerHTML = "";
+
+  const filtered = allIndiquers.filter(c =>
+    !search || c.name?.toLowerCase().includes(search) || c.phone?.includes(search) || c.code?.toLowerCase().includes(search)
   );
 
   if(!filtered.length){
-    container.innerHTML="<p class='empty-msg'>Nenhum cliente encontrado" + (allClients.length===0?" ainda. Quando alguém usar seu link e fizer uma indicação, aparecerá aqui.":" para essa busca.") + "</p>";
+    container.innerHTML = "<p class='empty-msg'>Nenhum indiquer encontrado" + (allIndiquers.length===0?" ainda. Quando alguém usar seu link e criar conta, aparecerá aqui.":".") + "</p>";
     return;
   }
 
-  filtered.forEach(c=>{
-    const ap  = c.referrals.filter(r=>isApproved(r.status)).length;
+  filtered.forEach(c => {
+    const ap  = (c.referrals||[]).filter(r => isApproved(r.status)).length;
     const nv  = getNivel(ap);
     const wa  = waHref(c.phone);
     const smash = calcSmashcard(ap);
+    const subCount = (c.subReferrers||[]).length;
 
-    // Build approved positions for color
-    const approvedRefs = c.referrals
-      .filter(r=>isApproved(r.status))
-      .sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
+    const approvedRefs = (c.referrals||[]).filter(r => isApproved(r.status)).sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
     const rewardMap = {};
-    approvedRefs.forEach((r,i)=>{ rewardMap[r.id]=rewardByPos(i+1); });
+    approvedRefs.forEach((r,i) => { rewardMap[r.id] = rewardByPos(i+1); });
 
     const card = document.createElement("div");
-    card.className="client-card";
-    card.innerHTML=`
+    card.className = "client-card";
+    card.innerHTML = `
       <div class="client-header" onclick="this.closest('.client-card').classList.toggle('open')">
         <div class="client-left">
           <div class="client-avatar">${initials(c.name)}</div>
           <div>
-            <div class="client-name">${c.name||"—"}</div>
+            <div class="client-name">${c.name||"—"} <span class="role-tag role-indiquer">Indiquer</span></div>
             <div class="client-meta">
               ${wa?`<a class="wa-link" href="${wa}" target="_blank" onclick="event.stopPropagation()">📱 ${c.phone||"—"}</a>`:c.phone||"—"}
-              ${c.email?` · ${c.email}`:""}
+              · Código: <strong>${c.code||"—"}</strong>
               · desde ${fmtDate(c.created_at)}
             </div>
           </div>
@@ -641,16 +728,17 @@ function renderClients(data){
         <div style="display:flex;align-items:center;gap:8px;">
           <div class="client-stats">
             <span class="nivel-tag ${nv.cls}">${nv.label}</span>
-            <span class="stat-pill">${c.referrals.length} indicaç${c.referrals.length===1?"ão":"ões"}</span>
+            <span class="stat-pill">${(c.referrals||[]).length} indicaç${(c.referrals||[]).length===1?"ão":"ões"}</span>
             <span class="stat-pill green">${ap} aprovada${ap!==1?"s":""}</span>
+            <span class="stat-pill" style="color:#c084fc;border-color:rgba(168,85,247,.35);background:rgba(168,85,247,.1);">${subCount} indicado${subCount!==1?"s":""}</span>
             <span class="stat-pill" style="color:#34d399;border-color:rgba(52,211,153,.35);background:rgba(16,185,129,.1);">${fmt(smash)}</span>
           </div>
           <div class="chevron">▼</div>
         </div>
       </div>
       <div class="client-body">
-        ${c.referrals.length===0
-          ? `<p class="empty-msg">Este cliente ainda não fez indicações.</p>`
+        ${(c.referrals||[]).length===0
+          ? `<p class="empty-msg">Este indiquer ainda não fez indicações.</p>`
           : `<div class="ref-table-wrap">
               <table>
                 <thead><tr>
@@ -658,7 +746,117 @@ function renderClients(data){
                   <th>Status</th><th>Smashcard</th><th>Nota</th><th>Data</th>
                 </tr></thead>
                 <tbody>
-                  ${c.referrals.map(ref=>{
+                  ${(c.referrals||[]).map(ref=>{
+                    const cl=ref.indicated_clients||{};
+                    const wa2=waHref(cl.phone);
+                    const isAp=isApproved(ref.status);
+                    const reward=rewardMap[ref.id];
+                    const colors={50:"#e879f9",75:"#f59e0b",100:"#9ca3af",150:"#facc15",200:"#a855f7"};
+                    return `<tr>
+                      <td><strong>${cl.name||"—"}</strong></td>
+                      <td>${wa2?`<a class="wa-link" href="${wa2}" target="_blank">📱 ${cl.phone||"—"}</a>`:(cl.phone||"—")}</td>
+                      <td style="color:var(--muted);font-size:12px;">${cl.profile_type||"—"}</td>
+                      <td>${statusBadge(ref.status)}</td>
+                      <td style="color:${isAp?(colors[reward]||"#4ade80"):"rgba(255,255,255,.3)"};font-weight:${isAp?"700":"400"};">${isAp?fmt(reward):"—"}</td>
+                      <td><button class="note-btn ${ref.mod_note?"has-note":""}" onclick="openNote('${ref.id}',this)" title="${ref.mod_note||""}">${ref.mod_note?"📝 Ver nota":"+ Nota"}</button></td>
+                      <td style="color:var(--muted);font-size:12px;">${fmtDate(ref.created_at)}</td>
+                    </tr>`;
+                  }).join("")}
+                </tbody>
+              </table>
+            </div>`
+        }
+        ${subCount > 0 ? `
+          <div class="sub-tree">
+            <h4>Indicados vinculados a este Indiquer (${subCount})</h4>
+            ${(c.subReferrers||[]).map(sub => {
+              const subAp = (sub.referrals||[]).filter(r=>isApproved(r.status)).length;
+              const subTotal = (sub.referrals||[]).length;
+              return `<div class="sub-item">
+                <div>
+                  <span class="sub-item-name">${sub.name||"—"}</span>
+                  <span class="sub-item-code">Código: ${sub.code||"—"}</span>
+                </div>
+                <div style="display:flex;gap:8px;">
+                  <span class="sub-item-refs">${subTotal} indicaç${subTotal===1?"ão":"ões"} · ${subAp} aprovada${subAp!==1?"s":""}</span>
+                  <span class="role-tag role-indicado">Indicado</span>
+                </div>
+              </div>`;
+            }).join("")}
+          </div>
+        ` : ""}
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+// ── Render Indicados ───────────────────────────────────────────
+function renderIndicados(){
+  const search = (document.getElementById("search-clients").value||"").toLowerCase();
+  const container = document.getElementById("content-area");
+  container.innerHTML = "";
+
+  const filtered = allIndicados.filter(c =>
+    !search || c.name?.toLowerCase().includes(search) || c.phone?.includes(search) || c.code?.toLowerCase().includes(search)
+  );
+
+  if(!filtered.length){
+    container.innerHTML = "<p class='empty-msg'>Nenhum indicado encontrado" + (allIndicados.length===0?" ainda.":".") + "</p>";
+    return;
+  }
+
+  filtered.forEach(c => {
+    const ap = (c.referrals||[]).filter(r => isApproved(r.status)).length;
+    const nv = getNivel(ap);
+    const wa = waHref(c.phone);
+    const smash = calcSmashcard(ap);
+
+    // Find parent indiquer
+    const parentIndiquer = allIndiquers.find(i => i.code === c.ref_origin);
+    const parentName = parentIndiquer ? parentIndiquer.name : "—";
+
+    const approvedRefs = (c.referrals||[]).filter(r => isApproved(r.status)).sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
+    const rewardMap = {};
+    approvedRefs.forEach((r,i) => { rewardMap[r.id] = rewardByPos(i+1); });
+
+    const card = document.createElement("div");
+    card.className = "client-card";
+    card.innerHTML = `
+      <div class="client-header" onclick="this.closest('.client-card').classList.toggle('open')">
+        <div class="client-left">
+          <div class="client-avatar" style="background:linear-gradient(135deg,rgba(168,85,247,.6),rgba(139,92,246,.5));">${initials(c.name)}</div>
+          <div>
+            <div class="client-name">${c.name||"—"} <span class="role-tag role-indicado">Indicado</span></div>
+            <div class="client-meta">
+              ${wa?`<a class="wa-link" href="${wa}" target="_blank" onclick="event.stopPropagation()">📱 ${c.phone||"—"}</a>`:c.phone||"—"}
+              · Código: <strong>${c.code||"—"}</strong>
+              · Indiquer: <strong>${parentName}</strong>
+              · desde ${fmtDate(c.created_at)}
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="client-stats">
+            <span class="nivel-tag ${nv.cls}">${nv.label}</span>
+            <span class="stat-pill">${(c.referrals||[]).length} indicaç${(c.referrals||[]).length===1?"ão":"ões"}</span>
+            <span class="stat-pill green">${ap} aprovada${ap!==1?"s":""}</span>
+            <span class="stat-pill" style="color:#34d399;border-color:rgba(52,211,153,.35);background:rgba(16,185,129,.1);">${fmt(smash)}</span>
+          </div>
+          <div class="chevron">▼</div>
+        </div>
+      </div>
+      <div class="client-body">
+        ${(c.referrals||[]).length===0
+          ? `<p class="empty-msg">Este indicado ainda não fez indicações.</p>`
+          : `<div class="ref-table-wrap">
+              <table>
+                <thead><tr>
+                  <th>Nome indicado</th><th>WhatsApp</th><th>Perfil</th>
+                  <th>Status</th><th>Smashcard</th><th>Nota</th><th>Data</th>
+                </tr></thead>
+                <tbody>
+                  ${(c.referrals||[]).map(ref=>{
                     const cl=ref.indicated_clients||{};
                     const wa2=waHref(cl.phone);
                     const isAp=isApproved(ref.status);
@@ -684,10 +882,62 @@ function renderClients(data){
   });
 }
 
+// ── Render All Referrals (flat table) ──────────────────────────
+function renderAllReferrals(){
+  const search = (document.getElementById("search-clients").value||"").toLowerCase();
+  const container = document.getElementById("content-area");
+
+  const allRefWithOwner = allReferrals.map(ref => {
+    const owner = [...allIndiquers, ...allIndicados].find(r => r.id === ref.referrer_id);
+    return { ...ref, ownerName: owner?.name || "—", ownerCode: owner?.code || "—", ownerRole: owner?.role || "—" };
+  });
+
+  const filtered = allRefWithOwner.filter(r => {
+    if (!search) return true;
+    const cl = r.indicated_clients || {};
+    return cl.name?.toLowerCase().includes(search) || r.ownerName?.toLowerCase().includes(search) || r.ownerCode?.toLowerCase().includes(search);
+  });
+
+  if(!filtered.length){
+    container.innerHTML = "<p class='empty-msg'>Nenhuma indicação encontrada.</p>";
+    return;
+  }
+
+  container.innerHTML = `
+    <div class="ref-table-wrap">
+      <table>
+        <thead><tr>
+          <th>Indicador</th><th>Código</th><th>Papel</th>
+          <th>Nome indicado</th><th>WhatsApp</th><th>Perfil</th>
+          <th>Status</th><th>Nota</th><th>Data</th>
+        </tr></thead>
+        <tbody>
+          ${filtered.map(ref => {
+            const cl = ref.indicated_clients || {};
+            const wa2 = waHref(cl.phone);
+            const roleClass = ref.ownerRole === "indiquer" ? "role-indiquer" : "role-indicado";
+            return `<tr>
+              <td><strong>${ref.ownerName}</strong></td>
+              <td><code style="font-size:11px;background:rgba(255,255,255,.06);padding:2px 6px;border-radius:4px;">${ref.ownerCode}</code></td>
+              <td><span class="role-tag ${roleClass}">${ref.ownerRole}</span></td>
+              <td>${cl.name||"—"}</td>
+              <td>${wa2?`<a class="wa-link" href="${wa2}" target="_blank">📱 ${cl.phone||"—"}</a>`:(cl.phone||"—")}</td>
+              <td style="color:var(--muted);font-size:12px;">${cl.profile_type||"—"}</td>
+              <td>${statusBadge(ref.status)}</td>
+              <td><button class="note-btn ${ref.mod_note?"has-note":""}" onclick="openNote('${ref.id}',this)" title="${ref.mod_note||""}">${ref.mod_note?"📝 Ver nota":"+ Nota"}</button></td>
+              <td style="color:var(--muted);font-size:12px;">${fmtDate(ref.created_at)}</td>
+            </tr>`;
+          }).join("")}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
 // ── Events ────────────────────────────────────────────────────
-document.getElementById("search-clients")?.addEventListener("input",()=>renderClients(allClients));
-document.getElementById("btn-refresh")?.addEventListener("click",loadDashboard);
-document.getElementById("btn-logout")?.addEventListener("click",async()=>{
+document.getElementById("search-clients")?.addEventListener("input", renderCurrentView);
+document.getElementById("btn-refresh")?.addEventListener("click", loadDashboard);
+document.getElementById("btn-logout")?.addEventListener("click", async()=>{
   await sb.auth.signOut(); window.location.reload();
 });
 
@@ -700,7 +950,6 @@ document.getElementById("btn-send-reset")?.addEventListener("click", async()=>{
 
   if(!email){ errEl.textContent="Informe seu e-mail."; return; }
 
-  // Check if email exists in moderators
   const {data:mod} = await sb.from("moderators").select("id").eq("email",email).maybeSingle();
   if(!mod){ errEl.textContent="E-mail não encontrado como moderador."; return; }
 
@@ -708,10 +957,10 @@ document.getElementById("btn-send-reset")?.addEventListener("click", async()=>{
   btn.textContent="Enviando…"; btn.disabled=true;
 
   const {error}=await sb.auth.resetPasswordForEmail(email,{
-    redirectTo: window.location.origin+"/moderator.html"
+    redirectTo: window.location.origin+"/moderador.html"
   });
 
-  btn.textContent="Enviar link de redefinição"; btn.disabled=false;
+  btn.textContent="Enviar link"; btn.disabled=false;
 
   if(error){
     errEl.textContent="Erro: "+error.message;
@@ -734,6 +983,7 @@ document.getElementById("btn-send-reset")?.addEventListener("click", async()=>{
   }
 })();
 
+// ── Auto-login ─────────────────────────────────────────────────
 (async()=>{
   const {data} = await sb.auth.getSession();
   const user   = data?.session?.user;
@@ -743,6 +993,7 @@ document.getElementById("btn-send-reset")?.addEventListener("click", async()=>{
   }
 })();
 </script>
+
 <!-- NOTE MODAL -->
 <div class="note-popup" id="note-popup" style="display:none;">
   <div class="note-modal">
@@ -751,7 +1002,7 @@ document.getElementById("btn-send-reset")?.addEventListener("click", async()=>{
     <textarea class="note-textarea" id="note-textarea" placeholder="Ex: cliente já retornou, aguardando aprovação…"></textarea>
     <div class="note-actions">
       <button class="btn-note-cancel" onclick="closeNote()">Cancelar</button>
-      <button class="btn-note-save"   onclick="saveNote()">Salvar nota</button>
+      <button class="btn-note-save" onclick="saveNote()">Salvar nota</button>
     </div>
   </div>
 </div>
@@ -764,9 +1015,9 @@ function openNote(refId, btn){
   currentNoteRefId = refId;
   currentNoteBtn   = btn;
   let note = "";
-  allClients.forEach(c=>{ const r=c.referrals.find(r=>r.id===refId); if(r) note=r.mod_note||""; });
+  allReferrals.forEach(r => { if(r.id === refId) note = r.mod_note || ""; });
   document.getElementById("note-textarea").value = note;
-  const name = btn.closest("tr")?.querySelector("td:first-child strong")?.textContent||"";
+  const name = btn.closest("tr")?.querySelector("td:first-child strong")?.textContent || "";
   document.getElementById("note-modal-subtitle").textContent = name ? `Sobre: ${name}` : "Adicione uma observação sobre esta indicação.";
   document.getElementById("note-popup").style.display = "flex";
   setTimeout(()=>document.getElementById("note-textarea").focus(), 50);
@@ -782,15 +1033,14 @@ async function saveNote(){
   if(!currentNoteRefId) return;
   const {error} = await sb.from("referrals").update({mod_note: note||null}).eq("id", currentNoteRefId);
   if(error){ alert("Erro ao salvar nota: "+error.message); return; }
-  // Update local data
-  allClients.forEach(c=>{ const r=c.referrals.find(r=>r.id===currentNoteRefId); if(r) r.mod_note=note||null; });
-  // Update button appearance
+  allReferrals.forEach(r => { if(r.id === currentNoteRefId) r.mod_note = note||null; });
   if(currentNoteBtn){
     currentNoteBtn.textContent = note ? "📝 Ver nota" : "+ Nota";
     currentNoteBtn.classList.toggle("has-note", !!note);
     currentNoteBtn.title = note||"";
   }
   closeNote();
+  showToast("Nota salva com sucesso!");
 }
 
 document.getElementById("note-popup")?.addEventListener("click", e=>{
