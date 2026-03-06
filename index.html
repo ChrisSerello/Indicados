@@ -1142,12 +1142,12 @@
   // ══════════════════════════════════════════════════════════════
   //  AUTO-LOGIN ON PAGE LOAD
   // ══════════════════════════════════════════════════════════════
+  // AUTO-LOGIN ON PAGE LOAD — redireciona direto se já estiver logado
   (async () => {
     const { data } = await sb.auth.getSession();
     const user = data?.session?.user;
     if (user) {
-      try { await loadClientDashboard(user); }
-      catch (e) { console.log("No client record found, showing landing page."); }
+      window.location.href = 'dashboard.html';
     }
   })();
   </script>

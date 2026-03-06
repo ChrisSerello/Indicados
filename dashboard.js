@@ -1,3 +1,11 @@
+// Proteção de rota — redireciona para home se não estiver logado
+(async () => {
+  const { data } = await window.supabaseClient.auth.getSession();
+  if (!data?.session?.user) {
+    window.location.href = 'index.html';
+  }
+})();
+
 document.addEventListener("DOMContentLoaded", () => {
   const supabase = window.supabaseClient || null;
 
