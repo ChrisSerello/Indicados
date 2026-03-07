@@ -937,22 +937,40 @@ function renderIndiquers(){
                             <th>Status</th><th>Smashcard</th><th>Nota</th><th>Data</th>
                           </tr></thead>
                           <tbody>
-                            ${(sub.referrals||[]).map(ref=>{
-                              const cl=ref.indicated_clients||{};
-                              const wa2=waHref(cl.phone);
-                              const isAp=isApproved(ref.status);
-                              const reward=subRewardMap[ref.id];
-                              const colors={50:"#e879f9",75:"#f59e0b",100:"#9ca3af",150:"#facc15",200:"#a855f7"};
-                              return `<tr>
-                                <td><strong>${cl.name||"—"}</strong></td>
-                                <td>${wa2?`<a class="wa-link" href="${wa2}" target="_blank">📱 ${cl.phone||"—"}</a>`:(cl.phone||"—")}</td>
-                                <td style="color:var(--muted);font-size:12px;">${cl.profile_type||"—"}</td>
-                                <td>${statusSelect(ref.id, ref.status)}</td>
-                                <td style="color:${isAp?(colors[reward]||"#4ade80"):"rgba(255,255,255,.3)"};font-weight:${isAp?"700":"400"};">${isAp?fmt(reward):"—"}</td>
-                                <td><button class="note-btn ${ref.mod_note?"has-note":""}" onclick="openNote('${ref.id}',this)" title="${ref.mod_note||""}">${ref.mod_note?"📝 Ver nota":"+ Nota"}</button></td>
-                                <td style="color:var(--muted);font-size:12px;">${fmtDate(ref.created_at)}</td>
-                              </tr>`;
-                            }).join("")}
+                            ${ (sub.referrals||[]).map(ref => {
+                                const cl = ref.indicated_clients || {};
+
+                                // Fallback: se não tiver nome/telefone do cliente indicado,
+                                // usa o próprio indicado (sub) pra preencher a linha
+                                const displayName  = cl.name  || sub.name  || "—";
+                                const displayPhone = cl.phone || sub.phone || "—";
+
+                                const wa2   = waHref(displayPhone);
+                                const isAp  = isApproved(ref.status);
+                                const reward = subRewardMap[ref.id];
+                                const colors = {
+                                  50:"#e879f9",
+                                  75:"#f59e0b",
+                                  100:"#9ca3af",
+                                  150:"#facc15",
+                                  200:"#a855f7"
+                                };
+
+                                return `<tr>
+                                  <td><strong>${displayName}</strong></td>
+                                  <td>${
+                                    wa2
+                                      ? `<a class="wa-link" href="${wa2}" target="_blank">📱 ${displayPhone}</a>`
+                                      : (displayPhone || "—")
+                                  }</td>
+                                  <td style="color:var(--muted);font-size:12px;">${cl.profile_type || "—"}</td>
+                                  <td>${statusSelect(ref.id, ref.status)}</td>
+                                  <td style="color:${isAp ? (colors[reward] || "#4ade80") : "rgba(255,255,255,.3)"};font-weight:${isAp ? "700" : "400"};">${isAp ? fmt(reward) : "—"}</td>
+                                  <td><button class="note-btn ${ref.mod_note ? "has-note" : ""}" onclick="openNote('${ref.id}',this)" title="${ref.mod_note || ""}">${ref.mod_note ? "📝 Ver nota" : "+ Nota"}</button></td>
+                                  <td style="color:var(--muted);font-size:12px;">${fmtDate(ref.created_at)}</td>
+                                </tr>`;
+                              }).join("")
+                            }
                           </tbody>
                         </table>
                       </div>`
