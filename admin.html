@@ -416,19 +416,27 @@ async function loadAll(){
 // ══════════════════════════════════════════════════════════════
 //  HELPER: gera uma <tr> padrão — 8 colunas iguais ao header
 //  Nome indicado | WhatsApp | Perfil | Status | Valor | Nota | Data | Salvar
+//
+//  *** FIX: fallbackName / fallbackPhone ***
+//  Quando indicated_clients está vazio (indicado sem dados na tabela
+//  indicated_clients), usa os dados do próprio referrer (indicado)
+//  passados via opts.fallbackName e opts.fallbackPhone.
 // ══════════════════════════════════════════════════════════════
 function buildRefRow(ref, opts) {
   opts = opts || {};
   const cl = ref.indicated_clients || {};
-  const wa2 = waHref(cl.phone);
+  // ── FIX: fallback para dados do indicado quando indicated_clients está vazio ──
+  const displayName = cl.name || opts.fallbackName || "—";
+  const displayPhone = cl.phone || opts.fallbackPhone || null;
+  const wa2 = waHref(displayPhone);
   const sc = ref.status || "em_analise";
-  const srch = [cl.name, cl.phone, cl.profile_type, sc, opts.searchExtra||""].join(" ").toLowerCase();
+  const srch = [displayName, displayPhone, cl.profile_type, sc, opts.searchExtra||""].join(" ").toLowerCase();
   const rowStyle = opts.style || "";
   const subLabel = opts.subLabel || "";
 
   return `<tr data-ref-id="${ref.id}" data-search="${srch}" style="${rowStyle}">
-    <td>${subLabel?`<div style="margin-bottom:1px;">${subLabel}</div>`:""}<strong>${cl.name||"—"}</strong>${cl.observations?`<br><span style="color:var(--muted);font-size:11px;">${cl.observations}</span>`:""}</td>
-    <td>${wa2?`<a class="wa-link" href="${wa2}" target="_blank">📱 ${cl.phone||"—"}</a>`:(cl.phone||"—")}</td>
+    <td>${subLabel?`<div style="margin-bottom:1px;">${subLabel}</div>`:""}<strong>${displayName}</strong>${cl.observations?`<br><span style="color:var(--muted);font-size:11px;">${cl.observations}</span>`:""}</td>
+    <td>${wa2?`<a class="wa-link" href="${wa2}" target="_blank">📱 ${displayPhone||"—"}</a>`:(displayPhone||"—")}</td>
     <td style="color:var(--muted);font-size:12px;">${cl.profile_type||"—"}</td>
     <td><select class="status-select ${sc}" onchange="onStatusChange(this)">
       <option value="em_analise" ${sc==="em_analise"?"selected":""}>Em análise</option>
@@ -488,47 +496,38 @@ function renderList(data){
         return indVisibleRefs.map((ref,i)=>{
           // Só na primeira linha mostra o badge do indicado
           const badge = i===0 ? `<span class="indicado-badge">👤 via ${firstName}</span>` : `<span class="indicado-badge" style="opacity:.5;">↳ ${firstName}</span>`;
+          // ── FIX: passa fallbackName e fallbackPhone do indicado ──
           return buildRefRow(ref, {
             style:"background:rgba(168,85,247,.04);border-left:3px solid rgba(168,85,247,.3);",
             subLabel: badge,
-            searchExtra:"indicado "+ind.name
+            searchExtra:"indicado "+ind.name,
+            fallbackName: ind.name,
+            fallbackPhone: ind.phone
           });
         }).join("");
       } else {
         // Indicado sem indicações — mostra linha com campos funcionais iguais aos demais
-        const srch = ["indicado",ind.name,ind.phone].join(" ").toLowerCase();
-        return `<tr data-search="${srch}" data-referrer-id="${ind.ids?ind.ids[0]:""}"
-                  style="background:rgba(168,85,247,.04);border-left:3px solid rgba(168,85,247,.3);">
-                  <td>
-                    <span class="indicado-badge">👤 Indicado</span>
-                    <br><strong>${ind.name||"—"}</strong> ${renderCodeSegments(ind.code||"")}
-                  </td>
-                  <td>${
-                    indWa
-                      ? `<a class="wa-link" href="${indWa}" target="_blank">📱 ${ind.phone||"—"}</a>`
-                      : `<span style="color:var(--muted);">${ind.phone||"—"}</span>`
-                  }</td>
-                  <td style="color:var(--muted);font-size:12px;">—</td>
-                  <td>
-                    <select class="status-select em_analise" onchange="onStatusChange(this)">
-                      <option value="em_analise" selected>Em análise</option>
-                      <option value="em_contato">Em contato</option>
-                      <option value="aprovado">Aprovado</option>
-                      <option value="reprovado">Reprovado</option>
-                    </select>
-                  </td>
-                  <td><input class="valor-input" type="number" min="0" step="0.01" value="" placeholder="0.00"/></td>
-                  <td>
-                    <button class="note-btn"
-                            onclick="openNoteForReferrer('${ind.ids?ind.ids[0]:""}',
-                                                        '${(ind.name||"").replace(/'/g,"\\'")}',this)"
-                            title="">+ Nota</button>
-                  </td>
-                  <td style="color:var(--muted);font-size:12px;">${fmtDate(ind.firstSeen)}</td>
-                  <td><button class="save-btn" onclick="saveReferrerStatus(this)">Salvar</button></td>
-                </tr>`;
-                }
-              }).join("");
+        const srch=["indicado",ind.name,ind.phone].join(" ").toLowerCase();
+        return `<tr data-search="${srch}" data-referrer-id="${ind.ids?ind.ids[0]:""}" style="background:rgba(168,85,247,.04);border-left:3px solid rgba(168,85,247,.3);">
+          <td>
+            <span class="indicado-badge">👤 Indicado</span>
+            <br><strong>${ind.name||"—"}</strong> ${renderCodeSegments(ind.code||"")}
+          </td>
+          <td>${indWa?`<a class="wa-link" href="${indWa}" target="_blank">📱 ${ind.phone||"—"}</a>`:`<span style="color:var(--muted);">${ind.phone||"—"}</span>`}</td>
+          <td style="color:var(--muted);font-size:12px;">—</td>
+          <td><select class="status-select em_analise" onchange="onStatusChange(this)">
+            <option value="em_analise" selected>Em análise</option>
+            <option value="em_contato">Em contato</option>
+            <option value="aprovado">Aprovado</option>
+            <option value="reprovado">Reprovado</option>
+          </select></td>
+          <td><input class="valor-input" type="number" min="0" step="0.01" value="" placeholder="0.00"/></td>
+          <td><button class="note-btn" onclick="openNoteForReferrer('${ind.ids?ind.ids[0]:""}','${(ind.name||"").replace(/'/g,"\\'")}',this)" title="">+ Nota</button></td>
+          <td style="color:var(--muted);font-size:12px;">${fmtDate(ind.firstSeen)}</td>
+          <td><button class="save-btn" onclick="saveReferrerStatus(this)">Salvar</button></td>
+        </tr>`;
+      }
+    }).join("");
 
     const card=document.createElement("div");
     card.className=`referrer-card${isOpen?" open":""}`;
@@ -699,7 +698,6 @@ async function saveReferrerStatus(btn){
   btn.disabled=true;btn.textContent="…";
   const referrerId=tr.dataset.referrerId;
   if(referrerId){
-    // Cria um referral para este indicado que ainda não tinha um
     const{data:newRef,error}=await sb.from("referrals").insert({
       referrer_id: referrerId,
       status: status,
@@ -709,7 +707,6 @@ async function saveReferrerStatus(btn){
     btn.disabled=false;btn.textContent="Salvar";
     if(error){showToast("Erro: "+error.message,false);return;}
     showToast("Salvo com sucesso!");
-    // Recarrega dados para refletir o novo referral
     setTimeout(()=>loadAll(),800);
   } else {
     btn.disabled=false;btn.textContent="Salvar";
