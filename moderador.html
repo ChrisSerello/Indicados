@@ -256,6 +256,21 @@
     .s-aprovado{background:rgba(74,222,128,.15);color:#4ade80;}
     .s-reprovado{background:rgba(251,113,133,.12);color:#fb7185;}
 
+    /* Status select dropdown */
+    .status-select{
+      padding:4px 8px;border-radius:8px;font-size:11px;font-weight:600;
+      font-family:inherit;cursor:pointer;outline:none;
+      border:1px solid rgba(255,255,255,.15);
+      background:rgba(4,16,10,.9);color:var(--text);
+      transition:border-color .2s;
+    }
+    .status-select:hover{border-color:rgba(16,185,129,.5);}
+    .status-select:focus{border-color:rgba(52,211,153,.8);}
+    .status-select.ss-em_analise{border-color:rgba(250,204,21,.4);color:#facc15;}
+    .status-select.ss-em_contato{border-color:rgba(96,165,250,.4);color:#60a5fa;}
+    .status-select.ss-aprovado{border-color:rgba(74,222,128,.4);color:#4ade80;}
+    .status-select.ss-reprovado{border-color:rgba(251,113,133,.4);color:#fb7185;}
+
     /* Nivel tag */
     .nivel-tag{
       display:inline-block;padding:2px 10px;border-radius:999px;
@@ -305,13 +320,49 @@
       background:transparent;color:var(--muted);font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;
     }
 
-    /* Sub-referrer tree */
+    /* Sub-referrer tree — NOVO: tabela completa dos indicados dentro do indiquer */
     .sub-tree{
       margin-top:14px;padding:14px 16px;
       background:rgba(168,85,247,.05);border:1px solid rgba(168,85,247,.15);
       border-radius:12px;
     }
     .sub-tree h4{font-size:12px;color:#c084fc;font-weight:700;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;}
+
+    /* Sub-indicado card expandível */
+    .sub-indicado-card{
+      background:rgba(255,255,255,.02);border:1px solid rgba(168,85,247,.12);
+      border-radius:10px;margin-bottom:8px;overflow:hidden;
+      transition:border-color .2s;
+    }
+    .sub-indicado-card.open{border-color:rgba(168,85,247,.4);}
+    .sub-indicado-header{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:10px 14px;cursor:pointer;transition:background .15s;user-select:none;
+    }
+    .sub-indicado-header:hover{background:rgba(168,85,247,.06);}
+    .sub-indicado-left{display:flex;align-items:center;gap:10px;}
+    .sub-indicado-avatar{
+      width:32px;height:32px;border-radius:50%;flex-shrink:0;
+      background:linear-gradient(135deg,rgba(168,85,247,.5),rgba(139,92,246,.4));
+      display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;
+      box-shadow:0 0 8px rgba(168,85,247,.2);
+    }
+    .sub-indicado-name{font-size:13px;font-weight:600;}
+    .sub-indicado-meta{font-size:11px;color:var(--muted);}
+    .sub-indicado-stats{display:flex;gap:6px;align-items:center;}
+    .sub-indicado-body{
+      display:none;border-top:1px solid rgba(168,85,247,.1);padding:12px 14px 14px;
+      animation:fadeDown .2s ease;
+    }
+    .sub-indicado-card.open .sub-indicado-body{display:block;}
+    .sub-chevron{
+      width:22px;height:22px;border-radius:50%;
+      background:rgba(168,85,247,.08);border:1px solid rgba(168,85,247,.15);
+      display:flex;align-items:center;justify-content:center;
+      font-size:9px;color:var(--muted);transition:transform .3s;margin-left:8px;flex-shrink:0;
+    }
+    .sub-indicado-card.open .sub-chevron{transform:rotate(180deg);background:rgba(168,85,247,.2);border-color:rgba(168,85,247,.4);}
+
     .sub-item{
       display:flex;align-items:center;justify-content:space-between;
       padding:8px 12px;margin-bottom:6px;
@@ -332,7 +383,12 @@
     .toast.show{opacity:1;}
 
     @media(max-width:900px){.kpi-row{grid-template-columns:repeat(2,1fr);}}
-    @media(max-width:600px){.kpi-row{grid-template-columns:1fr;}.mod-content{padding:16px;}.client-stats{display:none;}}
+    @media(max-width:600px){
+      .kpi-row{grid-template-columns:1fr;}
+      .mod-content{padding:16px;}
+      .client-stats{display:none;}
+      .sub-indicado-stats{display:none;}
+    }
   </style>
 </head>
 <body>
@@ -481,6 +537,13 @@ const initials= n => { if(!n)return"??"; const p=n.trim().split(" "); return ((p
 const isApproved = s => s==="aprovado"||s==="approved";
 function waHref(phone){ const d=(phone||"").replace(/\D/g,""); if(!d)return null; return `https://wa.me/${d.startsWith("55")?d:"55"+d}`; }
 
+const STATUS_OPTIONS = [
+  {value:"em_analise",label:"Em análise",cls:"s-em_analise",selCls:"ss-em_analise"},
+  {value:"em_contato",label:"Em contato",cls:"s-em_contato",selCls:"ss-em_contato"},
+  {value:"aprovado",  label:"Aprovado",  cls:"s-aprovado",  selCls:"ss-aprovado"},
+  {value:"reprovado", label:"Reprovado", cls:"s-reprovado", selCls:"ss-reprovado"},
+];
+
 const STATUS_MAP = {
   em_analise:{label:"Em análise",cls:"s-em_analise"},
   em_contato:{label:"Em contato",cls:"s-em_contato"},
@@ -491,6 +554,22 @@ const STATUS_MAP = {
 };
 function statusBadge(s){ const x=STATUS_MAP[s]||{label:s||"-",cls:""}; return `<span class="status-badge ${x.cls}">${x.label}</span>`; }
 
+// Normaliza status antigos para os novos valores
+function normalizeStatus(s){
+  if(s==="pending") return "em_analise";
+  if(s==="approved") return "aprovado";
+  return s || "em_analise";
+}
+
+// Gera um <select> de status editável pelo moderador
+function statusSelect(refId, currentStatus){
+  const norm = normalizeStatus(currentStatus);
+  const match = STATUS_OPTIONS.find(o=>o.value===norm) || STATUS_OPTIONS[0];
+  return `<select class="status-select ${match.selCls}" onchange="changeStatus('${refId}', this)" data-ref-id="${refId}">
+    ${STATUS_OPTIONS.map(o=>`<option value="${o.value}" ${o.value===norm?"selected":""}>${o.label}</option>`).join("")}
+  </select>`;
+}
+
 function showToast(msg,ok=true){
   const t=document.getElementById("toast");
   t.textContent=msg;
@@ -499,6 +578,38 @@ function showToast(msg,ok=true){
   t.style.color       = ok?"#4ade80":"#fb7185";
   t.classList.add("show");
   setTimeout(()=>t.classList.remove("show"),2800);
+}
+
+// ── Alterar status de uma indicação ───────────────────────────
+async function changeStatus(refId, selectEl){
+  const newStatus = selectEl.value;
+  const {error} = await sb.from("referrals").update({status: newStatus}).eq("id", refId);
+  if(error){
+    showToast("Erro ao alterar status: "+error.message, false);
+    return;
+  }
+  // Atualiza no array local
+  allReferrals.forEach(r => { if(r.id === refId) r.status = newStatus; });
+  // Atualiza classe visual do select
+  selectEl.className = "status-select";
+  const match = STATUS_OPTIONS.find(o=>o.value===newStatus);
+  if(match) selectEl.classList.add(match.selCls);
+  showToast("Status alterado para: " + (match?match.label:newStatus));
+
+  // Recalcula KPIs
+  updateKPIs();
+}
+
+function updateKPIs(){
+  const allRefs = [...allIndiquers, ...allIndicados];
+  const approved = allReferrals.filter(r => isApproved(r.status));
+  let totalSmash = 0;
+  allRefs.forEach(c => {
+    const ap = (c.referrals || []).filter(r => isApproved(r.status)).length;
+    totalSmash += calcSmashcard(ap);
+  });
+  document.getElementById("k-approved").textContent = approved.length;
+  document.getElementById("k-smashcard").textContent = fmt(totalSmash);
 }
 
 // ── Auth Tab Toggle ────────────────────────────────────────────
@@ -595,7 +706,6 @@ async function verifyAndMount(user){
 
 // ── Share link ─────────────────────────────────────────────────
 function buildShareLink(){
-  // Moderator link uses ?ref= with their 2-char code
   const base = window.location.origin + "/index.html";
   const link = `${base}?ref=${currentMod.code}`;
   document.getElementById("share-link-input").value = link;
@@ -684,7 +794,7 @@ function renderCurrentView() {
   else renderAllReferrals();
 }
 
-// ── Render Indiquers ───────────────────────────────────────────
+// ── Render Indiquers (COM indicados expandidos dentro) ─────────
 function renderIndiquers(){
   const search = (document.getElementById("search-clients").value||"").toLowerCase();
   const container = document.getElementById("content-area");
@@ -737,8 +847,10 @@ function renderIndiquers(){
         </div>
       </div>
       <div class="client-body">
+        <!-- ═══ Indicações feitas por este Indiquer ═══ -->
+        <h4 style="font-size:12px;color:#60a5fa;font-weight:700;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;">📨 Indicações deste Indiquer (${(c.referrals||[]).length})</h4>
         ${(c.referrals||[]).length===0
-          ? `<p class="empty-msg">Este indiquer ainda não fez indicações.</p>`
+          ? `<p class="empty-msg" style="padding:10px;">Este indiquer ainda não fez indicações.</p>`
           : `<div class="ref-table-wrap">
               <table>
                 <thead><tr>
@@ -756,7 +868,7 @@ function renderIndiquers(){
                       <td><strong>${cl.name||"—"}</strong></td>
                       <td>${wa2?`<a class="wa-link" href="${wa2}" target="_blank">📱 ${cl.phone||"—"}</a>`:(cl.phone||"—")}</td>
                       <td style="color:var(--muted);font-size:12px;">${cl.profile_type||"—"}</td>
-                      <td>${statusBadge(ref.status)}</td>
+                      <td>${statusSelect(ref.id, ref.status)}</td>
                       <td style="color:${isAp?(colors[reward]||"#4ade80"):"rgba(255,255,255,.3)"};font-weight:${isAp?"700":"400"};">${isAp?fmt(reward):"—"}</td>
                       <td><button class="note-btn ${ref.mod_note?"has-note":""}" onclick="openNote('${ref.id}',this)" title="${ref.mod_note||""}">${ref.mod_note?"📝 Ver nota":"+ Nota"}</button></td>
                       <td style="color:var(--muted);font-size:12px;">${fmtDate(ref.created_at)}</td>
@@ -766,20 +878,75 @@ function renderIndiquers(){
               </table>
             </div>`
         }
+
+        <!-- ═══ Indicados vinculados (com detalhes completos) ═══ -->
         ${subCount > 0 ? `
-          <div class="sub-tree">
-            <h4>Indicados vinculados a este Indiquer (${subCount})</h4>
+          <div class="sub-tree" style="margin-top:18px;">
+            <h4>👥 Indicados vinculados a este Indiquer (${subCount})</h4>
             ${(c.subReferrers||[]).map(sub => {
               const subAp = (sub.referrals||[]).filter(r=>isApproved(r.status)).length;
               const subTotal = (sub.referrals||[]).length;
-              return `<div class="sub-item">
-                <div>
-                  <span class="sub-item-name">${sub.name||"—"}</span>
-                  <span class="sub-item-code">Código: ${sub.code||"—"}</span>
+              const subNv = getNivel(subAp);
+              const subWa = waHref(sub.phone);
+              const subSmash = calcSmashcard(subAp);
+
+              const subApprovedRefs = (sub.referrals||[]).filter(r=>isApproved(r.status)).sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
+              const subRewardMap = {};
+              subApprovedRefs.forEach((r,i) => { subRewardMap[r.id] = rewardByPos(i+1); });
+
+              return `<div class="sub-indicado-card">
+                <div class="sub-indicado-header" onclick="this.closest('.sub-indicado-card').classList.toggle('open')">
+                  <div class="sub-indicado-left">
+                    <div class="sub-indicado-avatar">${initials(sub.name)}</div>
+                    <div>
+                      <div class="sub-indicado-name">${sub.name||"—"} <span class="role-tag role-indicado" style="font-size:9px;padding:1px 7px;">Indicado</span></div>
+                      <div class="sub-indicado-meta">
+                        ${subWa?`<a class="wa-link" href="${subWa}" target="_blank" onclick="event.stopPropagation()" style="font-size:11px;">📱 ${sub.phone||"—"}</a>`:sub.phone||"—"}
+                        · Código: <strong>${sub.code||"—"}</strong>
+                        · desde ${fmtDate(sub.created_at)}
+                      </div>
+                    </div>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:6px;">
+                    <div class="sub-indicado-stats">
+                      <span class="nivel-tag ${subNv.cls}" style="font-size:9px;padding:1px 8px;">${subNv.label}</span>
+                      <span class="stat-pill" style="font-size:10px;padding:2px 8px;">${subTotal} indicaç${subTotal===1?"ão":"ões"}</span>
+                      <span class="stat-pill green" style="font-size:10px;padding:2px 8px;">${subAp} aprovada${subAp!==1?"s":""}</span>
+                      <span class="stat-pill" style="font-size:10px;padding:2px 8px;color:#34d399;border-color:rgba(52,211,153,.35);background:rgba(16,185,129,.1);">${fmt(subSmash)}</span>
+                    </div>
+                    <div class="sub-chevron">▼</div>
+                  </div>
                 </div>
-                <div style="display:flex;gap:8px;">
-                  <span class="sub-item-refs">${subTotal} indicaç${subTotal===1?"ão":"ões"} · ${subAp} aprovada${subAp!==1?"s":""}</span>
-                  <span class="role-tag role-indicado">Indicado</span>
+                <div class="sub-indicado-body">
+                  ${subTotal===0
+                    ? `<p class="empty-msg" style="padding:8px;font-size:12px;">Este indicado ainda não fez indicações.</p>`
+                    : `<div class="ref-table-wrap">
+                        <table>
+                          <thead><tr>
+                            <th>Nome indicado</th><th>WhatsApp</th><th>Perfil</th>
+                            <th>Status</th><th>Smashcard</th><th>Nota</th><th>Data</th>
+                          </tr></thead>
+                          <tbody>
+                            ${(sub.referrals||[]).map(ref=>{
+                              const cl=ref.indicated_clients||{};
+                              const wa2=waHref(cl.phone);
+                              const isAp=isApproved(ref.status);
+                              const reward=subRewardMap[ref.id];
+                              const colors={50:"#e879f9",75:"#f59e0b",100:"#9ca3af",150:"#facc15",200:"#a855f7"};
+                              return `<tr>
+                                <td><strong>${cl.name||"—"}</strong></td>
+                                <td>${wa2?`<a class="wa-link" href="${wa2}" target="_blank">📱 ${cl.phone||"—"}</a>`:(cl.phone||"—")}</td>
+                                <td style="color:var(--muted);font-size:12px;">${cl.profile_type||"—"}</td>
+                                <td>${statusSelect(ref.id, ref.status)}</td>
+                                <td style="color:${isAp?(colors[reward]||"#4ade80"):"rgba(255,255,255,.3)"};font-weight:${isAp?"700":"400"};">${isAp?fmt(reward):"—"}</td>
+                                <td><button class="note-btn ${ref.mod_note?"has-note":""}" onclick="openNote('${ref.id}',this)" title="${ref.mod_note||""}">${ref.mod_note?"📝 Ver nota":"+ Nota"}</button></td>
+                                <td style="color:var(--muted);font-size:12px;">${fmtDate(ref.created_at)}</td>
+                              </tr>`;
+                            }).join("")}
+                          </tbody>
+                        </table>
+                      </div>`
+                  }
                 </div>
               </div>`;
             }).join("")}
@@ -866,7 +1033,7 @@ function renderIndicados(){
                       <td><strong>${cl.name||"—"}</strong></td>
                       <td>${wa2?`<a class="wa-link" href="${wa2}" target="_blank">📱 ${cl.phone||"—"}</a>`:(cl.phone||"—")}</td>
                       <td style="color:var(--muted);font-size:12px;">${cl.profile_type||"—"}</td>
-                      <td>${statusBadge(ref.status)}</td>
+                      <td>${statusSelect(ref.id, ref.status)}</td>
                       <td style="color:${isAp?(colors[reward]||"#4ade80"):"rgba(255,255,255,.3)"};font-weight:${isAp?"700":"400"};">${isAp?fmt(reward):"—"}</td>
                       <td><button class="note-btn ${ref.mod_note?"has-note":""}" onclick="openNote('${ref.id}',this)" title="${ref.mod_note||""}">${ref.mod_note?"📝 Ver nota":"+ Nota"}</button></td>
                       <td style="color:var(--muted);font-size:12px;">${fmtDate(ref.created_at)}</td>
@@ -923,7 +1090,7 @@ function renderAllReferrals(){
               <td>${cl.name||"—"}</td>
               <td>${wa2?`<a class="wa-link" href="${wa2}" target="_blank">📱 ${cl.phone||"—"}</a>`:(cl.phone||"—")}</td>
               <td style="color:var(--muted);font-size:12px;">${cl.profile_type||"—"}</td>
-              <td>${statusBadge(ref.status)}</td>
+              <td>${statusSelect(ref.id, ref.status)}</td>
               <td><button class="note-btn ${ref.mod_note?"has-note":""}" onclick="openNote('${ref.id}',this)" title="${ref.mod_note||""}">${ref.mod_note?"📝 Ver nota":"+ Nota"}</button></td>
               <td style="color:var(--muted);font-size:12px;">${fmtDate(ref.created_at)}</td>
             </tr>`;
