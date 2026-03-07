@@ -815,6 +815,8 @@ function renderIndiquers(){
     const wa  = waHref(c.phone);
     const smash = calcSmashcard(ap);
     const subCount = (c.subReferrers||[]).length;
+    const totalRefs = (c.referrals || []).length;
+    const hasAnyIndication = totalRefs > 0 || subCount > 0;
 
     const approvedRefs = (c.referrals||[]).filter(r => isApproved(r.status)).sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
     const rewardMap = {};
@@ -848,35 +850,43 @@ function renderIndiquers(){
       </div>
       <div class="client-body">
         <!-- ═══ Indicações feitas por este Indiquer ═══ -->
-        <h4 style="font-size:12px;color:#60a5fa;font-weight:700;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;">📨 Indicações deste Indiquer (${(c.referrals||[]).length})</h4>
-        ${(c.referrals||[]).length===0
-          ? `<p class="empty-msg" style="padding:10px;">Este indiquer ainda não fez indicações.</p>`
-          : `<div class="ref-table-wrap">
-              <table>
-                <thead><tr>
-                  <th>Nome indicado</th><th>WhatsApp</th><th>Perfil</th>
-                  <th>Status</th><th>Smashcard</th><th>Nota</th><th>Data</th>
-                </tr></thead>
-                <tbody>
-                  ${(c.referrals||[]).map(ref=>{
-                    const cl=ref.indicated_clients||{};
-                    const wa2=waHref(cl.phone);
-                    const isAp=isApproved(ref.status);
-                    const reward=rewardMap[ref.id];
-                    const colors={50:"#e879f9",75:"#f59e0b",100:"#9ca3af",150:"#facc15",200:"#a855f7"};
-                    return `<tr>
-                      <td><strong>${cl.name||"—"}</strong></td>
-                      <td>${wa2?`<a class="wa-link" href="${wa2}" target="_blank">📱 ${cl.phone||"—"}</a>`:(cl.phone||"—")}</td>
-                      <td style="color:var(--muted);font-size:12px;">${cl.profile_type||"—"}</td>
-                      <td>${statusSelect(ref.id, ref.status)}</td>
-                      <td style="color:${isAp?(colors[reward]||"#4ade80"):"rgba(255,255,255,.3)"};font-weight:${isAp?"700":"400"};">${isAp?fmt(reward):"—"}</td>
-                      <td><button class="note-btn ${ref.mod_note?"has-note":""}" onclick="openNote('${ref.id}',this)" title="${ref.mod_note||""}">${ref.mod_note?"📝 Ver nota":"+ Nota"}</button></td>
-                      <td style="color:var(--muted);font-size:12px;">${fmtDate(ref.created_at)}</td>
-                    </tr>`;
-                  }).join("")}
-                </tbody>
-              </table>
-            </div>`
+        <h4 style="font-size:12px;color:#60a5fa;font-weight:700;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;">
+          📨 Indicações deste Indiquer (${totalRefs})
+        </h4>
+        ${
+          !hasAnyIndication
+            // Nenhum referral e nenhum indicado vinculado
+            ? `<p class="empty-msg" style="padding:10px;">Este indiquer ainda não fez indicações.</p>`
+            // Já existe pelo menos um indicado vinculado, mas zero referrals: não mostra texto.
+            : (totalRefs === 0
+                ? ""
+                : `<div class="ref-table-wrap">
+                    <table>
+                      <thead><tr>
+                        <th>Nome indicado</th><th>WhatsApp</th><th>Perfil</th>
+                        <th>Status</th><th>Smashcard</th><th>Nota</th><th>Data</th>
+                      </tr></thead>
+                      <tbody>
+                        ${(c.referrals||[]).map(ref=>{
+                          const cl=ref.indicated_clients||{};
+                          const wa2=waHref(cl.phone);
+                          const isAp=isApproved(ref.status);
+                          const reward=rewardMap[ref.id];
+                          const colors={50:"#e879f9",75:"#f59e0b",100:"#9ca3af",150:"#facc15",200:"#a855f7"};
+                          return `<tr>
+                            <td><strong>${cl.name||"—"}</strong></td>
+                            <td>${wa2?`<a class="wa-link" href="${wa2}" target="_blank">📱 ${cl.phone||"—"}</a>`:(cl.phone||"—")}</td>
+                            <td style="color:var(--muted);font-size:12px;">${cl.profile_type||"—"}</td>
+                            <td>${statusSelect(ref.id, ref.status)}</td>
+                            <td style="color:${isAp?(colors[reward]||"#4ade80"):"rgba(255,255,255,.3)"};font-weight:${isAp?"700":"400"};">${isAp?fmt(reward):"—"}</td>
+                            <td><button class="note-btn ${ref.mod_note?"has-note":""}" onclick="openNote('${ref.id}',this)" title="${ref.mod_note||""}">${ref.mod_note?"📝 Ver nota":"+ Nota"}</button></td>
+                            <td style="color:var(--muted);font-size:12px;">${fmtDate(ref.created_at)}</td>
+                          </tr>`;
+                        }).join("")}
+                      </tbody>
+                    </table>
+                  </div>`
+              )
         }
 
         <!-- ═══ Indicados vinculados (com detalhes completos) ═══ -->
@@ -1213,6 +1223,15 @@ async function saveNote(){
 document.getElementById("note-popup")?.addEventListener("click", e=>{
   if(e.target === document.getElementById("note-popup")) closeNote();
 });
+
+// ── TOGGLE INDICADO VINCULADO ──────────────────────────────────
+function toggleIndicadoVinculado(indicadoCode) {
+  const detailPanel = document.getElementById(`detail-${indicadoCode}`);
+  if (!detailPanel) return;
+  const isVisible = detailPanel.style.display !== "none";
+  detailPanel.style.display = isVisible ? "none" : "flex";
+}
+
 </script>
 
 </body>
