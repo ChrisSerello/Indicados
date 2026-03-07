@@ -594,10 +594,11 @@ async function changeStatus(refId, selectEl){
   selectEl.className = "status-select";
   const match = STATUS_OPTIONS.find(o=>o.value===newStatus);
   if(match) selectEl.classList.add(match.selCls);
-  showToast("Status alterado para: " + (match?match.label:newStatus));
+  sshowToast(`Status alterado para ${match ? match.label : newStatus}.`);
 
   // Recalcula KPIs
   updateKPIs();
+  renderCurrentView();
 }
 
 function updateKPIs(){
@@ -810,12 +811,24 @@ function renderIndiquers(){
   }
 
   filtered.forEach(c => {
-    const ap  = (c.referrals||[]).filter(r => isApproved(r.status)).length;
-    const nv  = getNivel(ap);
-    const wa  = waHref(c.phone);
-    const smash = calcSmashcard(ap);
-    const subCount = (c.subReferrers||[]).length;
-    const totalRefs = (c.referrals || []).length;
+    // Aprovadas diretas deste indiquer
+    const selfAp = (c.referrals || []).filter(r => isApproved(r.status)).length;
+
+    // Aprovadas feitas pelos indicados vinculados a ele
+    const subAp = (c.subReferrers || []).reduce((acc, sub) => {
+      const qtdSub = (sub.referrals || []).filter(r => isApproved(r.status)).length;
+      return acc + qtdSub;
+    }, 0);
+
+    // Total de aprovadas na REDE desse indiquer
+    const ap = selfAp + subAp;
+
+    const nv    = getNivel(ap);
+    const wa    = waHref(c.phone);
+    const smash = calcSmashcard(ap); // usa o total de aprovadas na rede
+
+    const subCount  = (c.subReferrers || []).length;
+    const totalRefs = (c.referrals || []).length;  // mantém só as diretas
     const hasAnyIndication = totalRefs > 0 || subCount > 0;
 
     const approvedRefs = (c.referrals||[]).filter(r => isApproved(r.status)).sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
