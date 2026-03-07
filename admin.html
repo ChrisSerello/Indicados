@@ -698,8 +698,18 @@ async function saveReferrerStatus(btn){
   btn.disabled=true;btn.textContent="…";
   const referrerId=tr.dataset.referrerId;
   if(referrerId){
+    // Busca dados do referrer para criar um indicated_client correspondente
+    const referrerInfo=allReferrersRaw.find(r=>r.id===referrerId);
+    // Cria indicated_client para manter integridade referencial
+    const{data:newClient,error:clErr}=await sb.from("indicated_clients").insert({
+      name: referrerInfo?.name||"—",
+      phone: referrerInfo?.phone||null
+    }).select("id").single();
+    if(clErr){btn.disabled=false;btn.textContent="Salvar";showToast("Erro: "+clErr.message,false);return;}
+    // Cria referral com indicated_client_id
     const{data:newRef,error}=await sb.from("referrals").insert({
       referrer_id: referrerId,
+      indicated_client_id: newClient.id,
       status: status,
       amount: amount||null,
       admin_note: referrerNoteData[referrerId]||null

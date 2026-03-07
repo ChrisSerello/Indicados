@@ -10,11 +10,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const supabase = window.supabaseClient || null;
 
   // ── Tabela de tiers por posição ────────────────────────────
-  // Posição 1–3   → R$50  (Indiquer Plus)
-  // Posição 4–6   → R$75  (Bronze)
-  // Posição 7–10  → R$100 (Prata)
-  // Posição 11–14 → R$150 (Ouro)
-  // Posição 15+   → R$200 (Platinum)
   const TIERS = [
     { level:"Indiquer Plus", min:1,  max:3,   reward:50,  cls:"nivel-plus",     color:"#e879f9", main:false },
     { level:"Bronze",        min:4,  max:6,   reward:75,  cls:"nivel-bronze",   color:"#f59e0b", main:true  },
@@ -31,19 +26,15 @@ document.addEventListener("DOMContentLoaded", () => {
     { label:"Platinum",      range:"15+",   val:"R$ 200", c:"#a855f7" },
   ];
 
-  // Retorna o tier pelo total de aprovadas (para o nível atual)
   function getTierInfo(ap) {
     return TIERS.find(t => ap >= t.min && ap <= t.max)
         || { level:"Indiquer Plus", reward:50, cls:"nivel-plus", color:"#e879f9", main:false };
   }
 
-  // Retorna o reward pela POSIÇÃO cronológica da indicação aprovada
-  // pos = 1, 2, 3... (começa em 1)
   function rewardByPosition(pos) {
     return (TIERS.find(t => pos >= t.min && pos <= t.max) || TIERS[0]).reward;
   }
 
-  // Calcula o Smashcard total somando cada aprovação pelo seu reward individual
   function calcSmashcardTotal(totalAprovadas) {
     let total = 0;
     for (let pos = 1; pos <= totalAprovadas; pos++) {
@@ -191,7 +182,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ── Render tabela de indicações ────────────────────────────
-  // Cada linha aprovada recebe o valor pelo sua posição cronológica
   function renderReferrals(referrals) {
     const empty   = document.getElementById("referrals-empty");
     const wrapper = document.getElementById("referrals-table-wrapper");
@@ -216,29 +206,28 @@ document.addEventListener("DOMContentLoaded", () => {
     if (empty)   empty.style.display   = "none";
     if (wrapper) wrapper.style.display = "block";
 
-    // Monta mapa: referral.id → reward pela posição cronológica
-    // Ordenamos as aprovadas por created_at asc para atribuir posição correta
+    // Mapa de reward por posição cronológica (ganho do INDIQUER, não do indicado)
     const approved = referrals
       .filter(r => isApproved(r.status))
       .sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
 
-    const rewardMap = {}; // id → reward
+    const rewardMap = {};
     approved.forEach((ref, idx) => {
-      rewardMap[ref.id] = rewardByPosition(idx + 1); // posição começa em 1
+      rewardMap[ref.id] = rewardByPosition(idx + 1);
     });
 
-    // Renderiza todas as linhas na ordem original (mais recente primeiro)
     referrals.forEach(ref => {
       const cl = ref.indicated_clients || {};
       const isApprov = isApproved(ref.status);
-      const valorDisplay = isApprov ? fmtCurrency(rewardMap[ref.id] || 0) : "—";
+      const reward = rewardMap[ref.id] || 0;
+      const valorDisplay = isApprov ? fmtCurrency(reward) : "—";
       const tierColor = isApprov
-        ? (rewardMap[ref.id] === 50 ? "#e879f9"
-         : rewardMap[ref.id] === 75 ? "#f59e0b"
-         : rewardMap[ref.id] === 100 ? "#9ca3af"
-         : rewardMap[ref.id] === 150 ? "#facc15"
+        ? (reward <= 50 ? "#e879f9"
+         : reward <= 75 ? "#f59e0b"
+         : reward <= 100 ? "#9ca3af"
+         : reward <= 150 ? "#facc15"
          : "#a855f7")
-        : "#4ade80";
+        : "rgba(255,255,255,.3)";
 
       const tr = document.createElement("tr");
       tr.style.borderBottom = "1px solid rgba(255,255,255,.06)";
@@ -246,7 +235,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <td style="padding:9px 10px;font-weight:600;">${cl.name||"—"}</td>
         <td style="padding:9px 10px;color:rgba(255,255,255,.5);font-size:12px;">${cl.profile_type||"—"}</td>
         <td style="padding:9px 10px;">${statusBadge(ref.status)}</td>
-        <td style="padding:9px 10px;color:${isApprov?tierColor:"rgba(255,255,255,.3)"};font-weight:${isApprov?"700":"400"};">${valorDisplay}</td>
+        <td style="padding:9px 10px;color:${tierColor};font-weight:${isApprov?"700":"400"};">${valorDisplay}</td>
         <td style="padding:9px 10px;color:rgba(255,255,255,.45);font-size:12px;">${fmtDate(ref.created_at)}</td>
       `;
       tbody.appendChild(tr);
@@ -328,10 +317,10 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // Busca indicações
+    // Busca indicações (FIX: inclui amount para usar valor real do admin)
     const { data: referrals, error: refErr } = await supabase
       .from("referrals")
-      .select("*, indicated_clients(name, phone, profile_type)")
+      .select("*, amount, indicated_clients(name, phone, profile_type)")
       .in("referrer_id", referrerIds)
       .order("created_at", { ascending: false });
 
@@ -341,7 +330,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const aprovadas = referrals.filter(r=>isApproved(r.status)).length;
     const pendentes = referrals.filter(r=>isPending(r.status)).length;
 
-    // Smashcard = soma individual por posição cronológica
+    // Smashcard = ganho do indiquer calculado SEMPRE pelo tier/posição cronológica
+    // O campo amount no banco é o valor da operação, NÃO o ganho do indiquer
+    // 1-3 aprovadas: R$50 cada | 4-6: R$75 | 7-10: R$100 | 11-14: R$150 | 15+: R$200
     const smashcard = calcSmashcardTotal(aprovadas);
 
     if (el("kpi-total-indicacoes")) el("kpi-total-indicacoes").textContent = total;
@@ -429,6 +420,11 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("btn-logout")?.addEventListener("click", handleLogout);
   document.getElementById("btn-logout-mobile")?.addEventListener("click", handleLogout);
 
+  // ── Mobile sidebar toggle ──────────────────────────────────
+  document.getElementById("btn-mobile-menu")?.addEventListener("click", () => {
+    document.querySelector(".dash-sidebar")?.classList.toggle("open");
+  });
+
   // ── Tabs ───────────────────────────────────────────────────
   document.querySelectorAll(".dash-nav-item").forEach(btn => {
     btn.addEventListener("click", () => {
@@ -438,6 +434,8 @@ document.addEventListener("DOMContentLoaded", () => {
       btn.classList.add("active");
       document.querySelectorAll(".dash-tab").forEach(t=>t.classList.remove("active"));
       document.getElementById(targetId)?.classList.add("active");
+      // Close mobile sidebar
+      document.querySelector(".dash-sidebar")?.classList.remove("open");
     });
   });
 

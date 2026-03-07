@@ -1,13 +1,23 @@
 document.addEventListener("DOMContentLoaded", () => {
   const supabase = window.supabaseClient || null;
 
-  // ─── Captura parâmetro ?mod= da URL ──────────────────────────
-  // Quando um moderador compartilha seu link (ex: site.com?mod=ABC123),
-  // o código é salvo na sessão para ser vinculado à indicação.
+  // ─── Código de rastreio ─────────────────────────────────────
+  // Caracteres permitidos (sem confusão visual: I/1/O/0 removidos)
+  const CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  function genRandomCode(len) {
+    let c = "";
+    for (let i = 0; i < len; i++) c += CODE_CHARS[Math.floor(Math.random() * CODE_CHARS.length)];
+    return c;
+  }
+
+  // ─── Captura parâmetro ?ref= da URL ─────────────────────────
+  // Moderador: 2 dígitos → quem chega vira indiquer (4 dígitos)
+  // Indiquer:  4 dígitos → quem chega vira indicado (6 dígitos)
   const urlParams = new URLSearchParams(window.location.search);
-  const modCodeFromURL = urlParams.get("mod");
-  if (modCodeFromURL) {
-    sessionStorage.setItem("modCode", modCodeFromURL.toUpperCase().trim());
+  const refCodeFromURL = (urlParams.get("ref") || "").toUpperCase().trim();
+
+  if (refCodeFromURL) {
+    sessionStorage.setItem("refCode", refCodeFromURL);
   }
 
   // Ano atual no footer
@@ -70,6 +80,52 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // ─── HELPER: Resolve ref code → moderator_id, role, code, ref_origin ──
+  // Retorna um objeto com os campos extras para o referrer
+  async function resolveRefChain() {
+    const savedRefCode = sessionStorage.getItem("refCode") || "";
+    if (!savedRefCode) return { moderator_id: null, code: null, role: null, ref_origin: null };
+
+    const codeLen = savedRefCode.length;
+
+    if (codeLen === 2) {
+      // Veio de um moderador → novo referrer é INDIQUER
+      const { data: modRecord } = await supabase
+        .from("moderators").select("id").eq("code", savedRefCode).maybeSingle();
+
+      const newCode = savedRefCode + genRandomCode(2); // 4 dígitos
+      return {
+        moderator_id: modRecord?.id || null,
+        code: newCode,
+        role: "indiquer",
+        ref_origin: savedRefCode
+      };
+    }
+
+    if (codeLen === 4) {
+      // Veio de um indiquer → novo referrer é INDICADO
+      const modPrefix = savedRefCode.substring(0, 2);
+      const { data: modRecord } = await supabase
+        .from("moderators").select("id").eq("code", modPrefix).maybeSingle();
+
+      // Tenta achar o indiquer pai
+      const { data: parentIndiquer } = await supabase
+        .from("referrers").select("id").eq("code", savedRefCode).maybeSingle();
+
+      const newCode = savedRefCode + genRandomCode(2); // 6 dígitos
+      return {
+        moderator_id: modRecord?.id || null,
+        code: newCode,
+        role: "indicado",
+        ref_origin: savedRefCode,
+        parent_referrer_id: parentIndiquer?.id || null
+      };
+    }
+
+    // Código de tamanho inesperado — ignora
+    return { moderator_id: null, code: null, role: null, ref_origin: null };
+  }
+
   // ─── LOGIN ────────────────────────────────────────────────
   document.getElementById("login-form")?.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -121,9 +177,10 @@ document.addEventListener("DOMContentLoaded", () => {
       const user = signUpData?.user;
       if (!user) throw new Error("Não foi possível criar o usuário.");
 
+      // Busca registros anteriores (indicações sem conta)
       const { data: existingRows, error: searchErr } = await supabase
         .from("referrers")
-        .select("id")
+        .select("id, code, role, moderator_id")
         .eq("cpf", cpf)
         .is("user_id", null);
 
@@ -132,27 +189,38 @@ document.addEventListener("DOMContentLoaded", () => {
       const hasPrevious = existingRows && existingRows.length > 0;
 
       if (hasPrevious) {
+        // Vincula registros existentes ao novo user
         const ids = existingRows.map(r => r.id);
-        await supabase
-          .from("referrers")
-          .update({ user_id: user.id, name, phone, email })
-          .in("id", ids);
-      } else {
-        // Resolve moderator_id (if the user arrived via a moderator link)
-        const savedModCode = sessionStorage.getItem("modCode");
-        let moderatorId = null;
-        if (savedModCode) {
-          const { data: modRecord } = await supabase
-            .from("moderators")
-            .select("id")
-            .eq("code", savedModCode)
-            .maybeSingle();
-          if (modRecord) moderatorId = modRecord.id;
+        const updateData = { user_id: user.id, name, phone, email };
+
+        // Se o registro anterior não tem code/role mas temos ref info, preenche
+        const firstRow = existingRows[0];
+        if (!firstRow.code || !firstRow.role) {
+          const chain = await resolveRefChain();
+          if (chain.code) updateData.code = chain.code;
+          if (chain.role) updateData.role = chain.role;
+          if (chain.ref_origin) updateData.ref_origin = chain.ref_origin;
+          if (chain.moderator_id && !firstRow.moderator_id) updateData.moderator_id = chain.moderator_id;
+          if (chain.parent_referrer_id) updateData.parent_referrer_id = chain.parent_referrer_id;
         }
 
-        await supabase
-          .from("referrers")
-          .insert({ user_id: user.id, name, cpf, phone, email, moderator_id: moderatorId });
+        await supabase.from("referrers").update(updateData).in("id", ids);
+      } else {
+        // Novo referrer — resolve cadeia de rastreio
+        const chain = await resolveRefChain();
+
+        await supabase.from("referrers").insert({
+          user_id: user.id,
+          name,
+          cpf,
+          phone,
+          email,
+          code: chain.code,
+          role: chain.role,
+          ref_origin: chain.ref_origin,
+          moderator_id: chain.moderator_id,
+          parent_referrer_id: chain.parent_referrer_id || null
+        });
       }
 
       document.getElementById("signup-form").reset();
@@ -232,17 +300,8 @@ document.addEventListener("DOMContentLoaded", () => {
       try {
         let referrerId = null;
 
-        // Resolve moderator via session (set when the user arrived via mod link)
-        const savedModCode = sessionStorage.getItem("modCode");
-        let moderatorId = null;
-        if (savedModCode) {
-          const { data: modRecord } = await supabase
-            .from("moderators")
-            .select("id")
-            .eq("code", savedModCode)
-            .maybeSingle();
-          if (modRecord) moderatorId = modRecord.id;
-        }
+        // Resolve a cadeia de rastreio a partir do ?ref= salvo
+        const chain = await resolveRefChain();
 
         // Check for logged-in session
         const { data: userData } = await supabase.auth.getUser();
@@ -261,30 +320,36 @@ document.addEventListener("DOMContentLoaded", () => {
           // Try to find by CPF
           const { data: byCPF } = await supabase
             .from("referrers")
-            .select("id")
+            .select("id, moderator_id, code, role")
             .eq("cpf", referrerCPF)
             .maybeSingle();
 
           if (byCPF) {
             referrerId = byCPF.id;
-            // If a moderator is in session and this referrer has none, update
-            if (moderatorId) {
-              await supabase
-                .from("referrers")
-                .update({ moderator_id: moderatorId })
-                .eq("id", referrerId)
-                .is("moderator_id", null);
+            // Se tem cadeia e o referrer ainda não tem, atualiza
+            const updates = {};
+            if (chain.moderator_id && !byCPF.moderator_id) updates.moderator_id = chain.moderator_id;
+            if (chain.code && !byCPF.code) updates.code = chain.code;
+            if (chain.role && !byCPF.role) updates.role = chain.role;
+            if (Object.keys(updates).length > 0) {
+              if (chain.ref_origin) updates.ref_origin = chain.ref_origin;
+              if (chain.parent_referrer_id) updates.parent_referrer_id = chain.parent_referrer_id;
+              await supabase.from("referrers").update(updates).eq("id", referrerId);
             }
           } else {
             // New referrer
             const { data: newRef, error: newRefErr } = await supabase
               .from("referrers")
               .insert({
-                name:         referrerName,
-                cpf:          referrerCPF,
-                phone:        referrerPhone,
-                email:        referrerEmail,
-                moderator_id: moderatorId  // ← vínculo com o moderador
+                name: referrerName,
+                cpf: referrerCPF,
+                phone: referrerPhone,
+                email: referrerEmail,
+                moderator_id: chain.moderator_id,
+                code: chain.code,
+                role: chain.role,
+                ref_origin: chain.ref_origin,
+                parent_referrer_id: chain.parent_referrer_id || null
               })
               .select("id")
               .single();
