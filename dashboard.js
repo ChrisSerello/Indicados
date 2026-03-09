@@ -107,6 +107,7 @@ document.addEventListener("DOMContentLoaded", () => {
     pending:   {label:"Em análise", cls:"status-pending" },
     contact:   {label:"Em contato", cls:"status-contact" },
     approved:  {label:"Aprovado",   cls:"status-approved"},
+    via_link:  {label:"Via link",    cls:"status-contact" },
   };
   function statusBadge(s){ const x=statusMap[s]||{label:s||"-",cls:""}; return `<span class="mini-status ${x.cls}">${x.label}</span>`; }
 
@@ -414,7 +415,9 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ── Render tabela de indicações ────────────────────────────
-  function renderReferrals(referrals) {
+  // renderReferrals: recebe indicações diretas + sub-referrers (vieram pelo link)
+  function renderReferrals(referrals, subReferrers) {
+    subReferrers = subReferrers || [];
     const empty   = document.getElementById("referrals-empty");
     const wrapper = document.getElementById("referrals-table-wrapper");
     const tbody   = document.getElementById("referrals-tbody");
@@ -423,14 +426,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
     tbody.innerHTML = "";
     if (thead) thead.innerHTML = `
-      <th style="padding:8px 10px;">Nome indicado</th>
-      <th style="padding:8px 10px;">Perfil</th>
+      <th style="padding:8px 10px;">Nome</th>
+      <th style="padding:8px 10px;">WhatsApp</th>
+      <th style="padding:8px 10px;">Perfil / Papel</th>
       <th style="padding:8px 10px;">Status</th>
       <th style="padding:8px 10px;">Smashcard</th>
       <th style="padding:8px 10px;">Data</th>
     `;
 
-    if (!referrals || referrals.length === 0) {
+    const hasAnything = referrals.length > 0 || subReferrers.length > 0;
+    if (!hasAnything) {
       if (empty)   empty.style.display   = "block";
       if (wrapper) wrapper.style.display = "none";
       return;
@@ -438,39 +443,52 @@ document.addEventListener("DOMContentLoaded", () => {
     if (empty)   empty.style.display   = "none";
     if (wrapper) wrapper.style.display = "block";
 
+    // Mapa de recompensa por posição (só indicações diretas aprovadas)
     const approved = referrals
       .filter(r => isApproved(r.status))
       .sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
-
     const rewardMap = {};
-    approved.forEach((ref, idx) => {
-      rewardMap[ref.id] = rewardByPosition(idx + 1);
-    });
+    approved.forEach((ref, idx) => { rewardMap[ref.id] = rewardByPosition(idx + 1); });
 
+    // ── Linha helper ───────────────────────────────────────
+    function addRow(name, phone, profileOrRole, status, reward, isApprov, date, highlight) {
+      const tierColor = isApprov
+        ? (reward <= 50 ? "#e879f9" : reward <= 75 ? "#f59e0b" : reward <= 100 ? "#9ca3af" : reward <= 150 ? "#facc15" : "#a855f7")
+        : "rgba(255,255,255,.3)";
+      const waNum = (phone||"").replace(/\D/g,"");
+      const waLink = waNum ? `<a href="https://wa.me/${waNum.startsWith("55")?waNum:"55"+waNum}" target="_blank" style="color:#25d366;text-decoration:none;font-size:12px;">📱 ${phone}</a>` : (phone || "—");
+      const tr = document.createElement("tr");
+      tr.style.borderBottom = "1px solid rgba(255,255,255,.06)";
+      if (highlight) tr.style.background = "rgba(168,85,247,.04)";
+      tr.innerHTML = `
+        <td style="padding:9px 10px;font-weight:600;">${name||"—"}</td>
+        <td style="padding:9px 10px;">${waLink}</td>
+        <td style="padding:9px 10px;color:rgba(255,255,255,.5);font-size:12px;">${profileOrRole||"—"}</td>
+        <td style="padding:9px 10px;">${statusBadge(status)}</td>
+        <td style="padding:9px 10px;color:${tierColor};font-weight:${isApprov?"700":"400"};">${isApprov?fmtCurrency(reward):"—"}</td>
+        <td style="padding:9px 10px;color:rgba(255,255,255,.45);font-size:12px;">${fmtDate(date)}</td>
+      `;
+      tbody.appendChild(tr);
+    }
+
+    // ── Indicações diretas (via formulário) ───────────────
     referrals.forEach(ref => {
       const cl = ref.indicated_clients || {};
       const isApprov = isApproved(ref.status);
-      const reward = rewardMap[ref.id] || 0;
-      const valorDisplay = isApprov ? fmtCurrency(reward) : "—";
-      const tierColor = isApprov
-        ? (reward <= 50 ? "#e879f9"
-         : reward <= 75 ? "#f59e0b"
-         : reward <= 100 ? "#9ca3af"
-         : reward <= 150 ? "#facc15"
-         : "#a855f7")
-        : "rgba(255,255,255,.3)";
-
-      const tr = document.createElement("tr");
-      tr.style.borderBottom = "1px solid rgba(255,255,255,.06)";
-      tr.innerHTML = `
-        <td style="padding:9px 10px;font-weight:600;">${cl.name||"—"}</td>
-        <td style="padding:9px 10px;color:rgba(255,255,255,.5);font-size:12px;">${cl.profile_type||"—"}</td>
-        <td style="padding:9px 10px;">${statusBadge(ref.status)}</td>
-        <td style="padding:9px 10px;color:${tierColor};font-weight:${isApprov?"700":"400"};">${valorDisplay}</td>
-        <td style="padding:9px 10px;color:rgba(255,255,255,.45);font-size:12px;">${fmtDate(ref.created_at)}</td>
-      `;
-      tbody.appendChild(tr);
+      addRow(cl.name, cl.phone, cl.profile_type, ref.status, rewardMap[ref.id]||0, isApprov, ref.created_at, false);
     });
+
+    // ── Sub-referrers (vieram pelo link) ──────────────────
+    if (subReferrers.length > 0) {
+      // Separador visual
+      const sep = document.createElement("tr");
+      sep.innerHTML = `<td colspan="6" style="padding:8px 10px;font-size:11px;font-weight:700;color:#c084fc;text-transform:uppercase;letter-spacing:.5px;border-top:1px solid rgba(168,85,247,.2);background:rgba(168,85,247,.04);">👥 Vinculados pelo link (${subReferrers.length})</td>`;
+      tbody.appendChild(sep);
+
+      subReferrers.forEach(sr => {
+        addRow(sr.name, sr.phone, sr.role||"indicado", "via_link", 0, false, sr.created_at, true);
+      });
+    }
   }
 
   // ── Feedback inline ────────────────────────────────────────
@@ -582,18 +600,30 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (refErr) { console.error(refErr); return; }
 
-    const total     = referrals.length;
+
+    // ── Sub-referrers: vieram pelo link do indiquer ───────
+    let subReferrers = [];
+    if (referrerCode) {
+      const { data: subs } = await supabase
+        .from("referrers")
+        .select("id, name, phone, email, code, role, created_at")
+        .eq("ref_origin", referrerCode)
+        .order("created_at", { ascending: false });
+      subReferrers = subs || [];
+    }
+
+    const totalKpi  = referrals.length + subReferrers.length;
     const aprovadas = referrals.filter(r=>isApproved(r.status)).length;
     const pendentes = referrals.filter(r=>isPending(r.status)).length;
     const smashcard = calcSmashcardTotal(aprovadas);
 
-    if (el("kpi-total-indicacoes")) el("kpi-total-indicacoes").textContent = total;
+    if (el("kpi-total-indicacoes")) el("kpi-total-indicacoes").textContent = totalKpi;
     if (el("kpi-aprovadas"))        el("kpi-aprovadas").textContent        = aprovadas;
     if (el("kpi-pendentes"))        el("kpi-pendentes").textContent        = pendentes;
     if (el("kpi-ganhos"))           el("kpi-ganhos").textContent           = fmtCurrency(smashcard);
 
     renderNivelSection(aprovadas);
-    renderReferrals(referrals);
+    renderReferrals(referrals, subReferrers);
   }
 
   // ── Formulário interno (Indicar agora) ────────────────────
@@ -608,7 +638,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const obs         = document.getElementById("d-observations")?.value.trim();
     const lgpd        = document.getElementById("d-lgpd-consent")?.checked;
 
-    if (!indicName||!indicCPF||!indicPhone||!profileType) {
+    if (!indicName||!indicPhone||!profileType) {
       showFeedback("Preencha todos os campos obrigatórios.", false); return;
     }
     if (!lgpd) { showFeedback("Confirme a autorização da pessoa indicada (LGPD).", false); return; }
@@ -636,7 +666,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const { data: indicated, error: indErr } = await supabase
         .from("indicated_clients")
-        .insert({ name:indicName, cpf:indicCPF, phone:indicPhone, profile_type:profileType, observations:obs })
+        .insert({ name:indicName, cpf:indicCPF||null, phone:indicPhone, profile_type:profileType, observations:obs||null })
         .select("id").single();
       if (indErr) throw indErr;
 
