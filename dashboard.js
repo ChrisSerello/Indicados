@@ -80,6 +80,192 @@ document.addEventListener("DOMContentLoaded", () => {
     `).join("");
   }
 
+  // ══════════════════════════════════════════════════════════
+  //  CARD DE LINK DE COMPARTILHAMENTO
+  // ══════════════════════════════════════════════════════════
+
+  /**
+   * Gera e injeta o card de link exclusivo do usuário.
+   * - Indiquer (código 4 chars): convida Indicados
+   * - Indicado (código 6 chars): também pode convidar outros
+   * - Avulso (sem código ou código inesperado): não exibe
+   *
+   * @param {string} code  - código do referrer (ex: "AB12" ou "AB12XY")
+   * @param {string} role  - papel do usuário ("indiquer", "indicado", etc.)
+   */
+  function renderShareCard(code, role) {
+    // Só exibe se tiver código válido
+    if (!code || code.length < 4) return;
+
+    const baseUrl  = `${window.location.origin}/index.html`;
+    const shareUrl = `${baseUrl}?ref=${code}`;
+
+    // Textos personalizados por papel
+    const isIndiquer = role === "indiquer" || code.length === 4;
+    const label      = isIndiquer
+      ? "Compartilhe com quem você quer indicar"
+      : "Você também pode indicar outras pessoas";
+    const desc       = isIndiquer
+      ? "Quem criar conta pelo seu link entra como <strong>Indicado</strong> vinculado a você. Cada contrato fechado gera Smashcard pra você!"
+      : "Envie seu link para outras pessoas. Contratos fechados por eles também contam para você!";
+    const highlight  = isIndiquer
+      ? { color: "#34d399", bg: "rgba(16,185,129,.12)", border: "rgba(16,185,129,.3)", icon: "🔗" }
+      : { color: "#c084fc", bg: "rgba(168,85,247,.12)", border: "rgba(168,85,247,.3)", icon: "🔗" };
+
+    const cardHTML = `
+      <div id="share-card-client" style="
+        background: linear-gradient(135deg, ${highlight.bg}, rgba(255,255,255,.02));
+        border: 1px solid ${highlight.border};
+        border-radius: 18px;
+        padding: 20px 22px;
+        margin-bottom: 24px;
+      ">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+          <div style="flex:1;min-width:200px;">
+            <p style="font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:${highlight.color};font-weight:700;margin-bottom:6px;">
+              ${highlight.icon} Seu link exclusivo de indicação
+            </p>
+            <p style="font-size:14px;font-weight:600;color:#f9fafb;margin-bottom:4px;">${label}</p>
+            <p style="font-size:12px;color:rgba(255,255,255,.5);line-height:1.6;margin-bottom:14px;">${desc}</p>
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+              <input
+                id="client-share-link-input"
+                type="text"
+                readonly
+                value="${shareUrl}"
+                style="
+                  flex:1;min-width:180px;padding:9px 12px;border-radius:9px;
+                  border:1px solid ${highlight.border};
+                  background:rgba(4,16,10,.85);
+                  color:${highlight.color};
+                  font-size:12px;font-family:inherit;outline:none;cursor:text;
+                "
+              />
+              <button
+                id="btn-copy-client-link"
+                onclick="copyClientShareLink()"
+                style="
+                  padding:9px 16px;border-radius:9px;border:none;cursor:pointer;
+                  background:linear-gradient(135deg,#34d399,#059669);
+                  color:#fff;font-size:13px;font-weight:600;font-family:inherit;
+                  white-space:nowrap;transition:filter .2s;
+                "
+              >
+                📋 Copiar link
+              </button>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex-shrink:0;">
+            <div style="
+              padding:6px 14px;border-radius:999px;font-size:13px;font-weight:700;
+              letter-spacing:.08em;background:${highlight.bg};
+              border:1px solid ${highlight.border};color:${highlight.color};
+            ">
+              Código: <strong>${code}</strong>
+            </div>
+            <div style="
+              padding:4px 12px;border-radius:999px;font-size:11px;font-weight:600;
+              background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+              color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.04em;
+            ">
+              ${role || "indiquer"}
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Injeta logo após o header da seção Resumo, antes do kpi-grid
+    const overviewTab = document.getElementById("overview-tab");
+    const kpiGrid     = overviewTab?.querySelector(".kpi-grid");
+    if (overviewTab && kpiGrid) {
+      kpiGrid.insertAdjacentHTML("beforebegin", cardHTML);
+    }
+
+    // Também injeta (versão compacta) na aba "Indicar agora", acima do form
+    renderShareCardCompact(shareUrl, code, highlight, label);
+  }
+
+  /**
+   * Versão compacta do card de link para a aba "Indicar agora"
+   */
+  function renderShareCardCompact(shareUrl, code, highlight, label) {
+    const newReferralTab = document.getElementById("new-referral-tab");
+    const dashHeader     = newReferralTab?.querySelector(".dash-header");
+    if (!newReferralTab || !dashHeader) return;
+
+    const compactHTML = `
+      <div id="share-card-compact" style="
+        background: ${highlight.bg};
+        border: 1px solid ${highlight.border};
+        border-radius: 14px;
+        padding: 14px 18px;
+        margin-bottom: 20px;
+        display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+      ">
+        <div style="display:flex;flex-direction:column;gap:3px;flex:1;min-width:200px;">
+          <p style="font-size:11px;font-weight:700;color:${highlight.color};text-transform:uppercase;letter-spacing:.5px;">
+            🔗 Seu link de indicação · Código: <strong>${code}</strong>
+          </p>
+          <p style="font-size:12px;color:rgba(255,255,255,.5);">${label}</p>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+          <input
+            id="client-share-link-compact"
+            type="text"
+            readonly
+            value="${shareUrl}"
+            style="
+              width:220px;padding:7px 10px;border-radius:8px;
+              border:1px solid ${highlight.border};
+              background:rgba(4,16,10,.85);
+              color:${highlight.color};font-size:11px;font-family:inherit;outline:none;
+            "
+          />
+          <button
+            onclick="copyClientShareLinkCompact()"
+            id="btn-copy-client-compact"
+            style="
+              padding:7px 14px;border-radius:8px;border:none;cursor:pointer;
+              background:linear-gradient(135deg,#34d399,#059669);
+              color:#fff;font-size:12px;font-weight:600;font-family:inherit;
+              white-space:nowrap;
+            "
+          >
+            📋 Copiar
+          </button>
+        </div>
+      </div>
+    `;
+
+    dashHeader.insertAdjacentHTML("afterend", compactHTML);
+  }
+
+  // ── Funções globais de cópia ───────────────────────────────
+  window.copyClientShareLink = function() {
+    const inp = document.getElementById("client-share-link-input");
+    const btn = document.getElementById("btn-copy-client-link");
+    if (!inp || !btn) return;
+    navigator.clipboard.writeText(inp.value).then(() => {
+      btn.textContent = "✅ Copiado!";
+      btn.style.background = "linear-gradient(135deg,#4ade80,#22c55e)";
+      setTimeout(() => {
+        btn.textContent = "📋 Copiar link";
+        btn.style.background = "linear-gradient(135deg,#34d399,#059669)";
+      }, 2000);
+    });
+  };
+
+  window.copyClientShareLinkCompact = function() {
+    const inp = document.getElementById("client-share-link-compact");
+    const btn = document.getElementById("btn-copy-client-compact");
+    if (!inp || !btn) return;
+    navigator.clipboard.writeText(inp.value).then(() => {
+      btn.textContent = "✅ Copiado!";
+      setTimeout(() => { btn.textContent = "📋 Copiar"; }, 2000);
+    });
+  };
+
   // ── Nível section ──────────────────────────────────────────
   function renderNivelSection(ap) {
     const wrap = document.getElementById("nivel-section-wrap");
@@ -206,7 +392,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (empty)   empty.style.display   = "none";
     if (wrapper) wrapper.style.display = "block";
 
-    // Mapa de reward por posição cronológica (ganho do INDIQUER, não do indicado)
     const approved = referrals
       .filter(r => isApproved(r.status))
       .sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
@@ -278,13 +463,13 @@ document.addEventListener("DOMContentLoaded", () => {
     // Busca por user_id
     let referrerIds = [];
     const { data: byUserId } = await supabase
-      .from("referrers").select("id").eq("user_id", user.id);
+      .from("referrers").select("id,code,role").eq("user_id", user.id);
     if (byUserId) referrerIds.push(...byUserId.map(r=>r.id));
 
     // Busca por CPF e vincula órfãos
     if (cpf) {
       const { data: byCPF } = await supabase
-        .from("referrers").select("id").eq("cpf", cpf);
+        .from("referrers").select("id,code,role").eq("cpf", cpf);
       if (byCPF) {
         const orphanIds = byCPF
           .filter(r => !referrerIds.includes(r.id))
@@ -303,11 +488,35 @@ document.addEventListener("DOMContentLoaded", () => {
       const { data: newRef } = await supabase
         .from("referrers")
         .insert({ user_id: user.id, name, cpf: cpf||null, email })
-        .select("id").single();
+        .select("id,code,role").single();
       if (newRef) referrerIds = [newRef.id];
     }
 
     currentReferrerId = referrerIds[0] || null;
+
+    // ── Busca dados completos do referrer principal ──────────
+    let referrerCode = null;
+    let referrerRole = null;
+    if (currentReferrerId) {
+      const { data: refData } = await supabase
+        .from("referrers")
+        .select("code,role")
+        .eq("id", currentReferrerId)
+        .maybeSingle();
+      if (refData) {
+        referrerCode = refData.code;
+        referrerRole = refData.role;
+      }
+    }
+
+    // ── Renderiza card de link de compartilhamento ───────────
+    // Remove card anterior se existir (evita duplicatas em recargas)
+    document.getElementById("share-card-client")?.remove();
+    document.getElementById("share-card-compact")?.remove();
+
+    if (referrerCode) {
+      renderShareCard(referrerCode, referrerRole);
+    }
 
     if (referrerIds.length === 0) {
       ["kpi-total-indicacoes","kpi-aprovadas","kpi-pendentes"].forEach(id=>{ if(el(id)) el(id).textContent="0"; });
@@ -317,7 +526,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // Busca indicações (FIX: inclui amount para usar valor real do admin)
+    // Busca indicações
     const { data: referrals, error: refErr } = await supabase
       .from("referrals")
       .select("*, amount, indicated_clients(name, phone, profile_type)")
@@ -329,10 +538,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const total     = referrals.length;
     const aprovadas = referrals.filter(r=>isApproved(r.status)).length;
     const pendentes = referrals.filter(r=>isPending(r.status)).length;
-
-    // Smashcard = ganho do indiquer calculado SEMPRE pelo tier/posição cronológica
-    // O campo amount no banco é o valor da operação, NÃO o ganho do indiquer
-    // 1-3 aprovadas: R$50 cada | 4-6: R$75 | 7-10: R$100 | 11-14: R$150 | 15+: R$200
     const smashcard = calcSmashcardTotal(aprovadas);
 
     if (el("kpi-total-indicacoes")) el("kpi-total-indicacoes").textContent = total;
@@ -434,7 +639,6 @@ document.addEventListener("DOMContentLoaded", () => {
       btn.classList.add("active");
       document.querySelectorAll(".dash-tab").forEach(t=>t.classList.remove("active"));
       document.getElementById(targetId)?.classList.add("active");
-      // Close mobile sidebar
       document.querySelector(".dash-sidebar")?.classList.remove("open");
     });
   });
