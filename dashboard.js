@@ -45,36 +45,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ── Gerador de código ──────────────────────────────────────
   function genChars(n) {
-    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // sem I,O,0,1
+    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
     let r = "";
     for (let i = 0; i < n; i++) r += chars[Math.floor(Math.random() * chars.length)];
     return r;
   }
 
-  /**
-   * Garante que o referrer tem um código. Se não tiver, gera e salva.
-   * Contas avulsas (sem ref_origin) recebem 4 chars → papel "indiquer"
-   * Contas com ref_origin de moderador (2 chars) já deveriam ter, mas se não:
-   *   → refaz a lógica: 2 do mod + 2 random = 4 chars
-   */
   async function ensureCode(referrerId, currentCode, refOrigin) {
-    if (currentCode && currentCode.length >= 4) return currentCode; // já tem código
+    if (currentCode && currentCode.length >= 4) return currentCode;
 
     let newCode;
     if (refOrigin && refOrigin.length === 2) {
-      // veio de moderador → indiquer
       newCode = refOrigin + genChars(2);
     } else if (refOrigin && refOrigin.length === 4) {
-      // veio de indiquer → indicado
       newCode = refOrigin + genChars(2);
     } else {
-      // avulso → trata como indiquer
       newCode = genChars(4);
     }
 
     const role = newCode.length === 4 ? "indiquer" : "indicado";
 
-    // Verifica unicidade (retry simples)
     for (let attempt = 0; attempt < 5; attempt++) {
       const { data: existing } = await supabase
         .from("referrers").select("id").eq("code", newCode).maybeSingle();
@@ -130,24 +120,12 @@ document.addEventListener("DOMContentLoaded", () => {
   // ══════════════════════════════════════════════════════════
   //  CARD DE LINK DE COMPARTILHAMENTO
   // ══════════════════════════════════════════════════════════
-
-  /**
-   * Gera e injeta o card de link exclusivo do usuário.
-   * - Indiquer (código 4 chars): convida Indicados
-   * - Indicado (código 6 chars): também pode convidar outros
-   * - Avulso (sem código ou código inesperado): não exibe
-   *
-   * @param {string} code  - código do referrer (ex: "AB12" ou "AB12XY")
-   * @param {string} role  - papel do usuário ("indiquer", "indicado", etc.)
-   */
   function renderShareCard(code, role) {
-    // Só exibe se tiver código válido
     if (!code || code.length < 4) return;
 
     const baseUrl  = `${window.location.origin}/index.html`;
     const shareUrl = `${baseUrl}?ref=${code}`;
 
-    // Textos personalizados por papel
     const isIndiquer = role === "indiquer" || code.length === 4;
     const label      = isIndiquer
       ? "Compartilhe com quem você quer indicar"
@@ -222,20 +200,15 @@ document.addEventListener("DOMContentLoaded", () => {
       </div>
     `;
 
-    // Injeta logo após o header da seção Resumo, antes do kpi-grid
     const overviewTab = document.getElementById("overview-tab");
     const kpiGrid     = overviewTab?.querySelector(".kpi-grid");
     if (overviewTab && kpiGrid) {
       kpiGrid.insertAdjacentHTML("beforebegin", cardHTML);
     }
 
-    // Também injeta (versão compacta) na aba "Indicar agora", acima do form
     renderShareCardCompact(shareUrl, code, highlight, label);
   }
 
-  /**
-   * Versão compacta do card de link para a aba "Indicar agora"
-   */
   function renderShareCardCompact(shareUrl, code, highlight, label) {
     const newReferralTab = document.getElementById("new-referral-tab");
     const dashHeader     = newReferralTab?.querySelector(".dash-header");
@@ -288,7 +261,6 @@ document.addEventListener("DOMContentLoaded", () => {
     dashHeader.insertAdjacentHTML("afterend", compactHTML);
   }
 
-  // ── Funções globais de cópia ───────────────────────────────
   window.copyClientShareLink = function() {
     const inp = document.getElementById("client-share-link-input");
     const btn = document.getElementById("btn-copy-client-link");
@@ -415,7 +387,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ── Render tabela de indicações ────────────────────────────
-  // renderReferrals: recebe indicações diretas + sub-referrers (vieram pelo link)
   function renderReferrals(referrals, subReferrers) {
     subReferrers = subReferrers || [];
     const empty   = document.getElementById("referrals-empty");
@@ -450,7 +421,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const rewardMap = {};
     approved.forEach((ref, idx) => { rewardMap[ref.id] = rewardByPosition(idx + 1); });
 
-    // ── Linha helper ───────────────────────────────────────
     function addRow(name, phone, profileOrRole, status, reward, isApprov, date, highlight) {
       const tierColor = isApprov
         ? (reward <= 50 ? "#e879f9" : reward <= 75 ? "#f59e0b" : reward <= 100 ? "#9ca3af" : reward <= 150 ? "#facc15" : "#a855f7")
@@ -471,7 +441,7 @@ document.addEventListener("DOMContentLoaded", () => {
       tbody.appendChild(tr);
     }
 
-    // ── Indicações diretas (via formulário) ───────────────
+    // ── Indicações diretas ────────────────────────────────
     referrals.forEach(ref => {
       const cl = ref.indicated_clients || {};
       const isApprov = isApproved(ref.status);
@@ -480,7 +450,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // ── Sub-referrers (vieram pelo link) ──────────────────
     if (subReferrers.length > 0) {
-      // Separador visual
       const sep = document.createElement("tr");
       sep.innerHTML = `<td colspan="6" style="padding:8px 10px;font-size:11px;font-weight:700;color:#c084fc;text-transform:uppercase;letter-spacing:.5px;border-top:1px solid rgba(168,85,247,.2);background:rgba(168,85,247,.04);">👥 Vinculados pelo link (${subReferrers.length})</td>`;
       tbody.appendChild(sep);
@@ -489,6 +458,40 @@ document.addEventListener("DOMContentLoaded", () => {
         addRow(sr.name, sr.phone, sr.role||"indicado", "via_link", 0, false, sr.created_at, true);
       });
     }
+  }
+
+  // ── Toast notification ─────────────────────────────────────
+  function showToast(msg, ok = true) {
+    // Remove existing toast se houver
+    const existing = document.getElementById("dash-toast");
+    if (existing) existing.remove();
+
+    const toast = document.createElement("div");
+    toast.id = "dash-toast";
+    toast.textContent = msg;
+    Object.assign(toast.style, {
+      position: "fixed",
+      bottom: "24px",
+      right: "24px",
+      zIndex: "999",
+      padding: "12px 18px",
+      borderRadius: "10px",
+      fontSize: "13px",
+      fontWeight: "500",
+      fontFamily: "inherit",
+      boxShadow: "0 8px 24px rgba(0,0,0,.5)",
+      border: `1px solid ${ok ? "rgba(74,222,128,.4)" : "rgba(251,113,133,.4)"}`,
+      background: ok ? "rgba(74,222,128,.15)" : "rgba(251,113,133,.15)",
+      color: ok ? "#4ade80" : "#fb7185",
+      opacity: "0",
+      transition: "opacity .3s",
+    });
+    document.body.appendChild(toast);
+    requestAnimationFrame(() => { toast.style.opacity = "1"; });
+    setTimeout(() => {
+      toast.style.opacity = "0";
+      setTimeout(() => toast.remove(), 300);
+    }, 3000);
   }
 
   // ── Feedback inline ────────────────────────────────────────
@@ -505,6 +508,82 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ── Estado do referrer logado ──────────────────────────────
   let currentReferrerId = null;
+  let currentReferrerIds = [];
+  let realtimeChannel = null;
+
+  // ══════════════════════════════════════════════════════════
+  //  updateKPIsOnly — atualiza KPIs sem re-renderizar tudo
+  //  Chamado pela subscription em tempo real
+  // ══════════════════════════════════════════════════════════
+  async function updateKPIsOnly() {
+    if (!currentReferrerIds.length) return;
+
+    const { data: referrals } = await supabase
+      .from("referrals")
+      .select("id, status, amount, created_at, referrer_id, indicated_clients(name, phone, profile_type)")
+      .in("referrer_id", currentReferrerIds)
+      .order("created_at", { ascending: false });
+
+    if (!referrals) return;
+
+    const aprovadas = referrals.filter(r => isApproved(r.status)).length;
+    const pendentes = referrals.filter(r => isPending(r.status)).length;
+    const smashcard = calcSmashcardTotal(aprovadas);
+
+    const el = id => document.getElementById(id);
+    if (el("kpi-total-indicacoes")) el("kpi-total-indicacoes").textContent = referrals.length;
+    if (el("kpi-aprovadas"))        el("kpi-aprovadas").textContent        = aprovadas;
+    if (el("kpi-pendentes"))        el("kpi-pendentes").textContent        = pendentes;
+    if (el("kpi-ganhos"))           el("kpi-ganhos").textContent           = fmtCurrency(smashcard);
+
+    // Atualiza a seção de nível
+    renderNivelSection(aprovadas);
+
+    // Atualiza a tabela de indicações também
+    renderReferrals(referrals, []);
+  }
+
+  // ══════════════════════════════════════════════════════════
+  //  setupRealtimeSubscription — ouve mudanças em referrals
+  //  para atualizar smashcard automaticamente quando admin
+  //  ou moderador aprovar uma indicação
+  // ══════════════════════════════════════════════════════════
+  function setupRealtimeSubscription(referrerIds) {
+    // Remove channel anterior se existir
+    if (realtimeChannel) {
+      supabase.removeChannel(realtimeChannel);
+      realtimeChannel = null;
+    }
+
+    if (!referrerIds || referrerIds.length === 0) return;
+
+    realtimeChannel = supabase
+      .channel(`referrals-dashboard-${referrerIds[0]}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'referrals',
+        },
+        async (payload) => {
+          // Verifica se a mudança é de um referral do nosso usuário
+          const changedReferrerId = payload.new?.referrer_id;
+          if (referrerIds.includes(changedReferrerId)) {
+            // Atualiza KPIs e tabela em tempo real
+            await updateKPIsOnly();
+
+            // Notificação visual se for aprovação
+            const oldStatus = payload.old?.status;
+            const newStatus = payload.new?.status;
+            if (!isApproved(oldStatus) && isApproved(newStatus)) {
+              showToast("🎉 Uma indicação foi aprovada! Seu Smashcard foi atualizado.", true);
+            }
+          }
+        }
+      )
+      .subscribe();
+  }
 
   // ── Carregar dashboard ─────────────────────────────────────
   async function loadDashboard() {
@@ -556,7 +635,11 @@ document.addEventListener("DOMContentLoaded", () => {
       if (newRef) referrerIds = [newRef.id];
     }
 
-    currentReferrerId = referrerIds[0] || null;
+    currentReferrerId  = referrerIds[0] || null;
+    currentReferrerIds = referrerIds;
+
+    // ── Configura subscription em tempo real ─────────────────
+    setupRealtimeSubscription(referrerIds);
 
     // ── Busca dados completos do referrer principal ──────────
     let referrerCode = null;
@@ -568,14 +651,12 @@ document.addEventListener("DOMContentLoaded", () => {
         .eq("id", currentReferrerId)
         .maybeSingle();
       if (refData) {
-        // Garante que código existe — gera e salva se necessário
         referrerCode = await ensureCode(currentReferrerId, refData.code, refData.ref_origin);
         referrerRole = refData.role || (referrerCode?.length === 4 ? "indiquer" : "indicado");
       }
     }
 
     // ── Renderiza card de link de compartilhamento ───────────
-    // Remove card anterior se existir (evita duplicatas em recargas)
     document.getElementById("share-card-client")?.remove();
     document.getElementById("share-card-compact")?.remove();
 
@@ -599,7 +680,6 @@ document.addEventListener("DOMContentLoaded", () => {
       .order("created_at", { ascending: false });
 
     if (refErr) { console.error(refErr); return; }
-
 
     // ── Sub-referrers: vieram pelo link do indiquer ───────
     let subReferrers = [];
@@ -696,6 +776,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ── Logout ─────────────────────────────────────────────────
   async function handleLogout() {
+    if (realtimeChannel) supabase.removeChannel(realtimeChannel);
     if (supabase) await supabase.auth.signOut();
     window.location.href="index.html";
   }
