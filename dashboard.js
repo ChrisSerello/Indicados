@@ -387,8 +387,9 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ── Render tabela de indicações ────────────────────────────
-  function renderReferrals(referrals, subReferrers) {
-    subReferrers = subReferrers || [];
+  function renderReferrals(referrals, subReferrers, allSubReferrals) {
+    subReferrers   = subReferrers   || [];
+    allSubReferrals = allSubReferrals || [];
     const empty   = document.getElementById("referrals-empty");
     const wrapper = document.getElementById("referrals-table-wrapper");
     const tbody   = document.getElementById("referrals-tbody");
@@ -414,12 +415,12 @@ document.addEventListener("DOMContentLoaded", () => {
     if (empty)   empty.style.display   = "none";
     if (wrapper) wrapper.style.display = "block";
 
-    // Mapa de recompensa por posição (só indicações diretas aprovadas)
-    const approved = referrals
+    // Mapa de recompensa por posição — soma diretas + sub-referrer aprovadas
+    const allForReward = [...referrals, ...allSubReferrals]
       .filter(r => isApproved(r.status))
       .sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
     const rewardMap = {};
-    approved.forEach((ref, idx) => { rewardMap[ref.id] = rewardByPosition(idx + 1); });
+    allForReward.forEach((ref, idx) => { rewardMap[ref.id] = rewardByPosition(idx + 1); });
 
     function addRow(name, phone, profileOrRole, status, reward, isApprov, date, highlight) {
       const tierColor = isApprov
@@ -441,21 +442,60 @@ document.addEventListener("DOMContentLoaded", () => {
       tbody.appendChild(tr);
     }
 
-    // ── Indicações diretas ────────────────────────────────
+    // ── Indicações diretas (via formulário) ─────────────
     referrals.forEach(ref => {
       const cl = ref.indicated_clients || {};
       const isApprov = isApproved(ref.status);
       addRow(cl.name, cl.phone, cl.profile_type, ref.status, rewardMap[ref.id]||0, isApprov, ref.created_at, false);
     });
 
-    // ── Sub-referrers (vieram pelo link) ──────────────────
+    // ── Sub-referrers (vieram pelo link) ─────────────────
     if (subReferrers.length > 0) {
       const sep = document.createElement("tr");
       sep.innerHTML = `<td colspan="6" style="padding:8px 10px;font-size:11px;font-weight:700;color:#c084fc;text-transform:uppercase;letter-spacing:.5px;border-top:1px solid rgba(168,85,247,.2);background:rgba(168,85,247,.04);">👥 Vinculados pelo link (${subReferrers.length})</td>`;
       tbody.appendChild(sep);
 
+      // Agrupa referrals por sub-referrer para exibir corretamente
+      const subRefsByReferrer = {};
+      allSubReferrals.forEach(r => {
+        if (!subRefsByReferrer[r.referrer_id]) subRefsByReferrer[r.referrer_id] = [];
+        subRefsByReferrer[r.referrer_id].push(r);
+      });
+
       subReferrers.forEach(sr => {
-        addRow(sr.name, sr.phone, sr.role||"indicado", "via_link", 0, false, sr.created_at, true);
+        const srRefs = subRefsByReferrer[sr.id] || [];
+        if (srRefs.length > 0) {
+          // Sub-referrer tem indicações → mostra cada uma com badge
+          srRefs.forEach((ref, i) => {
+            const cl = ref.indicated_clients || {};
+            const isApprov = isApproved(ref.status);
+            const displayName  = cl.name  || sr.name  || "—";
+            const displayPhone = cl.phone || sr.phone || null;
+            const waNum = (displayPhone||"").replace(/\D/g,"");
+            const waLink = waNum ? `<a href="https://wa.me/${waNum.startsWith("55")?waNum:"55"+waNum}" target="_blank" style="color:#25d366;text-decoration:none;font-size:12px;">📱 ${displayPhone}</a>` : (displayPhone || "—");
+            const tierColor = isApprov
+              ? (rewardMap[ref.id] <= 50 ? "#e879f9" : rewardMap[ref.id] <= 75 ? "#f59e0b" : rewardMap[ref.id] <= 100 ? "#9ca3af" : rewardMap[ref.id] <= 150 ? "#facc15" : "#a855f7")
+              : "rgba(255,255,255,.3)";
+            const firstName = sr.name ? sr.name.split(" ")[0] : "—";
+            const badge = i === 0
+              ? `<span style="display:inline-flex;align-items:center;gap:3px;padding:1px 7px;border-radius:999px;font-size:9px;font-weight:700;background:rgba(168,85,247,.15);border:1px solid rgba(168,85,247,.3);color:#c084fc;margin-bottom:2px;text-transform:uppercase;">👤 via ${firstName}</span><br>`
+              : "";
+            const tr2 = document.createElement("tr");
+            tr2.style.cssText = "border-bottom:1px solid rgba(255,255,255,.06);background:rgba(168,85,247,.04);";
+            tr2.innerHTML = `
+              <td style="padding:9px 10px;font-weight:600;">${badge}${displayName}</td>
+              <td style="padding:9px 10px;">${waLink}</td>
+              <td style="padding:9px 10px;color:rgba(255,255,255,.5);font-size:12px;">${cl.profile_type || sr.role || "—"}</td>
+              <td style="padding:9px 10px;">${statusBadge(ref.status)}</td>
+              <td style="padding:9px 10px;color:${tierColor};font-weight:${isApprov?"700":"400"};">${isApprov?fmtCurrency(rewardMap[ref.id]||0):"—"}</td>
+              <td style="padding:9px 10px;color:rgba(255,255,255,.45);font-size:12px;">${fmtDate(ref.created_at)}</td>
+            `;
+            tbody.appendChild(tr2);
+          });
+        } else {
+          // Sub-referrer sem indicações: linha informativa simples
+          addRow(sr.name, sr.phone, sr.role||"indicado", "via_link", 0, false, sr.created_at, true);
+        }
       });
     }
   }
@@ -507,9 +547,10 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ── Estado do referrer logado ──────────────────────────────
-  let currentReferrerId = null;
-  let currentReferrerIds = [];
-  let realtimeChannel = null;
+  let currentReferrerId   = null;
+  let currentReferrerIds  = [];
+  let currentReferrerCode = null;
+  let realtimeChannel     = null;
 
   // ══════════════════════════════════════════════════════════
   //  updateKPIsOnly — atualiza KPIs sem re-renderizar tudo
@@ -518,6 +559,7 @@ document.addEventListener("DOMContentLoaded", () => {
   async function updateKPIsOnly() {
     if (!currentReferrerIds.length) return;
 
+    // Indicações diretas
     const { data: referrals } = await supabase
       .from("referrals")
       .select("id, status, amount, created_at, referrer_id, indicated_clients(name, phone, profile_type)")
@@ -526,21 +568,40 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!referrals) return;
 
-    const aprovadas = referrals.filter(r => isApproved(r.status)).length;
-    const pendentes = referrals.filter(r => isPending(r.status)).length;
+    // Busca sub-referrers e suas referrals (indicados que vieram pelo link)
+    let subReferrers = [];
+    let allSubReferrals = [];
+    if (currentReferrerCode) {
+      const { data: subs } = await supabase
+        .from("referrers")
+        .select("id, name, phone, email, code, role, created_at")
+        .eq("ref_origin", currentReferrerCode);
+      subReferrers = subs || [];
+
+      if (subReferrers.length > 0) {
+        const subIds = subReferrers.map(s => s.id);
+        const { data: subRefs } = await supabase
+          .from("referrals")
+          .select("id, status, amount, referrer_id, created_at, indicated_clients(name, phone, profile_type)")
+          .in("referrer_id", subIds)
+          .order("created_at", { ascending: false });
+        allSubReferrals = subRefs || [];
+      }
+    }
+
+    const allReferralsForKpi = [...referrals, ...allSubReferrals];
+    const aprovadas = allReferralsForKpi.filter(r => isApproved(r.status)).length;
+    const pendentes = allReferralsForKpi.filter(r => isPending(r.status)).length;
     const smashcard = calcSmashcardTotal(aprovadas);
 
     const el = id => document.getElementById(id);
-    if (el("kpi-total-indicacoes")) el("kpi-total-indicacoes").textContent = referrals.length;
+    if (el("kpi-total-indicacoes")) el("kpi-total-indicacoes").textContent = referrals.length + subReferrers.length;
     if (el("kpi-aprovadas"))        el("kpi-aprovadas").textContent        = aprovadas;
     if (el("kpi-pendentes"))        el("kpi-pendentes").textContent        = pendentes;
     if (el("kpi-ganhos"))           el("kpi-ganhos").textContent           = fmtCurrency(smashcard);
 
-    // Atualiza a seção de nível
     renderNivelSection(aprovadas);
-
-    // Atualiza a tabela de indicações também
-    renderReferrals(referrals, []);
+    renderReferrals(referrals, subReferrers, allSubReferrals);
   }
 
   // ══════════════════════════════════════════════════════════
@@ -549,7 +610,6 @@ document.addEventListener("DOMContentLoaded", () => {
   //  ou moderador aprovar uma indicação
   // ══════════════════════════════════════════════════════════
   function setupRealtimeSubscription(referrerIds) {
-    // Remove channel anterior se existir
     if (realtimeChannel) {
       supabase.removeChannel(realtimeChannel);
       realtimeChannel = null;
@@ -567,13 +627,14 @@ document.addEventListener("DOMContentLoaded", () => {
           table: 'referrals',
         },
         async (payload) => {
-          // Verifica se a mudança é de um referral do nosso usuário
           const changedReferrerId = payload.new?.referrer_id;
-          if (referrerIds.includes(changedReferrerId)) {
-            // Atualiza KPIs e tabela em tempo real
-            await updateKPIsOnly();
+          // Dispara atualização tanto para referrals diretas quanto para
+          // referrals dos sub-referrers (indicados que vieram pelo link)
+          const shouldUpdate = referrerIds.includes(changedReferrerId)
+            || (currentReferrerCode && await isSubReferrer(changedReferrerId));
 
-            // Notificação visual se for aprovação
+          if (shouldUpdate) {
+            await updateKPIsOnly();
             const oldStatus = payload.old?.status;
             const newStatus = payload.new?.status;
             if (!isApproved(oldStatus) && isApproved(newStatus)) {
@@ -583,6 +644,18 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       )
       .subscribe();
+  }
+
+  // Verifica se o referrerId pertence a um sub-referrer do usuário logado
+  async function isSubReferrer(referrerId) {
+    if (!currentReferrerCode || !referrerId) return false;
+    const { data } = await supabase
+      .from("referrers")
+      .select("id")
+      .eq("id", referrerId)
+      .eq("ref_origin", currentReferrerCode)
+      .maybeSingle();
+    return !!data;
   }
 
   // ── Carregar dashboard ─────────────────────────────────────
@@ -653,6 +726,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (refData) {
         referrerCode = await ensureCode(currentReferrerId, refData.code, refData.ref_origin);
         referrerRole = refData.role || (referrerCode?.length === 4 ? "indiquer" : "indicado");
+        currentReferrerCode = referrerCode;
       }
     }
 
@@ -683,6 +757,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // ── Sub-referrers: vieram pelo link do indiquer ───────
     let subReferrers = [];
+    let allSubReferrals = [];
     if (referrerCode) {
       const { data: subs } = await supabase
         .from("referrers")
@@ -692,9 +767,25 @@ document.addEventListener("DOMContentLoaded", () => {
       subReferrers = subs || [];
     }
 
+    // ── Busca as referrals dos sub-referrers (indicados) ──
+    // Quando o admin aprova um indicado que veio pelo link, o referral
+    // é salvo com referrer_id = id do indicado. Precisamos somar essas
+    // aprovações ao smashcard do indiquer (Christian).
+    if (subReferrers.length > 0) {
+      const subIds = subReferrers.map(s => s.id);
+      const { data: subRefs } = await supabase
+        .from("referrals")
+        .select("id, status, amount, referrer_id, created_at, indicated_clients(name, phone, profile_type)")
+        .in("referrer_id", subIds)
+        .order("created_at", { ascending: false });
+      allSubReferrals = subRefs || [];
+    }
+
+    // ── KPIs unificados: diretos + dos sub-referrers ──────
+    const allReferralsForKpi   = [...referrals, ...allSubReferrals];
     const totalKpi  = referrals.length + subReferrers.length;
-    const aprovadas = referrals.filter(r=>isApproved(r.status)).length;
-    const pendentes = referrals.filter(r=>isPending(r.status)).length;
+    const aprovadas = allReferralsForKpi.filter(r => isApproved(r.status)).length;
+    const pendentes = allReferralsForKpi.filter(r => isPending(r.status)).length;
     const smashcard = calcSmashcardTotal(aprovadas);
 
     if (el("kpi-total-indicacoes")) el("kpi-total-indicacoes").textContent = totalKpi;
@@ -703,7 +794,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (el("kpi-ganhos"))           el("kpi-ganhos").textContent           = fmtCurrency(smashcard);
 
     renderNivelSection(aprovadas);
-    renderReferrals(referrals, subReferrers);
+    renderReferrals(referrals, subReferrers, allSubReferrals);
   }
 
   // ── Formulário interno (Indicar agora) ────────────────────
