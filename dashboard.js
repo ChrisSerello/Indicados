@@ -43,6 +43,52 @@ document.addEventListener("DOMContentLoaded", () => {
     return total;
   }
 
+  // ── Gerador de código ──────────────────────────────────────
+  function genChars(n) {
+    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // sem I,O,0,1
+    let r = "";
+    for (let i = 0; i < n; i++) r += chars[Math.floor(Math.random() * chars.length)];
+    return r;
+  }
+
+  /**
+   * Garante que o referrer tem um código. Se não tiver, gera e salva.
+   * Contas avulsas (sem ref_origin) recebem 4 chars → papel "indiquer"
+   * Contas com ref_origin de moderador (2 chars) já deveriam ter, mas se não:
+   *   → refaz a lógica: 2 do mod + 2 random = 4 chars
+   */
+  async function ensureCode(referrerId, currentCode, refOrigin) {
+    if (currentCode && currentCode.length >= 4) return currentCode; // já tem código
+
+    let newCode;
+    if (refOrigin && refOrigin.length === 2) {
+      // veio de moderador → indiquer
+      newCode = refOrigin + genChars(2);
+    } else if (refOrigin && refOrigin.length === 4) {
+      // veio de indiquer → indicado
+      newCode = refOrigin + genChars(2);
+    } else {
+      // avulso → trata como indiquer
+      newCode = genChars(4);
+    }
+
+    const role = newCode.length === 4 ? "indiquer" : "indicado";
+
+    // Verifica unicidade (retry simples)
+    for (let attempt = 0; attempt < 5; attempt++) {
+      const { data: existing } = await supabase
+        .from("referrers").select("id").eq("code", newCode).maybeSingle();
+      if (!existing) break;
+      newCode = (role === "indiquer") ? genChars(4) : (refOrigin.substring(0,4) + genChars(2));
+    }
+
+    await supabase.from("referrers")
+      .update({ code: newCode, role })
+      .eq("id", referrerId);
+
+    return newCode;
+  }
+
   // ── Utils ──────────────────────────────────────────────────
   const fmtCurrency = v => Number(v||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL",minimumFractionDigits:2});
   const fmtDate     = s => { if(!s) return "-"; const d=new Date(s); return isNaN(d)?"-":d.toLocaleDateString("pt-BR"); };
@@ -463,13 +509,13 @@ document.addEventListener("DOMContentLoaded", () => {
     // Busca por user_id
     let referrerIds = [];
     const { data: byUserId } = await supabase
-      .from("referrers").select("id,code,role").eq("user_id", user.id);
+      .from("referrers").select("id,code,role,ref_origin").eq("user_id", user.id);
     if (byUserId) referrerIds.push(...byUserId.map(r=>r.id));
 
     // Busca por CPF e vincula órfãos
     if (cpf) {
       const { data: byCPF } = await supabase
-        .from("referrers").select("id,code,role").eq("cpf", cpf);
+        .from("referrers").select("id,code,role,ref_origin").eq("cpf", cpf);
       if (byCPF) {
         const orphanIds = byCPF
           .filter(r => !referrerIds.includes(r.id))
@@ -500,12 +546,13 @@ document.addEventListener("DOMContentLoaded", () => {
     if (currentReferrerId) {
       const { data: refData } = await supabase
         .from("referrers")
-        .select("code,role")
+        .select("code,role,ref_origin")
         .eq("id", currentReferrerId)
         .maybeSingle();
       if (refData) {
-        referrerCode = refData.code;
-        referrerRole = refData.role;
+        // Garante que código existe — gera e salva se necessário
+        referrerCode = await ensureCode(currentReferrerId, refData.code, refData.ref_origin);
+        referrerRole = refData.role || (referrerCode?.length === 4 ? "indiquer" : "indicado");
       }
     }
 
