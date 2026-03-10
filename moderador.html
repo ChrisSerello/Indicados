@@ -85,6 +85,8 @@
     .isum-code{padding:3px 11px;border-radius:999px;font-size:11px;font-weight:700;background:rgba(16,185,129,.2);border:1px solid rgba(16,185,129,.35);color:#34d399;letter-spacing:.06em;flex-shrink:0;}
     .bfb{font-size:12px;min-height:16px;margin-top:8px;}
     .btn-new-inq{padding:9px 18px;border-radius:10px;border:1px solid rgba(16,185,129,.45);background:rgba(16,185,129,.15);color:#34d399;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:7px;transition:background .2s;white-space:nowrap;}.btn-new-inq:hover{background:rgba(16,185,129,.28);}
+    .btn-export{padding:9px 16px;border-radius:10px;border:1px solid rgba(16,185,129,.4);background:rgba(16,185,129,.1);color:#34d399;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px;transition:background .2s;white-space:nowrap;}.btn-export:hover{background:rgba(16,185,129,.2);}
+    .btn-add-ref{padding:6px 14px;border-radius:8px;border:1px solid rgba(16,185,129,.38);background:rgba(16,185,129,.1);color:#34d399;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:5px;transition:background .2s;margin-top:10px;white-space:nowrap;}.btn-add-ref:hover{background:rgba(16,185,129,.22);}
     @media(max-width:900px){.kpi-row{grid-template-columns:repeat(2,1fr);}}
     @media(max-width:600px){.kpi-row{grid-template-columns:1fr;}.mod-content{padding:16px;}.client-stats,.sub-stats{display:none;}.bf2{grid-template-columns:1fr;}.minputs{grid-template-columns:1fr 1fr;}.minputs .bmadd{grid-column:1/-1;}}
   </style>
@@ -173,6 +175,8 @@
     <div class="filter-bar">
       <input type="text" id="search-input" placeholder="🔍  Buscar por nome, telefone ou código…"/>
       <button class="btn-new-inq" onclick="openBulk()">➕ Cadastrar Indiquer</button>
+      <button class="btn-export" onclick="exportData('excel')">📥 Excel</button>
+      <button class="btn-export" style="border-color:rgba(96,165,250,.4);background:rgba(96,165,250,.1);color:#60a5fa;" onclick="exportData('csv')">📄 CSV</button>
     </div>
     <div id="content-area"><p style="color:var(--muted);font-size:13px;">Carregando…</p></div>
   </div>
@@ -184,8 +188,8 @@
   <div class="bulk-box">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px;">
       <div>
-        <h2>➕ Cadastrar Indiquer + Indicações</h2>
-        <p class="bulk-sub">Cadastre o indiquer, defina o acesso e suba as indicações em massa.</p>
+        <h2 id="bulk-box-title">➕ Cadastrar Indiquer + Indicações</h2>
+        <p class="bulk-sub" id="bulk-box-sub">Cadastre o indiquer, defina o acesso e suba as indicações em massa.</p>
       </div>
       <button onclick="closeBulk()" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:2px 6px;">✕</button>
     </div>
@@ -329,7 +333,7 @@ function renderInq(){
     const sc=(c.subs||[]).length,tr=(c.refs||[]).length;
     const cd=document.createElement("div");cd.className="client-card";
     const subHtml=sc>0?`<div class="sub-tree"><p class="sub-tree-title">👥 Indicados vinculados (${sc})</p>${(c.subs||[]).map(sub=>{const sA=(sub.refs||[]).filter(r=>isOk(r.status)).length,sT=(sub.refs||[]).length,sN=getNivel(sA),sW=waHref(sub.phone),sS=calcSm(sA);return`<div class="sub-card"><div class="sub-head" onclick="this.closest('.sub-card').classList.toggle('open')"><div class="sub-left"><div class="sub-av">${initials(sub.name)}</div><div><div class="sub-name">${sub.name||"—"} <span class="role-tag role-indicado" style="font-size:9px;padding:1px 7px;">Indicado</span></div><div class="sub-meta">${sW?`<a class="wa-link" href="${sW}" target="_blank" onclick="event.stopPropagation()" style="font-size:11px;">📱 ${sub.phone}</a>`:sub.phone||"—"} · <strong>${sub.code||"—"}</strong></div></div></div><div style="display:flex;align-items:center;gap:6px;"><div class="sub-stats"><span class="nivel-tag ${sN.c}" style="font-size:9px;padding:1px 8px;">${sN.l}</span><span class="stat-pill" style="font-size:10px;padding:2px 8px;">${sT} ind.</span><span class="stat-pill green" style="font-size:10px;padding:2px 8px;">${sA} ok</span><span class="stat-pill" style="font-size:10px;padding:2px 8px;color:#34d399;">${fmt(sS)}</span></div><div class="sub-chevron">▼</div></div></div><div class="sub-body">${buildTable(sub.refs||[])}</div></div>`;}).join("")}</div>`:"";
-    cd.innerHTML=`<div class="client-header" onclick="this.closest('.client-card').classList.toggle('open')"><div class="client-left"><div class="client-avatar">${initials(c.name)}</div><div><div class="client-name">${c.name||"—"} <span class="role-tag role-indiquer">Indiquer</span></div><div class="client-meta">${wa?`<a class="wa-link" href="${wa}" target="_blank" onclick="event.stopPropagation()">📱 ${c.phone}</a>`:c.phone||"—"} · <strong>${c.code||"—"}</strong>${c.email?` · ${c.email}`:""} · desde ${fmtDate(c.created_at)}</div></div></div><div style="display:flex;align-items:center;gap:8px;"><div class="client-stats"><span class="nivel-tag ${nv.c}">${nv.l}</span>${tr>0?`<span class="stat-pill">${tr} ind.</span>`:""}<span class="stat-pill green">${ap} aprovado${ap!==1?"s":""}</span><span class="stat-pill" style="color:#c084fc;">${sc} indicado${sc!==1?"s":""}</span><span class="stat-pill" style="color:#34d399;">${fmt(sm)}</span></div><div class="chevron">▼</div></div></div><div class="client-body"><h4 style="font-size:12px;color:#60a5fa;font-weight:700;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;">📨 Indicações diretas (${tr})</h4>${buildTable(c.refs||[])}${subHtml}</div>`;
+    cd.innerHTML=`<div class="client-header" onclick="this.closest('.client-card').classList.toggle('open')"><div class="client-left"><div class="client-avatar">${initials(c.name)}</div><div><div class="client-name">${c.name||"—"} <span class="role-tag role-indiquer">Indiquer</span></div><div class="client-meta">${wa?`<a class="wa-link" href="${wa}" target="_blank" onclick="event.stopPropagation()">📱 ${c.phone}</a>`:c.phone||"—"} · <strong>${c.code||"—"}</strong>${c.email?` · ${c.email}`:""} · desde ${fmtDate(c.created_at)}</div></div></div><div style="display:flex;align-items:center;gap:8px;"><div class="client-stats"><span class="nivel-tag ${nv.c}">${nv.l}</span>${tr>0?`<span class="stat-pill">${tr} ind.</span>`:""}<span class="stat-pill green">${ap} aprovado${ap!==1?"s":""}</span><span class="stat-pill" style="color:#c084fc;">${sc} indicado${sc!==1?"s":""}</span><span class="stat-pill" style="color:#34d399;">${fmt(sm)}</span></div><div class="chevron">▼</div></div></div><div class="client-body"><h4 style="font-size:12px;color:#60a5fa;font-weight:700;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;">📨 Indicações diretas (${tr})</h4>${buildTable(c.refs||[])}<button class="btn-add-ref" onclick="event.stopPropagation();openBulkExisting('${c.id}','${(c.name||"").replace(/'/g,"\\'")}','${c.code||""}','${c.phone||""}','${c.email||""}')">➕ Adicionar mais indicações</button>${subHtml}</div>`;
     ct.appendChild(cd);
   });
 }
@@ -363,9 +367,41 @@ document.getElementById("btn-logout")?.addEventListener("click",async()=>{await 
 // ══════════════════════════════════════════════════════
 //  CADASTRO EM MASSA — INDIQUER + INDICAÇÕES
 // ══════════════════════════════════════════════════════
+function openBulkExisting(id,name,code,phone,email){
+  _bId=id;_bRows=[];
+  const pf=phone?(phone.length===11?"("+phone.slice(0,2)+") "+phone.slice(2,7)+"-"+phone.slice(7):"("+phone.slice(0,2)+") "+phone.slice(2)):phone||"";
+  document.getElementById("bsav").textContent=initials(name);
+  document.getElementById("bsname").textContent=name;
+  document.getElementById("bsmeta").textContent=[pf,email].filter(Boolean).join(" · ");
+  document.getElementById("bscode").textContent="Código: "+code;
+  document.getElementById("bulk-box-title").textContent="➕ Adicionar Indicações";
+  document.getElementById("bulk-box-sub").textContent="Importe mais indicações para "+name.split(" ")[0]+".";
+  document.getElementById("bs1").style.display="none";
+  document.getElementById("bs2").style.display="block";
+  document.getElementById("bsi1").className="bsi done";
+  document.getElementById("bsi2").className="bsi active";
+  _bRender();
+  document.getElementById("bulk-ov").style.display="flex";
+}
+function exportData(type){
+  const rows=[];
+  [...allInq,...allInd].forEach(c=>{
+    (c.refs||[]).forEach(ref=>{
+      const cl=ref.indicated_clients||{};
+      const email=cl.observations?.startsWith("E-mail:")?cl.observations.replace("E-mail:","").trim():"";
+      const sL={em_analise:"Em análise",em_contato:"Em contato",aprovado:"Aprovado",reprovado:"Reprovado"};
+      rows.push({"Indicador":c.name||"—","Código":c.code||"—","Papel":c.role||"—","Nome indicado":cl.name||"—","Celular":cl.phone||"—","E-mail":email,"Perfil":cl.profile_type||"—","Status":sL[ref.status]||ref.status||"—","Valor (R$)":ref.amount||"","Nota":ref.mod_note||"","Data":fmtDate(ref.created_at)});
+    });
+  });
+  if(!rows.length){toast("Nenhum dado para exportar.",false);return;}
+  const today=new Date().toLocaleDateString("pt-BR").replace(/\//g,"-");
+  const fn=`indicacoes_${today}`;
+  if(type==="csv"){const h=Object.keys(rows[0]);const csv=[h.join(";"),...rows.map(r=>h.map(k=>`"${String(r[k]||"").replace(/"/g,'""')}"`).join(";"))].join("\n");const b=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8;"});const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=fn+".csv";a.click();toast("CSV exportado!");}
+  else{const ws=XLSX.utils.json_to_sheet(rows);ws["!cols"]=[{wch:22},{wch:8},{wch:10},{wch:22},{wch:16},{wch:26},{wch:14},{wch:14},{wch:10},{wch:30},{wch:12}];const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"Indicações");XLSX.writeFile(wb,fn+".xlsx");toast("Excel exportado!");}
+}
 const BCHR="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 let _bId=null,_bRows=[];
-function openBulk(){_bId=null;_bRows=[];["b-name","b-cpf","b-phone","b-email","b-pass","b-pass2"].forEach(id=>{const el=document.getElementById(id);if(el)el.value="";});document.getElementById("bfb1").textContent="";document.getElementById("bs1").style.display="block";document.getElementById("bs2").style.display="none";document.getElementById("bsi1").className="bsi active";document.getElementById("bsi2").className="bsi";_bRender();document.getElementById("bulk-ov").style.display="flex";}
+function openBulk(){_bId=null;_bRows=[];["b-name","b-cpf","b-phone","b-email","b-pass","b-pass2"].forEach(id=>{const el=document.getElementById(id);if(el)el.value="";});document.getElementById("bfb1").textContent="";document.getElementById("bulk-box-title").textContent="➕ Cadastrar Indiquer + Indicações";document.getElementById("bulk-box-sub").textContent="Cadastre o indiquer, defina o acesso e suba as indicações em massa.";document.getElementById("bs1").style.display="block";document.getElementById("bs2").style.display="none";document.getElementById("bsi1").className="bsi active";document.getElementById("bsi2").className="bsi";_bRender();document.getElementById("bulk-ov").style.display="flex";}
 function closeBulk(){document.getElementById("bulk-ov").style.display="none";}
 async function _genCode(mc){for(let i=0;i<20;i++){let s="";for(let j=0;j<2;j++)s+=BCHR[Math.floor(Math.random()*BCHR.length)];const code=mc+s;const{data}=await sb.from("referrers").select("id").eq("code",code).maybeSingle();if(!data)return code;}throw new Error("Código único não encontrado.");}
 const maskCPF=e=>{let v=e.target.value.replace(/\D/g,"");v=v.replace(/(\d{3})(\d)/,"$1.$2").replace(/(\d{3})(\d)/,"$1.$2").replace(/(\d{3})(\d{1,2})/,"$1-$2").replace(/(-\d{2})\d+$/,"$1");e.target.value=v;};

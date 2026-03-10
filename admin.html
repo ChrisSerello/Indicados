@@ -76,6 +76,9 @@
     .isum-code{padding:3px 11px;border-radius:999px;font-size:11px;font-weight:700;background:rgba(168,85,247,.2);border:1px solid rgba(168,85,247,.35);color:#c084fc;letter-spacing:.06em;flex-shrink:0;}
     .bfb{font-size:12px;min-height:16px;margin-top:8px;}
     .btn-new-inq{padding:9px 18px;border-radius:10px;border:1px solid rgba(168,85,247,.45);background:rgba(168,85,247,.15);color:#c084fc;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:7px;transition:background .2s;white-space:nowrap;}.btn-new-inq:hover{background:rgba(168,85,247,.28);}
+    .btn-export{padding:9px 16px;border-radius:10px;border:1px solid rgba(168,85,247,.4);background:rgba(168,85,247,.1);color:#c084fc;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px;transition:background .2s;white-space:nowrap;}.btn-export:hover{background:rgba(168,85,247,.2);}
+    .btn-add-ref{padding:6px 14px;border-radius:8px;border:1px solid rgba(168,85,247,.38);background:rgba(168,85,247,.1);color:#c084fc;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:5px;transition:background .2s;margin-top:10px;white-space:nowrap;}.btn-add-ref:hover{background:rgba(168,85,247,.22);}
+    .bmode-btn{flex:1;padding:9px;font-size:13px;font-weight:600;cursor:pointer;background:transparent;color:rgba(255,255,255,.4);border:none;font-family:inherit;transition:all .2s;}.bmode-btn.active{background:rgba(168,85,247,.18);color:#c084fc;}
     /* ── TAB BAR ─── */
     .admin-tab-bar{display:flex;gap:4px;padding:12px 28px 0;background:rgba(14,4,28,.7);border-bottom:1px solid var(--border);}
     .admin-tab-btn{padding:10px 20px;border-radius:10px 10px 0 0;border:1px solid transparent;border-bottom:none;background:transparent;color:rgba(255,255,255,.4);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s;}
@@ -185,6 +188,8 @@
         <option value="">Todos os moderadores</option>
       </select>
       <button class="btn-new-inq" onclick="openBulk()">➕ Cadastrar Indiquer</button>
+      <button class="btn-export" onclick="exportData('excel')">📥 Excel</button>
+      <button class="btn-export" style="border-color:rgba(96,165,250,.4);background:rgba(96,165,250,.1);color:#60a5fa;" onclick="exportData('csv')">📄 CSV</button>
     </div>
     <div id="content-area"><p style="color:var(--muted);font-size:13px;">Carregando…</p></div>
     </div><!-- /sec-ind -->
@@ -239,21 +244,36 @@
     <div id="bs1">
       <div class="bf">
         <label>Moderador responsável *</label>
-        <select id="b-mod"><option value="">— Selecione o moderador —</option></select>
+        <select id="b-mod" onchange="onModChange()"><option value="">— Selecione o moderador —</option></select>
       </div>
-      <div class="bf2">
-        <div class="bf"><label>Nome completo *</label><input id="b-name" type="text" placeholder="Ex: João da Silva"/></div>
-        <div class="bf"><label>CPF</label><input id="b-cpf" type="text" placeholder="000.000.000-00" maxlength="14"/></div>
+      <!-- Mode selector (shown after mod selected) -->
+      <div id="b-mode-wrap" style="display:none;margin-bottom:14px;">
+        <div style="display:flex;border:1px solid rgba(168,85,247,.3);border-radius:10px;overflow:hidden;">
+          <button class="bmode-btn active" id="bmode-new" onclick="setBMode('new')">➕ Criar novo indiquer</button>
+          <button class="bmode-btn" id="bmode-ex" onclick="setBMode('existing')">👤 Indiquer existente</button>
+        </div>
       </div>
-      <div class="bf2">
-        <div class="bf"><label>Celular *</label><input id="b-phone" type="text" placeholder="(11) 99999-9999" maxlength="15"/></div>
-        <div class="bf"><label>E-mail *</label><input id="b-email" type="email" placeholder="email@exemplo.com"/></div>
+      <!-- Existing indiquer selector -->
+      <div id="b-existing-wrap" style="display:none;">
+        <div class="bf"><label>Escolher indiquer *</label><select id="b-existing-inq"><option value="">— Selecione o indiquer —</option></select></div>
+        <p style="font-size:11px;color:rgba(192,132,252,.6);margin:-4px 0 12px;">ℹ️ As novas indicações serão adicionadas à lista deste indiquer.</p>
       </div>
-      <div class="bf2">
-        <div class="bf"><label>Senha de acesso *</label><input id="b-pass" type="password" placeholder="Mínimo 6 caracteres"/></div>
-        <div class="bf"><label>Confirmar senha *</label><input id="b-pass2" type="password" placeholder="Repita a senha"/></div>
+      <!-- New indiquer form -->
+      <div id="b-new-wrap">
+        <div class="bf2">
+          <div class="bf"><label>Nome completo *</label><input id="b-name" type="text" placeholder="Ex: João da Silva"/></div>
+          <div class="bf"><label>CPF</label><input id="b-cpf" type="text" placeholder="000.000.000-00" maxlength="14"/></div>
+        </div>
+        <div class="bf2">
+          <div class="bf"><label>Celular *</label><input id="b-phone" type="text" placeholder="(11) 99999-9999" maxlength="15"/></div>
+          <div class="bf"><label>E-mail *</label><input id="b-email" type="email" placeholder="email@exemplo.com"/></div>
+        </div>
+        <div class="bf2">
+          <div class="bf"><label>Senha de acesso *</label><input id="b-pass" type="password" placeholder="Mínimo 6 caracteres"/></div>
+          <div class="bf"><label>Confirmar senha *</label><input id="b-pass2" type="password" placeholder="Repita a senha"/></div>
+        </div>
+        <p style="font-size:11px;color:rgba(192,132,252,.6);margin:-2px 0 12px;">ℹ️ Avise o indiquer manualmente sobre o login e senha criados. O moderador verá este indiquer em seu painel.</p>
       </div>
-      <p style="font-size:11px;color:rgba(192,132,252,.6);margin:-2px 0 12px;">ℹ️ Avise o indiquer manualmente sobre o login e senha criados. O moderador verá este indiquer em seu painel.</p>
       <p id="bfb1" class="bfb"></p>
       <div class="bact">
         <button class="bcancel" onclick="closeBulk()">Cancelar</button>
@@ -378,7 +398,7 @@ function renderInq(){
     const sc=(c.subs||[]).length,tr=(c.refs||[]).length;
     const cd=document.createElement("div");cd.className="client-card";
     const subHtml=sc>0?`<div class="sub-tree"><p class="sub-tree-title">👥 Indicados vinculados (${sc})</p>${(c.subs||[]).map(sub=>{const sA=(sub.refs||[]).filter(r=>isOk(r.status)).length,sT=(sub.refs||[]).length,sN=getNivel(sA),sW=waHref(sub.phone),sS=calcSm(sA);return`<div class="sub-card"><div class="sub-head" onclick="this.closest('.sub-card').classList.toggle('open')"><div class="sub-left"><div class="sub-av">${initials(sub.name)}</div><div><div class="sub-name">${sub.name||"—"} <span class="role-tag role-indicado" style="font-size:9px;">Indicado</span></div><div class="sub-meta">${sW?`<a class="wa-link" href="${sW}" target="_blank" onclick="event.stopPropagation()" style="font-size:11px;">📱 ${sub.phone}</a>`:sub.phone||"—"} · <strong>${sub.code||"—"}</strong></div></div></div><div style="display:flex;align-items:center;gap:6px;"><div class="sub-stats"><span class="nivel-tag ${sN.c}" style="font-size:9px;padding:1px 8px;">${sN.l}</span><span class="stat-pill" style="font-size:10px;">${sT} ind.</span><span class="stat-pill green" style="font-size:10px;">${sA} ok</span><span class="stat-pill" style="font-size:10px;color:#c084fc;">${fmt(sS)}</span></div><div class="sub-chevron">▼</div></div></div><div class="sub-body">${buildTable(sub.refs||[])}</div></div>`;}).join("")}</div>`:"";
-    cd.innerHTML=`<div class="client-header" onclick="this.closest('.client-card').classList.toggle('open')"><div class="client-left"><div class="client-avatar">${initials(c.name)}</div><div><div class="client-name">${c.name||"—"} <span class="role-tag role-indiquer">Indiquer</span></div><div class="client-meta">${wa?`<a class="wa-link" href="${wa}" target="_blank" onclick="event.stopPropagation()">📱 ${c.phone}</a>`:c.phone||"—"} · <strong>${c.code||"—"}</strong>${mod?` · Mod: ${mod.name}`:""} · desde ${fmtDate(c.created_at)}</div></div></div><div style="display:flex;align-items:center;gap:8px;"><div class="client-stats"><span class="nivel-tag ${nv.c}">${nv.l}</span>${tr>0?`<span class="stat-pill">${tr} ind.</span>`:""}<span class="stat-pill green">${ap} aprov.</span><span class="stat-pill" style="color:#c084fc;">${sc} indicado${sc!==1?"s":""}</span><span class="stat-pill" style="color:#c084fc;">${fmt(sm)}</span></div><div class="chevron">▼</div></div></div><div class="client-body"><h4 style="font-size:12px;color:#60a5fa;font-weight:700;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;">📨 Indicações diretas (${tr})</h4>${buildTable(c.refs||[])}${subHtml}</div>`;
+    cd.innerHTML=`<div class="client-header" onclick="this.closest('.client-card').classList.toggle('open')"><div class="client-left"><div class="client-avatar">${initials(c.name)}</div><div><div class="client-name">${c.name||"—"} <span class="role-tag role-indiquer">Indiquer</span></div><div class="client-meta">${wa?`<a class="wa-link" href="${wa}" target="_blank" onclick="event.stopPropagation()">📱 ${c.phone}</a>`:c.phone||"—"} · <strong>${c.code||"—"}</strong>${mod?` · Mod: ${mod.name}`:""} · desde ${fmtDate(c.created_at)}</div></div></div><div style="display:flex;align-items:center;gap:8px;"><div class="client-stats"><span class="nivel-tag ${nv.c}">${nv.l}</span>${tr>0?`<span class="stat-pill">${tr} ind.</span>`:""}<span class="stat-pill green">${ap} aprov.</span><span class="stat-pill" style="color:#c084fc;">${sc} indicado${sc!==1?"s":""}</span><span class="stat-pill" style="color:#c084fc;">${fmt(sm)}</span></div><div class="chevron">▼</div></div></div><div class="client-body"><h4 style="font-size:12px;color:#60a5fa;font-weight:700;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;">📨 Indicações diretas (${tr})</h4>${buildTable(c.refs||[])}<button class="btn-add-ref" onclick="event.stopPropagation();openBulkExisting('${c.id}','${(c.name||"").replace(/'/g,"\\'")}','${c.code||""}','${c.phone||""}','${c.email||""}','${c.moderator_id||""}')">➕ Adicionar mais indicações</button>${subHtml}</div>`;
     ct.appendChild(cd);
   });
 }
@@ -506,7 +526,39 @@ async function deleteMod(id,name){if(!confirm(`Remover o moderador "${name}"?\n\
 // ══════════════════════════════════════════════════════
 const BCHR="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 let _bId=null,_bRows=[];
-function openBulk(){_bId=null;_bRows=[];["b-name","b-cpf","b-phone","b-email","b-pass","b-pass2"].forEach(id=>{const el=document.getElementById(id);if(el)el.value="";});document.getElementById("b-mod").value="";document.getElementById("bfb1").textContent="";document.getElementById("bs1").style.display="block";document.getElementById("bs2").style.display="none";document.getElementById("bsi1").className="bsi active";document.getElementById("bsi2").className="bsi";_bRender();document.getElementById("bulk-ov").style.display="flex";}
+function openBulk(){_bId=null;_bRows=[];["b-name","b-cpf","b-phone","b-email","b-pass","b-pass2"].forEach(id=>{const el=document.getElementById(id);if(el)el.value="";});document.getElementById("b-mod").value="";document.getElementById("bfb1").textContent="";document.getElementById("b-mode-wrap").style.display="none";document.getElementById("b-existing-wrap").style.display="none";document.getElementById("b-new-wrap").style.display="block";document.getElementById("bmode-new").classList.add("active");document.getElementById("bmode-ex").classList.remove("active");document.getElementById("bs1").style.display="block";document.getElementById("bs2").style.display="none";document.getElementById("bsi1").className="bsi active";document.getElementById("bsi2").className="bsi";_bRender();document.getElementById("bulk-ov").style.display="flex";}
+function openBulkExisting(id,name,code,phone,email,modId){
+  _bId=id;_bRows=[];
+  const pf=phone?(phone.length===11?"("+phone.slice(0,2)+") "+phone.slice(2,7)+"-"+phone.slice(7):"("+phone.slice(0,2)+") "+phone.slice(2)):phone||"";
+  const modName=allMods.find(m=>m.id===modId)?.name||"";
+  document.getElementById("bsav").textContent=initials(name);
+  document.getElementById("bsname").textContent=name;
+  document.getElementById("bsmeta").textContent=[pf,email,modName?`Mod: ${modName}`:""].filter(Boolean).join(" · ");
+  document.getElementById("bscode").textContent="Código: "+code;
+  document.getElementById("bs1").style.display="none";
+  document.getElementById("bs2").style.display="block";
+  document.getElementById("bsi1").className="bsi done";
+  document.getElementById("bsi2").className="bsi active";
+  _bRender();
+  document.getElementById("bulk-ov").style.display="flex";
+}
+function exportData(type){
+  const rows=[];
+  [...allInq,...allInd].forEach(c=>{
+    const mod=allMods.find(m=>m.id===c.moderator_id);
+    (c.refs||[]).forEach(ref=>{
+      const cl=ref.indicated_clients||{};
+      const email=cl.observations?.startsWith("E-mail:")?cl.observations.replace("E-mail:","").trim():"";
+      const sL={em_analise:"Em análise",em_contato:"Em contato",aprovado:"Aprovado",reprovado:"Reprovado"};
+      rows.push({"Moderador":mod?.name||"—","Indicador":c.name||"—","Código indicador":c.code||"—","Papel":c.role||"—","Nome indicado":cl.name||"—","Celular":cl.phone||"—","E-mail":email,"Perfil":cl.profile_type||"—","Status":sL[ref.status]||ref.status||"—","Valor (R$)":ref.amount||"","Nota":ref.admin_note||ref.mod_note||"","Data":fmtDate(ref.created_at)});
+    });
+  });
+  if(!rows.length){toast("Nenhum dado para exportar.",false);return;}
+  const today=new Date().toLocaleDateString("pt-BR").replace(/\//g,"-");
+  const fn=`indicacoes_${today}`;
+  if(type==="csv"){const h=Object.keys(rows[0]);const csv=[h.join(";"),...rows.map(r=>h.map(k=>`"${String(r[k]||"").replace(/"/g,'""')}"`).join(";"))].join("\n");const b=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8;"});const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=fn+".csv";a.click();toast("CSV exportado!");}
+  else{const ws=XLSX.utils.json_to_sheet(rows);ws["!cols"]=[{wch:18},{wch:22},{wch:10},{wch:10},{wch:22},{wch:16},{wch:26},{wch:14},{wch:14},{wch:10},{wch:30},{wch:12}];const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"Indicações");XLSX.writeFile(wb,fn+".xlsx");toast("Excel exportado!");}
+}
 function closeBulk(){document.getElementById("bulk-ov").style.display="none";}
 async function _genCode(mc){for(let i=0;i<20;i++){let s="";for(let j=0;j<2;j++)s+=BCHR[Math.floor(Math.random()*BCHR.length)];const code=mc+s;const{data}=await sb.from("referrers").select("id").eq("code",code).maybeSingle();if(!data)return code;}throw new Error("Código único não encontrado.");}
 const maskCPF=e=>{let v=e.target.value.replace(/\D/g,"");v=v.replace(/(\d{3})(\d)/,"$1.$2").replace(/(\d{3})(\d)/,"$1.$2").replace(/(\d{3})(\d{1,2})/,"$1-$2").replace(/(-\d{2})\d+$/,"$1");e.target.value=v;};
@@ -515,38 +567,69 @@ document.getElementById("b-cpf")?.addEventListener("input",maskCPF);
 document.getElementById("b-phone")?.addEventListener("input",maskPhone);
 document.getElementById("m-cpf")?.addEventListener("input",maskCPF);
 document.getElementById("m-phone")?.addEventListener("input",maskPhone);
+function onModChange(){
+  const modId=document.getElementById("b-mod").value;
+  const wrap=document.getElementById("b-mode-wrap");
+  if(!modId){wrap.style.display="none";return;}
+  wrap.style.display="block";
+  // Populate existing indiquer select
+  const sel=document.getElementById("b-existing-inq");
+  const modInq=allInq.filter(i=>i.moderator_id===modId);
+  sel.innerHTML='<option value="">— Selecione o indiquer —</option>'+modInq.map(i=>`<option value="${i.id}" data-name="${(i.name||"").replace(/"/g,"&quot;")}" data-code="${i.code||""}" data-phone="${i.phone||""}" data-email="${i.email||""}">${i.name||"—"} [${i.code}]</option>`).join("");
+}
+function setBMode(mode){
+  document.getElementById("bmode-new").classList.toggle("active",mode==="new");
+  document.getElementById("bmode-ex").classList.toggle("active",mode==="existing");
+  document.getElementById("b-existing-wrap").style.display=mode==="existing"?"block":"none";
+  document.getElementById("b-new-wrap").style.display=mode==="new"?"block":"none";
+}
 async function bulkStep1(){
   const modSel=document.getElementById("b-mod");
   const modId=modSel.value;
   const modOpt=modSel.options[modSel.selectedIndex];
   const modCode=modOpt?.dataset.code||"";
-  const name=document.getElementById("b-name").value.trim();
-  const cpf=document.getElementById("b-cpf").value.replace(/\D/g,"");
-  const phone=document.getElementById("b-phone").value.replace(/\D/g,"");
-  const email=document.getElementById("b-email").value.trim().toLowerCase();
-  const pass=document.getElementById("b-pass").value;
-  const pass2=document.getElementById("b-pass2").value;
   const fb=document.getElementById("bfb1");fb.textContent="";fb.style.color="#fb7185";
   if(!modId){fb.textContent="Selecione o moderador responsável.";return;}
-  if(!name||!phone||!email||!pass){fb.textContent="Nome, celular, e-mail e senha são obrigatórios.";return;}
-  if(pass.length<6){fb.textContent="Senha mínima: 6 caracteres.";return;}
-  if(pass!==pass2){fb.textContent="As senhas não coincidem.";return;}
-  const btn=document.getElementById("btn-bnext");btn.textContent="Criando…";btn.disabled=true;
+  const isExisting=document.getElementById("bmode-ex")?.classList.contains("active");
+  const btn=document.getElementById("btn-bnext");btn.textContent="…";btn.disabled=true;
   try{
-    const{data:{session:ms}}=await sb.auth.getSession();
-    const{data:au,error:ae}=await sb.auth.signUp({email,password:pass});
-    if(ae&&!ae.message.toLowerCase().includes("already"))throw ae;
-    if(ms)await sb.auth.setSession({access_token:ms.access_token,refresh_token:ms.refresh_token});
-    const code=await _genCode(modCode);
-    const{data:nr,error:re}=await sb.from("referrers").insert({name,cpf:cpf||null,phone:phone||null,email,code,role:"indiquer",moderator_id:modId,ref_origin:modCode,user_id:au?.user?.id||null}).select("id,code").single();
-    if(re)throw re;
-    _bId=nr.id;
-    const pf=phone?"("+phone.replace(/(\d{2})(\d{5})(\d{4})/,"$1) $2-$3"):"";
-    const modName=allMods.find(m=>m.id===modId)?.name||"";
-    document.getElementById("bsav").textContent=initials(name);
-    document.getElementById("bsname").textContent=name;
-    document.getElementById("bsmeta").textContent=[pf,email,modName?`Mod: ${modName}`:null].filter(Boolean).join(" · ");
-    document.getElementById("bscode").textContent="Código: "+nr.code;
+    if(isExisting){
+      const exSel=document.getElementById("b-existing-inq");
+      const exId=exSel.value;
+      if(!exId)throw new Error("Selecione o indiquer existente.");
+      const opt=exSel.options[exSel.selectedIndex];
+      const name=opt.dataset.name||"—",code=opt.dataset.code||"",phone=opt.dataset.phone||"",email=opt.dataset.email||"";
+      _bId=exId;
+      const pf=phone.replace(/(\d{2})(\d{4,5})(\d{4})/,"($1) $2-$3");
+      document.getElementById("bsav").textContent=initials(name);
+      document.getElementById("bsname").textContent=name;
+      document.getElementById("bsmeta").textContent=[pf,email,allMods.find(m=>m.id===modId)?.name?`Mod: ${allMods.find(m=>m.id===modId).name}`:""].filter(Boolean).join(" · ");
+      document.getElementById("bscode").textContent="Código: "+code;
+    } else {
+      const name=document.getElementById("b-name").value.trim();
+      const cpf=document.getElementById("b-cpf").value.replace(/\D/g,"");
+      const phone=document.getElementById("b-phone").value.replace(/\D/g,"");
+      const email=document.getElementById("b-email").value.trim().toLowerCase();
+      const pass=document.getElementById("b-pass").value;
+      const pass2=document.getElementById("b-pass2").value;
+      if(!name||!phone||!email||!pass)throw new Error("Nome, celular, e-mail e senha são obrigatórios.");
+      if(pass.length<6)throw new Error("Senha mínima: 6 caracteres.");
+      if(pass!==pass2)throw new Error("As senhas não coincidem.");
+      const{data:{session:ms}}=await sb.auth.getSession();
+      const{data:au,error:ae}=await sb.auth.signUp({email,password:pass});
+      if(ae&&!ae.message.toLowerCase().includes("already"))throw ae;
+      if(ms)await sb.auth.setSession({access_token:ms.access_token,refresh_token:ms.refresh_token});
+      const code=await _genCode(modCode);
+      const{data:nr,error:re}=await sb.from("referrers").insert({name,cpf:cpf||null,phone:phone||null,email,code,role:"indiquer",moderator_id:modId,ref_origin:modCode,user_id:au?.user?.id||null}).select("id,code").single();
+      if(re)throw re;
+      _bId=nr.id;
+      const pf=phone?"("+phone.replace(/(\d{2})(\d{5})(\d{4})/,"$1) $2-$3"):"";
+      const modName=allMods.find(m=>m.id===modId)?.name||"";
+      document.getElementById("bsav").textContent=initials(name);
+      document.getElementById("bsname").textContent=name;
+      document.getElementById("bsmeta").textContent=[pf,email,modName?`Mod: ${modName}`:""].filter(Boolean).join(" · ");
+      document.getElementById("bscode").textContent="Código: "+nr.code;
+    }
     document.getElementById("bs1").style.display="none";
     document.getElementById("bs2").style.display="block";
     document.getElementById("bsi1").className="bsi done";
