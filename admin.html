@@ -133,6 +133,59 @@
     @media(max-width:1100px){.mod-grid{grid-template-columns:1fr;}}
     @media(max-width:900px){.kpi-row,.mkpi-row{grid-template-columns:repeat(2,1fr);}}
     @media(max-width:600px){.kpi-row{grid-template-columns:1fr;}.adm-content{padding:16px;}.client-stats,.sub-stats{display:none;}.bf2{grid-template-columns:1fr;}.minputs{grid-template-columns:1fr 1fr;}.minputs .bmadd{grid-column:1/-1;}}
+    /* ── ÁRVORE DE CONEXÕES ── */
+    .tree-toggle{display:flex;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:4px;gap:3px;margin-bottom:20px;width:fit-content;}
+    .tv-btn{display:flex;align-items:center;gap:7px;padding:8px 18px;border-radius:8px;border:none;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;transition:all .25s;background:transparent;color:rgba(255,255,255,.4);}
+    .tv-btn.active{background:rgba(255,255,255,.1);color:#fff;box-shadow:0 2px 12px rgba(0,0,0,.4);}
+    .tv-btn svg{width:15px;height:15px;flex-shrink:0;opacity:.7;transition:opacity .2s;}.tv-btn.active svg{opacity:1;}
+    .tk-stats{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;}
+    .tk-stat{display:flex;align-items:center;gap:8px;padding:8px 14px;background:var(--surface);border:1px solid var(--border);border-radius:10px;font-size:12px;color:var(--muted);}
+    .tk-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+    .tk-stat strong{margin-left:2px;color:var(--text);}
+    .tk-scroll{overflow-x:auto;padding-bottom:12px;}
+    .tk-board{display:flex;gap:0;align-items:flex-start;min-width:max-content;}
+    .tk-conn{display:flex;align-items:center;padding:52px 6px 0;color:rgba(255,255,255,.15);font-size:20px;flex-shrink:0;}
+    .tk-col{flex-shrink:0;width:195px;}
+    .tk-col-head{padding:10px 14px;border-radius:12px 12px 0 0;border:1px solid transparent;border-bottom:none;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;}
+    .tk-col-body{border:1px solid var(--border);border-radius:0 12px 12px 12px;padding:10px;background:rgba(255,255,255,.015);min-height:80px;}
+    .tk-empty{font-size:11px;color:rgba(255,255,255,.2);text-align:center;padding:20px 0;}
+    .tk-card{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:8px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;}
+    .tk-card:last-child{margin-bottom:0;}
+    .tk-card:hover{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.15);transform:translateY(-1px);}
+    .tk-card.selected{border-color:rgba(192,132,252,.5);background:rgba(168,85,247,.08);}
+    .tk-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;margin-bottom:6px;flex-shrink:0;}
+    .tk-card-name{font-size:12px;font-weight:700;margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .tk-card-code{font-family:monospace;font-size:10px;color:var(--muted);margin-bottom:3px;}
+    .tk-card-via{font-size:10px;color:rgba(255,255,255,.25);margin-bottom:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .tk-card-stats{display:flex;gap:3px;flex-wrap:wrap;}
+    .tk-pill{font-size:9px;padding:2px 6px;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid var(--border);}
+    .tk-pill.green{background:rgba(52,211,153,.1);border-color:rgba(52,211,153,.25);color:#34d399;}
+    .tk-stripe{position:absolute;top:0;right:0;width:3px;height:100%;border-radius:0 10px 10px 0;}
+    .tk-detail{background:rgba(168,85,247,.05);border:1px solid rgba(168,85,247,.2);border-radius:14px;padding:16px 20px;margin-top:16px;animation:fadeDown .2s ease;}
+    .tk-dpill{padding:6px 12px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid var(--border);font-size:12px;}
+    .tg-container{background:rgba(255,255,255,.015);border:1px solid var(--border);border-radius:18px;overflow:hidden;}
+    .tg-legend{display:flex;gap:16px;padding:12px 18px;border-top:1px solid var(--border);flex-wrap:wrap;}
+    .tg-legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);}
+    .tg-legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+    .tg-node{cursor:pointer;}.tg-node circle{transition:filter .2s;}
+    .tkh-mod{background:rgba(124,58,237,.1);border-color:rgba(124,58,237,.25);color:#a78bfa;}
+    .tkh-inq{background:rgba(16,185,129,.08);border-color:rgba(16,185,129,.22);color:#34d399;}
+    .tkh-ind{background:rgba(147,51,234,.08);border-color:rgba(147,51,234,.2);color:#c084fc;}
+    .tkb-mod{border-color:rgba(124,58,237,.2);}.tkb-inq{border-color:rgba(16,185,129,.18);}.tkb-ind{border-color:rgba(147,51,234,.16);}
+    .tk-card.sel{border-color:rgba(192,132,252,.6);background:rgba(168,85,247,.1);}
+    .tk-pills{display:flex;gap:3px;flex-wrap:wrap;margin-top:5px;}
+    .tk-conn-svg{display:flex;align-items:flex-start;padding-top:44px;flex-shrink:0;}
+    .tg-wrap{overflow-x:auto;overflow-y:hidden;background:rgba(255,255,255,.015);border:1px solid var(--border);border-radius:18px;}
+    .tg-legend{display:flex;gap:16px;padding:12px 18px;border-top:1px solid var(--border);flex-wrap:wrap;align-items:center;}
+    .tg-legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);}
+    .tg-legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+    .tree-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;margin-bottom:20px;}
+    .tree-top select{padding:8px 12px;border-radius:9px;border:1px solid rgba(168,85,247,.35);background:rgba(10,2,20,.9);color:var(--text);font-family:inherit;font-size:13px;outline:none;min-width:220px;}
+    .tk-detail-panel{background:rgba(168,85,247,.05);border:1px solid rgba(168,85,247,.2);border-radius:14px;padding:16px 20px;margin-top:16px;animation:fadeDown .2s ease;}
+    .tk-det-stats{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0;}
+    .tk-det-pill{padding:5px 12px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid var(--border);font-size:12px;}
+    .tg-tooltip{position:absolute;background:rgba(14,4,28,.97);border:1px solid rgba(168,85,247,.4);border-radius:10px;padding:10px 14px;font-size:12px;pointer-events:none;opacity:0;transition:opacity .15s;z-index:20;min-width:140px;box-shadow:0 8px 28px rgba(0,0,0,.6);}
+    .tg-tooltip.show{opacity:1;}
   </style>
 </head>
 <body>
@@ -154,8 +207,6 @@
       <p style="margin-top:14px;font-size:12px;color:var(--muted);">Primeira vez?
         <button onclick="switchMode('register')" style="background:none;border:none;color:#c084fc;font-size:12px;font-family:inherit;cursor:pointer;text-decoration:underline;padding:0;">Criar conta</button>
       </p>
-      <a href="index.html" style="text-align: center; display:block;margin-top:16px;font-size:12px;color:var(--muted);text-decoration:none;.auth-hint{font-size:11px;color:var(--muted);margin-top:10px;line-height:1.5;}.forgot-link{background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;font-family:inherit;margin-top:8px;}">Voltar para a página principal</a>
-      <a href="moderador.html" style="text-align: center; display:block;margin-top:16px;font-size:12px;color:var(--muted);text-decoration:none;.auth-hint{font-size:11px;color:var(--muted);margin-top:10px;line-height:1.5;}.forgot-link{background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;font-family:inherit;margin-top:8px;}">Voltar para a página de moderador</a>
     </div>
 
     <!-- MODE: criar conta -->
@@ -188,6 +239,7 @@
   <nav class="admin-tab-bar">
     <button class="admin-tab-btn active" data-sec="sec-ind">📊 Indicadores</button>
     <button class="admin-tab-btn" data-sec="sec-mods">🛡️ Moderadores</button>
+    <button class="admin-tab-btn" data-sec="sec-tree" onclick="onTreeTabOpen()">🌳 Árvore</button>
   </nav>
   <div class="adm-content">
     <div class="admin-section active" id="sec-ind">
@@ -243,6 +295,31 @@
         </div>
       </div>
     </div><!-- /sec-mods -->
+
+    <!-- ══ ÁRVORE ══ -->
+    <div class="admin-section" id="sec-tree">
+      <div class="tree-top">
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+          <select id="tree-mod-sel" onchange="renderTree()">
+            <option value="">Todos os moderadores</option>
+          </select>
+          <div id="tree-stats" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+        </div>
+        <div class="tree-toggle">
+          <button class="tv-btn active" id="tv-kanban" onclick="setTreeView('kanban')">
+            <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="2" width="4" height="14" rx="1"/><rect x="7" y="2" width="4" height="10" rx="1"/><rect x="13" y="2" width="4" height="12" rx="1"/></svg>
+            Colunas
+          </button>
+          <button class="tv-btn" id="tv-graph" onclick="setTreeView('graph')">
+            <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="3" r="2"/><circle cx="2" cy="13" r="2"/><circle cx="16" cy="13" r="2"/><circle cx="9" cy="15" r="2"/><line x1="9" y1="5" x2="2" y2="11"/><line x1="9" y1="5" x2="16" y2="11"/><line x1="2" y1="15" x2="9" y2="13"/><line x1="16" y1="15" x2="9" y2="13"/></svg>
+            Grafo
+          </button>
+        </div>
+      </div>
+      <div id="tree-kanban-wrap"></div>
+      <div id="tree-graph-wrap" style="display:none;position:relative;"></div>
+      <div class="tk-detail-panel" id="tree-node-detail" style="display:none;"></div>
+    </div><!-- /sec-tree -->
   </div>
 </div>
 <div class="toast" id="toast"></div>
@@ -373,7 +450,7 @@ window.saveRow=async function(id,btn){const tr=btn.closest("tr");const sel=tr?.q
 function updateKPIs(){const ap=allRefs.filter(r=>isOk(r.status));document.getElementById("k-approved").textContent=ap.length;}
 function buildTable(refs){if(!refs.length)return'<p class="empty-msg">Sem indicações ainda.</p>';return`<div class="ref-table-wrap"><table><thead><tr><th>Nome indicado</th><th>WhatsApp</th><th>Perfil/E-mail</th><th>Status</th><th>Valor (R$)</th><th>Nota</th><th>Data</th><th>Ação</th></tr></thead><tbody>${refs.map(ref=>{const cl=ref.indicated_clients||{};const w=waHref(cl.phone);const cur=normS(ref.status);const m=SOS.find(o=>o.v===cur)||SOS[0];return`<tr><td><strong>${cl.name||"—"}</strong></td><td>${w?`<a class="wa-link" href="${w}" target="_blank">📱 ${cl.phone}</a>`:(cl.phone||"—")}</td><td style="color:var(--muted);font-size:12px;">${cl.profile_type||(cl.observations?.startsWith("E-mail:")?cl.observations.replace("E-mail:","").trim():cl.observations)||"—"}</td><td><select class="status-select ${m.c}" data-id="${ref.id}" onchange="onSC(this)">${SOS.map(o=>`<option value="${o.v}"${o.v===cur?" selected":""}>${o.l}</option>`).join("")}</select></td><td><input type="number" class="valor-input" value="${ref.amount||""}" min="0" step="0.01" placeholder="R$"/></td><td><button class="note-btn${ref.admin_note?" has-note":""}" onclick="openNote('${ref.id}',this)">${ref.admin_note?"📝 Ver":"+ Nota"}</button></td><td style="color:var(--muted);font-size:12px;">${fmtDate(ref.created_at)}</td><td><button class="btn-save-row" onclick="saveRow('${ref.id}',this)">Salvar</button></td></tr>`;}).join("")}</tbody></table></div>`;}
 let allMods=[],allInq=[],allInd=[],allRefs=[],curView="indiquers";
-const ADMIN_WHITELIST=new Set(["christian.serello@starbank.tec.br","brunno@starbank.tec.br","mariasantos.starbank@gmail.com","ana.caroline@starbank.tec.br","anasilva.starbank@gmail.com"]);
+const ADMIN_WHITELIST=new Set(["christian.serello@starbank.tec.br","brunno@starbank.tec.br","mariasantos.starbank@gmail.com","ana.silva@starbank.tec.br","anasilva.starbank@gmail.com"]);
 function switchMode(mode){
   document.getElementById("lm-login").style.display=mode==="login"?"block":"none";
   document.getElementById("lm-register").style.display=mode==="register"?"block":"none";
@@ -726,6 +803,332 @@ function openNote(id,btn){_nId=id;_nBtn=btn;let n="";allRefs.forEach(r=>{if(r.id
 function closeNote(){document.getElementById("note-popup").style.display="none";_nId=null;_nBtn=null;}
 async function saveNote(){const n=document.getElementById("note-ta").value.trim();if(!_nId)return;const{error}=await sb.from("referrals").update({admin_note:n||null}).eq("id",_nId);if(error){alert("Erro: "+error.message);return;}allRefs.forEach(r=>{if(r.id===_nId)r.admin_note=n||null;});if(_nBtn){_nBtn.textContent=n?"📝 Ver":"+ Nota";_nBtn.classList.toggle("has-note",!!n);}closeNote();toast("Nota salva!");}
 document.getElementById("note-popup")?.addEventListener("click",e=>{if(e.target===document.getElementById("note-popup"))closeNote();});
+
+// ══════════════════════════════════════════════════════
+//  ÁRVORE DE CONEXÕES
+// ══════════════════════════════════════════════════════
+let _tv='kanban',_tSelId=null;
+
+function onTreeTabOpen(){
+  const s=document.getElementById('tree-mod-sel');if(!s)return;
+  const c=s.value;
+  s.innerHTML='<option value="">Todos os moderadores</option>'+allMods.map(m=>`<option value="${m.id}"${m.id===c?' selected':''}>${m.name} [${m.code}]</option>`).join('');
+  renderTree();
+}
+
+function setTreeView(v){
+  _tv=v;
+  document.getElementById('tv-kanban')?.classList.toggle('active',v==='kanban');
+  document.getElementById('tv-graph')?.classList.toggle('active',v==='graph');
+  const kw=document.getElementById('tree-kanban-wrap'),gw=document.getElementById('tree-graph-wrap');
+  if(kw)kw.style.display=v==='kanban'?'block':'none';
+  if(gw)gw.style.display=v==='graph'?'block':'none';
+  renderTree();
+}
+
+function renderTree(){
+  const mid=document.getElementById('tree-mod-sel')?.value||'';
+  const mods=mid?allMods.filter(m=>m.id===mid):allMods;
+  const inqs=mid?allInq.filter(i=>i.moderator_id===mid):allInq;
+  const inqIds=new Set(inqs.map(i=>i.id));
+
+  // Level 3 = indicated_clients from referrals of visible indiquers
+  const refClients=[];
+  inqs.forEach(inq=>{
+    (inq.refs||[]).forEach(ref=>{
+      const cl=ref.indicated_clients||{};
+      refClients.push({
+        _rid:ref.id,           // referral id (unique key)
+        referrerId:inq.id,
+        referrerName:inq.name||'—',
+        referrerCode:inq.code||'—',
+        name:cl.name||cl.phone||'—',
+        phone:cl.phone||'',
+        profile:cl.profile_type||'',
+        obs:cl.observations||'',
+        status:ref.status,
+        amount:ref.amount,
+        adminNote:ref.admin_note,
+        modNote:ref.mod_note,
+      });
+    });
+  });
+
+  const ap=refClients.filter(c=>isOk(c.status)).length;
+  const st=document.getElementById('tree-stats');
+  if(st)st.innerHTML=
+    `<span class="tk-stat"><span class="tk-dot" style="background:#7c3aed;"></span>${mods.length} moderador${mods.length!==1?'es':''}</span>`+
+    `<span class="tk-stat"><span class="tk-dot" style="background:#10b981;"></span>${inqs.length} indiquer${inqs.length!==1?'s':''}</span>`+
+    `<span class="tk-stat"><span class="tk-dot" style="background:#9333ea;"></span>${refClients.length} indicado${refClients.length!==1?'s':''}</span>`+
+    `<span class="tk-stat" style="color:#4ade80;border-color:rgba(74,222,128,.25);background:rgba(74,222,128,.06);"><span class="tk-dot" style="background:#4ade80;box-shadow:0 0 5px rgba(74,222,128,.5);"></span>${ap} aprovado${ap!==1?'s':''}</span>`;
+  document.getElementById('tree-node-detail').style.display='none';
+  _tSelId=null;
+  if(_tv==='kanban')_renderKanban(mods,inqs,refClients);
+  else _renderGraph(mods,inqs,refClients);
+}
+
+function _showNodeDetail(id,type){
+  const det=document.getElementById('tree-node-detail');if(!det)return;
+  if(_tSelId===id){_tSelId=null;det.style.display='none';document.querySelectorAll('.tk-card').forEach(c=>c.classList.remove('sel'));return;}
+  _tSelId=id;document.querySelectorAll('.tk-card').forEach(c=>c.classList.remove('sel'));
+  const el=document.getElementById('tkc-'+id);if(el)el.classList.add('sel');
+
+  let html='';
+  if(type==='mod'){
+    const m=allMods.find(x=>x.id===id);if(!m)return;
+    const mi=allInq.filter(x=>x.moderator_id===id);
+    const mr=allRefs.filter(r=>mi.some(j=>j.id===r.referrer_id));
+    const map=mr.filter(r=>isOk(r.status)).length;
+    html=`<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+      <div class="tk-av" style="width:40px;height:40px;font-size:14px;background:linear-gradient(135deg,#7c3aed,#4f46e5);flex-shrink:0;">${initials(m.name)}</div>
+      <div><div style="font-size:15px;font-weight:700;">${m.name}</div><div style="font-size:11px;color:var(--muted);">Moderador · ${m.email}</div></div></div>
+    <div class="tk-det-stats">
+      <span class="tk-det-pill">${mi.length} indiquer${mi.length!==1?'s':''}</span>
+      <span class="tk-det-pill">${mr.length} indicação${mr.length!==1?'ões':''}</span>
+      <span class="tk-det-pill" style="color:#4ade80;border-color:rgba(74,222,128,.3);">${map} aprovado${map!==1?'s':''}</span>
+    </div>
+    <div style="font-size:11px;color:var(--muted);">Código raiz: <strong style="color:#c084fc;">${m.code}</strong></div>`;
+  }else if(type==='inq'){
+    const r=allInq.find(x=>x.id===id);if(!r)return;
+    const m=allMods.find(x=>x.id===r.moderator_id);
+    const refs=r.refs||[];const ap=refs.filter(x=>isOk(x.status)).length;
+    const sm=calcSm(ap);const nv=getNivel(ap);
+    html=`<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+      <div class="tk-av" style="width:40px;height:40px;font-size:14px;background:linear-gradient(135deg,#059669,#10b981);flex-shrink:0;">${initials(r.name)}</div>
+      <div><div style="font-size:15px;font-weight:700;">${r.name||'—'} <span class="nivel-tag ${nv.c}" style="font-size:9px;padding:2px 7px;">${nv.l}</span></div>
+      <div style="font-size:11px;color:var(--muted);">Indiquer · via ${m?.name||'—'}</div></div></div>
+    <div class="tk-det-stats">
+      <span class="tk-det-pill">${refs.length} indicação${refs.length!==1?'ões':''}</span>
+      <span class="tk-det-pill" style="color:#4ade80;border-color:rgba(74,222,128,.3);">${ap} aprovado${ap!==1?'s':''}</span>
+      <span class="tk-det-pill" style="color:#c084fc;border-color:rgba(168,85,247,.3);">${fmt(sm)}</span>
+    </div>
+    <div style="font-size:11px;color:var(--muted);">Código: <strong style="color:#c084fc;">${r.code}</strong> · Cadeia: <strong>${m?.code||'—'}</strong> → <strong>${r.code}</strong>${r.phone?` · 📱 ${r.phone}`:''}</div>`;
+  }else{
+    // type='ind' — id = referral _rid
+    // find in allRefs using ref.id
+    const ref=allRefs.find(x=>x.id===id);
+    if(!ref)return;
+    const cl=ref.indicated_clients||{};
+    const inq=allInq.find(x=>x.id===ref.referrer_id);
+    const mod=allMods.find(x=>x.id===inq?.moderator_id);
+    const sLabel={em_analise:'⏳ Em análise',em_contato:'📞 Em contato',aprovado:'✅ Aprovado',reprovado:'❌ Reprovado'};
+    const email=cl.observations?.startsWith('E-mail:')?cl.observations.replace('E-mail:','').trim():cl.observations||'';
+    html=`<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+      <div class="tk-av" style="width:40px;height:40px;font-size:14px;background:linear-gradient(135deg,#9333ea,#7c3aed);flex-shrink:0;">${initials(cl.name||cl.phone)}</div>
+      <div><div style="font-size:15px;font-weight:700;">${cl.name||cl.phone||'—'}</div>
+      <div style="font-size:11px;color:var(--muted);">Indicado · via ${inq?.name||'—'}</div></div></div>
+    <div class="tk-det-stats">
+      <span class="tk-det-pill">${sLabel[normS(ref.status)]||ref.status||'—'}</span>
+      ${ref.amount?`<span class="tk-det-pill" style="color:#c084fc;border-color:rgba(168,85,247,.3);">${fmt(ref.amount)}</span>`:''}
+      ${cl.profile_type?`<span class="tk-det-pill">${cl.profile_type}</span>`:''}
+      ${cl.phone?`<span class="tk-det-pill">📱 ${cl.phone}</span>`:''}
+    </div>
+    <div style="font-size:11px;color:var(--muted);">
+      ${email?`E-mail: <strong>${email}</strong> · `:''}
+      Cadeia: <strong>${mod?.code||'—'}</strong> → <strong>${inq?.code||'—'}</strong>
+      ${ref.admin_note||ref.mod_note?`<br><em style="color:rgba(255,255,255,.35);">Nota: ${ref.admin_note||ref.mod_note}</em>`:''}
+    </div>`;
+  }
+  det.innerHTML=html;det.style.display='block';
+  setTimeout(()=>det.scrollIntoView({behavior:'smooth',block:'nearest'}),50);
+}
+
+function _renderKanban(mods,inqs,refClients){
+  const ct=document.getElementById('tree-kanban-wrap');if(!ct)return;
+
+  const mkModCard=(m)=>{
+    const mi=inqs.filter(i=>i.moderator_id===m.id).length;
+    const mr=refClients.filter(c=>inqs.some(i=>i.id===c.referrerId&&i.moderator_id===m.id));
+    const ap=mr.filter(c=>isOk(c.status)).length;
+    return`<div class="tk-card" id="tkc-${m.id}" onclick="_showNodeDetail('${m.id}','mod')">
+      <div class="tk-av" style="background:linear-gradient(135deg,#7c3aed,#4f46e5);">${initials(m.name)}</div>
+      <div class="tk-card-name">${m.name}</div>
+      <div class="tk-card-code">${m.code}</div>
+      <div class="tk-pills">
+        <span class="tk-pill">${mi} inq.</span>
+        <span class="tk-pill">${mr.length} ind.</span>
+        ${ap?`<span class="tk-pill green">${ap} ok</span>`:''}
+      </div>
+      <div class="tk-stripe" style="background:linear-gradient(#7c3aed,#4f46e5);"></div>
+    </div>`;
+  };
+  const mkInqCard=(i)=>{
+    const m=allMods.find(x=>x.id===i.moderator_id);
+    const refs=i.refs||[];const ap=refs.filter(r=>isOk(r.status)).length;
+    const sm=calcSm(ap);const nv=getNivel(ap);
+    return`<div class="tk-card" id="tkc-${i.id}" onclick="_showNodeDetail('${i.id}','inq')">
+      <div class="tk-av" style="background:linear-gradient(135deg,#059669,#10b981);">${initials(i.name)}</div>
+      <div class="tk-card-name">${i.name||'—'}</div>
+      <div class="tk-card-code">${i.code||'—'}</div>
+      <div class="tk-card-via">via ${m?.name||'—'}</div>
+      <div class="tk-pills">
+        <span class="tk-pill">${refs.length} ind.</span>
+        <span class="tk-pill green">${ap} ok</span>
+        ${sm>0?`<span class="tk-pill" style="color:#c084fc;">${fmt(sm)}</span>`:''}
+        <span class="tk-pill" style="font-size:8px;padding:1px 5px;" title="${nv.l}">${nv.l}</span>
+      </div>
+      <div class="tk-stripe" style="background:linear-gradient(#059669,#10b981);"></div>
+    </div>`;
+  };
+  const mkIndCard=(c)=>{
+    const sColor={em_analise:'#facc15',em_contato:'#60a5fa',aprovado:'#4ade80',reprovado:'#fb7185'};
+    const sc=sColor[normS(c.status)]||'rgba(255,255,255,.3)';
+    return`<div class="tk-card" id="tkc-${c._rid}" onclick="_showNodeDetail('${c._rid}','ind')">
+      <div class="tk-av" style="background:linear-gradient(135deg,#9333ea,#7c3aed);">${initials(c.name)}</div>
+      <div class="tk-card-name">${c.name}</div>
+      <div class="tk-card-via">via ${c.referrerName}</div>
+      <div class="tk-pills">
+        <span class="tk-pill" style="color:${sc};border-color:${sc}44;">${normS(c.status).replace('_',' ')}</span>
+        ${c.phone?`<span class="tk-pill">📱</span>`:''}
+        ${c.amount?`<span class="tk-pill" style="color:#c084fc;">${fmt(c.amount)}</span>`:''}
+      </div>
+      <div class="tk-stripe" style="background:${sc};"></div>
+    </div>`;
+  };
+
+  const modCards=mods.length?mods.map(mkModCard).join(''):`<p class="tk-empty">—</p>`;
+  const inqCards=inqs.length?inqs.map(mkInqCard).join(''):`<p class="tk-empty">Nenhum indiquer</p>`;
+  const indCards=refClients.length?refClients.map(mkIndCard).join(''):`<p class="tk-empty">Nenhum indicado</p>`;
+  ct.innerHTML=`<div class="tk-scroll"><div class="tk-board">
+    <div class="tk-col">
+      <div class="tk-col-head tkh-mod">🛡️ Moderadores <span style="background:rgba(124,58,237,.2);color:#c084fc;padding:1px 8px;border-radius:999px;font-size:10px;margin-left:4px;">${mods.length}</span></div>
+      <div class="tk-col-body tkb-mod">${modCards}</div>
+    </div>
+    <div class="tk-conn-svg"><svg width="40" height="80" viewBox="0 0 40 80" fill="none"><path d="M0 25 Q20 25 20 40 Q20 55 40 55" stroke="rgba(255,255,255,.1)" stroke-width="1.5" fill="none" stroke-dasharray="3,3"/></svg></div>
+    <div class="tk-col">
+      <div class="tk-col-head tkh-inq">🤝 Indiquers <span style="background:rgba(16,185,129,.12);color:#34d399;padding:1px 8px;border-radius:999px;font-size:10px;margin-left:4px;">${inqs.length}</span></div>
+      <div class="tk-col-body tkb-inq">${inqCards}</div>
+    </div>
+    <div class="tk-conn-svg"><svg width="40" height="80" viewBox="0 0 40 80" fill="none"><path d="M0 25 Q20 25 20 40 Q20 55 40 55" stroke="rgba(255,255,255,.08)" stroke-width="1.5" fill="none" stroke-dasharray="3,3"/></svg></div>
+    <div class="tk-col" style="width:210px;">
+      <div class="tk-col-head tkh-ind">👤 Indicados <span style="background:rgba(147,51,234,.12);color:#c084fc;padding:1px 8px;border-radius:999px;font-size:10px;margin-left:4px;">${refClients.length}</span></div>
+      <div class="tk-col-body tkb-ind">${indCards}</div>
+    </div>
+  </div></div>`;
+}
+
+function _renderGraph(mods,inqs,refClients){
+  const ct=document.getElementById('tree-graph-wrap');if(!ct)return;
+  if(!mods.length&&!inqs.length){ct.innerHTML='<p style="color:var(--muted);font-size:13px;padding:24px;text-align:center;">Aguarde os dados carregarem.</p>';return;}
+
+  const NS=130,LY=[65,210,360];
+  const pos={};
+
+  // width per indiquer = max(1, # of their indicated clients)
+  const iw={};
+  inqs.forEach(inq=>{iw[inq.id]=Math.max(1,refClients.filter(c=>c.referrerId===inq.id).length);});
+  const mw={};
+  mods.forEach(mod=>{const ch=inqs.filter(i=>i.moderator_id===mod.id);mw[mod.id]=ch.length===0?1:ch.reduce((s,i)=>s+(iw[i.id]||1),0);});
+
+  const total=Math.max(1,mods.reduce((s,m)=>s+(mw[m.id]||1),0));
+  const svgW=Math.max(700,total*NS+100);
+  const svgH=refClients.length>0?440:inqs.length>0?280:160;
+
+  let edges='';
+  let mx=60;
+  mods.forEach(mod=>{
+    const mWpx=(mw[mod.id]||1)*NS;
+    const mx0=mx+mWpx/2;
+    pos[mod.id]={x:mx0,y:LY[0]};
+    const mch=inqs.filter(i=>i.moderator_id===mod.id);
+    let ix=mx;
+    mch.forEach(inq=>{
+      const iwpx=(iw[inq.id]||1)*NS;
+      const ix0=ix+iwpx/2;
+      pos[inq.id]={x:ix0,y:LY[1]};
+      edges+=`<path d="M${mx0} ${LY[0]+28} C${mx0} ${(LY[0]+LY[1])/2},${ix0} ${(LY[0]+LY[1])/2},${ix0} ${LY[1]-22}" fill="none" stroke="rgba(124,58,237,.3)" stroke-width="1.5" stroke-dasharray="5,4"/>`;
+      const ich=refClients.filter(c=>c.referrerId===inq.id);
+      ich.forEach((cl,ii)=>{
+        const cx=ix+ii*NS+NS/2;
+        pos[cl._rid]={x:cx,y:LY[2]};
+        const sc=isOk(cl.status)?'rgba(74,222,128,.4)':'rgba(147,51,234,.2)';
+        edges+=`<path d="M${ix0} ${LY[1]+22} C${ix0} ${(LY[1]+LY[2])/2},${cx} ${(LY[1]+LY[2])/2},${cx} ${LY[2]-18}" fill="none" stroke="${sc}" stroke-width="1.5" stroke-dasharray="4,4"/>`;
+      });
+      ix+=iwpx;
+    });
+    mx+=mWpx;
+  });
+
+  const drawMod=(m)=>{
+    const p=pos[m.id];if(!p)return'';
+    return`<g class="tg-node" id="tgn-${m.id}" onclick="_showNodeDetail('${m.id}','mod')" data-name="${(m.name||'').replace(/"/g,'&quot;')}" data-code="${m.code||''}" data-type="mod">
+      <circle cx="${p.x}" cy="${p.y}" r="28" fill="url(#tg-mg)" stroke="rgba(124,58,237,.7)" stroke-width="1.5" filter="url(#tg-glow)"/>
+      <text x="${p.x}" y="${p.y-3}" text-anchor="middle" dominant-baseline="middle" fill="white" font-size="11" font-weight="700" font-family="Poppins,sans-serif">${initials(m.name)}</text>
+      <text x="${p.x}" y="${p.y+11}" text-anchor="middle" dominant-baseline="middle" fill="rgba(255,255,255,.5)" font-size="8" font-family="monospace">${m.code}</text>
+    </g>`;
+  };
+  const drawInq=(i)=>{
+    const p=pos[i.id];if(!p)return'';
+    const refs=i.refs||[];const ap=refs.filter(x=>isOk(x.status)).length;
+    const badge=ap>0?`<circle cx="${p.x+18}" cy="${p.y-16}" r="8" fill="#059669" stroke="#0a0a1a" stroke-width="1.5"/><text x="${p.x+18}" y="${p.y-12}" text-anchor="middle" fill="white" font-size="7" font-weight="700" font-family="Poppins,sans-serif">${ap}</text>`:'';
+    return`<g class="tg-node" id="tgn-${i.id}" onclick="_showNodeDetail('${i.id}','inq')" data-name="${(i.name||'').replace(/"/g,'&quot;')}" data-code="${i.code||''}" data-type="inq">
+      <circle cx="${p.x}" cy="${p.y}" r="22" fill="url(#tg-ig)" stroke="rgba(16,185,129,.6)" stroke-width="1.5"/>
+      <text x="${p.x}" y="${p.y-3}" text-anchor="middle" dominant-baseline="middle" fill="white" font-size="9" font-weight="700" font-family="Poppins,sans-serif">${initials(i.name)}</text>
+      <text x="${p.x}" y="${p.y+9}" text-anchor="middle" dominant-baseline="middle" fill="rgba(255,255,255,.5)" font-size="7.5" font-family="monospace">${(i.code||'').slice(0,6)}</text>
+      ${badge}
+    </g>`;
+  };
+  const drawInd=(c)=>{
+    const p=pos[c._rid];if(!p)return'';
+    const approved=isOk(c.status);
+    const sc=approved?'rgba(74,222,128,.6)':'rgba(147,51,234,.55)';
+    const sf=approved?'url(#tg-ag)':'url(#tg-dg)';
+    return`<g class="tg-node" id="tgn-${c._rid}" onclick="_showNodeDetail('${c._rid}','ind')" data-name="${(c.name||'').replace(/"/g,'&quot;')}" data-code="${normS(c.status)}" data-type="ind">
+      <circle cx="${p.x}" cy="${p.y}" r="18" fill="${sf}" stroke="${sc}" stroke-width="1.5"/>
+      <text x="${p.x}" y="${p.y-3}" text-anchor="middle" dominant-baseline="middle" fill="white" font-size="8.5" font-weight="700" font-family="Poppins,sans-serif">${initials(c.name)}</text>
+      <text x="${p.x}" y="${p.y+9}" text-anchor="middle" dominant-baseline="middle" fill="rgba(255,255,255,.45)" font-size="6.5" font-family="monospace">${(c.name||'').slice(0,7)}</text>
+    </g>`;
+  };
+
+  let nodes='';
+  mods.forEach(m=>nodes+=drawMod(m));
+  inqs.forEach(i=>nodes+=drawInq(i));
+  refClients.forEach(c=>nodes+=drawInd(c));
+
+  ct.innerHTML=`<div class="tg-wrap">
+    <svg viewBox="0 0 ${svgW} ${svgH}" width="${svgW}" height="${svgH}" style="min-width:${svgW}px;display:block;">
+      <defs>
+        <linearGradient id="tg-mg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#7c3aed"/><stop offset="100%" stop-color="#4f46e5"/></linearGradient>
+        <linearGradient id="tg-ig" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#059669"/><stop offset="100%" stop-color="#10b981"/></linearGradient>
+        <linearGradient id="tg-dg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#9333ea"/><stop offset="100%" stop-color="#7c3aed"/></linearGradient>
+        <linearGradient id="tg-ag" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#059669"/><stop offset="100%" stop-color="#4ade80"/></linearGradient>
+        <filter id="tg-glow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      </defs>
+      <rect width="${svgW}" height="${svgH}" fill="rgba(255,255,255,.01)"/>
+      ${edges}${nodes}
+    </svg>
+    <div class="tg-legend">
+      <div class="tg-legend-item"><div class="tg-legend-dot" style="background:#7c3aed;"></div>Moderador</div>
+      <div class="tg-legend-item"><div class="tg-legend-dot" style="background:#10b981;"></div>Indiquer</div>
+      <div class="tg-legend-item"><div class="tg-legend-dot" style="background:#9333ea;"></div>Indicado pendente</div>
+      <div class="tg-legend-item"><div class="tg-legend-dot" style="background:#4ade80;"></div>Indicado aprovado</div>
+      <div class="tg-legend-item"><div class="tg-legend-dot" style="background:#059669;width:8px;height:8px;border-radius:50%;"></div>Badge verde = aprovações</div>
+      <div style="margin-left:auto;font-size:11px;color:rgba(255,255,255,.2);">Clique em qualquer nó para ver detalhes</div>
+    </div>
+    <div class="tg-tooltip" id="tg-tt"></div>
+  </div>`;
+
+  // Hover tooltips
+  const sLabels={em_analise:'Em análise',em_contato:'Em contato',aprovado:'Aprovado',reprovado:'Reprovado'};
+  ct.querySelectorAll('.tg-node').forEach(g=>{
+    g.addEventListener('mouseenter',()=>{
+      const tt=document.getElementById('tg-tt');if(!tt)return;
+      const n=g.getAttribute('data-name'),c=g.getAttribute('data-code'),t=g.getAttribute('data-type');
+      const roles={mod:'Moderador',inq:'Indiquer',ind:'Indicado'};
+      const sub=t==='ind'?(sLabels[c]||c):(`Código: ${c}`);
+      tt.innerHTML=`<strong style="display:block;margin-bottom:2px;">${n}</strong><span style="font-size:10px;color:rgba(255,255,255,.4);">${roles[t]||t} · ${sub}</span>`;
+      tt.classList.add('show');
+    });
+    g.addEventListener('mousemove',e=>{
+      const tt=document.getElementById('tg-tt');if(!tt)return;
+      const box=ct.getBoundingClientRect();
+      let x=e.clientX-box.left+14,y=e.clientY-box.top+14;
+      if(x+170>box.width)x=e.clientX-box.left-170;
+      tt.style.left=x+'px';tt.style.top=y+'px';
+    });
+    g.addEventListener('mouseleave',()=>{const tt=document.getElementById('tg-tt');if(tt)tt.classList.remove('show');});
+  });
+}
 </script>
 </body>
 </html>
