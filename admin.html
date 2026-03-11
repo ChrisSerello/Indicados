@@ -143,11 +143,30 @@
   <div class="login-box">
     <div class="adm-logo">A</div>
     <h1>Admin — Indique &amp; Ganhe</h1>
-    <p>Acesso restrito a administradores.</p>
-    <input type="email" id="adm-email" placeholder="E-mail" autocomplete="username"/>
-    <input type="password" id="adm-pass" placeholder="Senha" autocomplete="current-password"/>
-    <button class="btn-enter" id="btn-adm-login">Entrar</button>
-    <p class="auth-error" id="adm-login-error"></p>
+    <p id="login-box-sub">Acesso restrito a administradores.</p>
+
+    <!-- MODE: login (default) -->
+    <div id="lm-login">
+      <input type="email" id="adm-email" placeholder="E-mail" autocomplete="username"/>
+      <input type="password" id="adm-pass" placeholder="Senha" autocomplete="current-password" id="adm-pass"/>
+      <button class="btn-enter" id="btn-adm-login">Entrar</button>
+      <p class="auth-error" id="adm-login-error"></p>
+      <p style="margin-top:14px;font-size:12px;color:var(--muted);">Primeira vez?
+        <button onclick="switchMode('register')" style="background:none;border:none;color:#c084fc;font-size:12px;font-family:inherit;cursor:pointer;text-decoration:underline;padding:0;">Criar conta</button>
+      </p>
+    </div>
+
+    <!-- MODE: criar conta -->
+    <div id="lm-register" style="display:none;">
+      <input type="email" id="reg-email" placeholder="E-mail autorizado" autocomplete="username"/>
+      <input type="password" id="reg-pass" placeholder="Criar senha (mín. 6 caracteres)"/>
+      <input type="password" id="reg-pass2" placeholder="Confirmar senha"/>
+      <button class="btn-enter" id="btn-adm-register">Criar minha conta</button>
+      <p class="auth-error" id="adm-register-error"></p>
+      <p style="margin-top:14px;font-size:12px;color:var(--muted);">
+        <button onclick="switchMode('login')" style="background:none;border:none;color:#c084fc;font-size:12px;font-family:inherit;cursor:pointer;text-decoration:underline;padding:0;">← Voltar ao login</button>
+      </p>
+    </div>
   </div>
 </div>
 
@@ -352,8 +371,62 @@ window.saveRow=async function(id,btn){const tr=btn.closest("tr");const sel=tr?.q
 function updateKPIs(){const ap=allRefs.filter(r=>isOk(r.status));document.getElementById("k-approved").textContent=ap.length;}
 function buildTable(refs){if(!refs.length)return'<p class="empty-msg">Sem indicações ainda.</p>';return`<div class="ref-table-wrap"><table><thead><tr><th>Nome indicado</th><th>WhatsApp</th><th>Perfil/E-mail</th><th>Status</th><th>Valor (R$)</th><th>Nota</th><th>Data</th><th>Ação</th></tr></thead><tbody>${refs.map(ref=>{const cl=ref.indicated_clients||{};const w=waHref(cl.phone);const cur=normS(ref.status);const m=SOS.find(o=>o.v===cur)||SOS[0];return`<tr><td><strong>${cl.name||"—"}</strong></td><td>${w?`<a class="wa-link" href="${w}" target="_blank">📱 ${cl.phone}</a>`:(cl.phone||"—")}</td><td style="color:var(--muted);font-size:12px;">${cl.profile_type||(cl.observations?.startsWith("E-mail:")?cl.observations.replace("E-mail:","").trim():cl.observations)||"—"}</td><td><select class="status-select ${m.c}" data-id="${ref.id}" onchange="onSC(this)">${SOS.map(o=>`<option value="${o.v}"${o.v===cur?" selected":""}>${o.l}</option>`).join("")}</select></td><td><input type="number" class="valor-input" value="${ref.amount||""}" min="0" step="0.01" placeholder="R$"/></td><td><button class="note-btn${ref.admin_note?" has-note":""}" onclick="openNote('${ref.id}',this)">${ref.admin_note?"📝 Ver":"+ Nota"}</button></td><td style="color:var(--muted);font-size:12px;">${fmtDate(ref.created_at)}</td><td><button class="btn-save-row" onclick="saveRow('${ref.id}',this)">Salvar</button></td></tr>`;}).join("")}</tbody></table></div>`;}
 let allMods=[],allInq=[],allInd=[],allRefs=[],curView="indiquers";
-document.getElementById("btn-adm-login")?.addEventListener("click",async()=>{const e=document.getElementById("adm-email").value.trim(),p=document.getElementById("adm-pass").value,err=document.getElementById("adm-login-error");err.textContent="";const btn=document.getElementById("btn-adm-login");btn.textContent="Entrando…";btn.disabled=true;try{const{data,error}=await sb.auth.signInWithPassword({email:e,password:p});if(error)throw error;await mountAdmin(data.user);}catch{err.textContent="Credenciais inválidas.";}finally{btn.textContent="Entrar";btn.disabled=false;}});
-async function mountAdmin(user){document.getElementById("login-gate").style.display="none";document.getElementById("adm-app").classList.add("active");loadData();}
+const ADMIN_WHITELIST=new Set(["christian.serello@starbank.tec.br","brunno@starbank.tec.br","mariasantos.starbank@gmail.com","ana.caroline@starbank.tec.br","anasilva.starbank@gmail.com"]);
+function switchMode(mode){
+  document.getElementById("lm-login").style.display=mode==="login"?"block":"none";
+  document.getElementById("lm-register").style.display=mode==="register"?"block":"none";
+  document.getElementById("login-box-sub").textContent=mode==="login"?"Acesso restrito a administradores.":"Crie sua conta de administrador.";
+  document.getElementById("adm-login-error").textContent="";
+  document.getElementById("adm-register-error").textContent="";
+}
+document.getElementById("btn-adm-login")?.addEventListener("click",async()=>{
+  const e=document.getElementById("adm-email").value.trim().toLowerCase();
+  const p=document.getElementById("adm-pass").value;
+  const err=document.getElementById("adm-login-error");err.textContent="";
+  if(!ADMIN_WHITELIST.has(e)){err.textContent="Este e-mail não tem acesso ao painel de admin.";return;}
+  const btn=document.getElementById("btn-adm-login");btn.textContent="Entrando…";btn.disabled=true;
+  try{
+    const{data,error}=await sb.auth.signInWithPassword({email:e,password:p});
+    if(error)throw error;
+    await mountAdmin(data.user);
+  }catch{err.textContent="Credenciais inválidas.";}
+  finally{btn.textContent="Entrar";btn.disabled=false;}
+});
+document.getElementById("btn-adm-register")?.addEventListener("click",async()=>{
+  const e=document.getElementById("reg-email").value.trim().toLowerCase();
+  const p=document.getElementById("reg-pass").value;
+  const p2=document.getElementById("reg-pass2").value;
+  const err=document.getElementById("adm-register-error");err.textContent="";err.style.color="#fb7185";
+  if(!e||!p){err.textContent="Preencha e-mail e senha.";return;}
+  if(!ADMIN_WHITELIST.has(e)){err.textContent="Este e-mail não está autorizado a criar conta de admin.";return;}
+  if(p.length<6){err.textContent="Senha mínima: 6 caracteres.";return;}
+  if(p!==p2){err.textContent="As senhas não coincidem.";return;}
+  const btn=document.getElementById("btn-adm-register");btn.textContent="Criando…";btn.disabled=true;
+  try{
+    const{data,error}=await sb.auth.signUp({email:e,password:p});
+    if(error&&!error.message.toLowerCase().includes("already"))throw error;
+    if(error?.message.toLowerCase().includes("already")){
+      err.style.color="#facc15";err.textContent="Conta já existe. Tente fazer login.";return;
+    }
+    err.style.color="#4ade80";err.textContent="✅ Conta criada! Fazendo login…";
+    setTimeout(async()=>{
+      const{data:sd,error:se}=await sb.auth.signInWithPassword({email:e,password:p});
+      if(se||!sd.user){err.style.color="#fb7185";err.textContent="Conta criada, mas login falhou. Tente entrar manualmente.";return;}
+      await mountAdmin(sd.user);
+    },1200);
+  }catch(ex){err.textContent="Erro: "+(ex.message||"Tente novamente.");}
+  finally{btn.textContent="Criar minha conta";btn.disabled=false;}
+});
+async function mountAdmin(user){
+  if(!ADMIN_WHITELIST.has(user.email?.toLowerCase())){
+    await sb.auth.signOut();
+    document.getElementById("adm-login-error").textContent="Acesso negado. E-mail não autorizado.";
+    return;
+  }
+  document.getElementById("login-gate").style.display="none";
+  document.getElementById("adm-app").classList.add("active");
+  loadData();
+}
 async function loadData(){
   document.getElementById("content-area").innerHTML="<p style='color:var(--muted);font-size:13px;'>Carregando…</p>";
   const{data:mods}=await sb.from("moderators").select("id,name,email,code,user_id,created_at").order("name");
