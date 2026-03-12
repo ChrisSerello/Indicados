@@ -790,6 +790,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     renderNivelSection(aprovadas);
     renderReferrals(referrals, subReferrers, allSubReferrals);
+    window.dispatchEvent(new CustomEvent("dashboard-ready"));
   }
 
   // ── Formulário interno (Indicar agora) ────────────────────
