@@ -9,10 +9,15 @@
 document.addEventListener("DOMContentLoaded", () => {
   const supabase = window.supabaseClient || null;
 
-  // ── Overlay + funções de sidebar mobile ──────────────────
+  // Coloca o overlay DENTRO do dashboard para ficar no mesmo stacking context
   const overlay = document.createElement("div");
   overlay.className = "sidebar-overlay";
-  document.body.appendChild(overlay);
+  const dashContainer = document.querySelector(".dashboard-overlay");
+  if (dashContainer) {
+    dashContainer.appendChild(overlay);
+  } else {
+    document.body.appendChild(overlay);
+  }
 
   function openSidebar() {
     document.querySelector(".dash-sidebar")?.classList.add("open");
