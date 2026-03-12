@@ -13,6 +13,7 @@
         overflow-y: auto;
       }
       .dash-sidebar.open {
+        display: flex !important;
         transform: translateX(0) !important;
         box-shadow: 6px 0 40px rgba(0,0,0,.75);
       }
