@@ -90,6 +90,7 @@
     @media(max-width:900px){.kpi-row{grid-template-columns:repeat(2,1fr);}}
     @media(max-width:600px){.kpi-row{grid-template-columns:1fr;}.mod-content{padding:16px;}.client-stats,.sub-stats{display:none;}.bf2{grid-template-columns:1fr;}.minputs{grid-template-columns:1fr 1fr;}.minputs .bmadd{grid-column:1/-1;}}
   </style>
+  <link rel="stylesheet" href="onboarding.css" />
 </head>
 <body>
 <div class="bg-orbs"><div class="orb orb-1"></div><div class="orb orb-2"></div></div>
@@ -318,6 +319,7 @@ async function loadData(){
   document.getElementById("k-approved").textContent=ap.length;
   document.getElementById("k-smashcard").textContent=fmt(ts);
   renderView();
+  window.dispatchEvent(new CustomEvent("mod-ready"));
 }
 document.querySelectorAll(".view-tab").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".view-tab").forEach(x=>x.classList.remove("active"));b.classList.add("active");curView=b.dataset.view;renderView();}));
 function renderView(){if(curView==="indiquers")renderInq();else if(curView==="indicados")renderInd();else renderAll();}
@@ -458,5 +460,6 @@ function closeNote(){document.getElementById("note-popup").style.display="none";
 async function saveNote(){const n=document.getElementById("note-ta").value.trim();if(!_nId)return;const{error}=await sb.from("referrals").update({mod_note:n||null}).eq("id",_nId);if(error){alert("Erro: "+error.message);return;}allRefs.forEach(r=>{if(r.id===_nId)r.mod_note=n||null;});if(_nBtn){_nBtn.textContent=n?"📝 Ver":"+ Nota";_nBtn.classList.toggle("has-note",!!n);}closeNote();toast("Nota salva!");}
 document.getElementById("note-popup")?.addEventListener("click",e=>{if(e.target===document.getElementById("note-popup"))closeNote();});
 </script>
+<script src="onboarding-mod.js"></script>
 </body>
 </html>
