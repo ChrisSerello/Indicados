@@ -112,13 +112,15 @@
             <p class="dash-subtitle">Leva menos de 1 minuto. Quanto mais completo, mais rápida é a análise.</p>
           </div>
         </header>
-        <div style="display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:20px;align-items:flex-start;">
+        <!-- MUDANÇA: adicionada classe dash-form-wrap para responsividade -->
+        <div class="dash-form-wrap">
           <!-- Form -->
           <div class="nivel-section" style="padding:24px;">
             <h2 class="section-title" style="margin-bottom:18px;">Dados de quem você está indicando</h2>
             <div id="dash-form-feedback" style="display:none;padding:10px 14px;border-radius:10px;font-size:13px;margin-bottom:14px;"></div>
             <form id="dash-referral-form">
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+              <!-- MUDANÇA: adicionada classe dash-form-row -->
+              <div class="dash-form-row">
                 <div style="display:flex;flex-direction:column;gap:4px;font-size:13px;">
                   <label style="color:rgba(196,181,253,.85);">Nome completo *</label>
                   <input type="text" id="d-indicated-name" required placeholder="Nome do indicado" />
@@ -128,7 +130,8 @@
                   <input type="text" id="d-indicated-doc" required placeholder="000.000.000-00" />
                 </div>
               </div>
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+              <!-- MUDANÇA: adicionada classe dash-form-row -->
+              <div class="dash-form-row">
                 <div style="display:flex;flex-direction:column;gap:4px;font-size:13px;">
                   <label style="color:rgba(196,181,253,.85);">WhatsApp *</label>
                   <input type="tel" id="d-indicated-phone" required placeholder="(00) 00000-0000" />

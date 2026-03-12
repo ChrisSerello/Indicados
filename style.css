@@ -642,7 +642,7 @@ textarea { resize:vertical; }
 #referrals-empty { padding:8px 0; }
 
 /* ── Overlay de sidebar mobile ────────────────────────────── */
-.sidebar-overlay {
+/* .sidebar-overlay {
   display: none;
   position: absolute;
   inset: 0;
@@ -651,7 +651,7 @@ textarea { resize:vertical; }
   backdrop-filter: blur(3px);
   cursor: pointer;
 }
-.sidebar-overlay.show { display: block; }
+.sidebar-overlay.show { display: block; } */
 
 /* ══════════════════════════════════════════════════════════
    RESPONSIVE
@@ -675,7 +675,7 @@ textarea { resize:vertical; }
 }
 
 /* ── Dashboard mobile: sidebar como drawer ────────────────── */
-@media (max-width:900px) {
+/* @media (max-width:900px) {
   .dashboard-overlay { flex-direction: column; position: fixed; inset: 0; }
 
   .dash-sidebar {
@@ -705,7 +705,7 @@ textarea { resize:vertical; }
   .dash-topbar-mobile { display: flex; }
   .dash-tab { padding: 22px 18px 26px; }
   .kpi-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
-}
+} */
 
 @media (max-width:720px) {
   .topbar   { flex-direction:column;gap:6px;align-items:flex-start; }
@@ -735,4 +735,280 @@ textarea { resize:vertical; }
   .dash-tab        { padding:16px; }
   .dash-title      { font-size:20px; }
   .thankyou-actions { flex-direction:column; }
+}
+
+/* ══════════════════════════════════════════════════════
+   PATCH RESPONSIVO — cole no FINAL do seu style.css
+══════════════════════════════════════════════════════ */
+
+/* ── Rows do formulário (2 colunas no desktop) ──────── */
+.dash-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+/* ── Sidebar overlay — dentro do dashboard-overlay ──── */
+.sidebar-overlay {
+  display: none;
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,.65);
+  z-index: 150;
+  backdrop-filter: blur(3px);
+  cursor: pointer;
+}
+.sidebar-overlay.show { display: block; }
+
+/* ══════════════════════════════════════════════════════
+   MOBILE ≤ 900px — sidebar drawer (corrigido)
+══════════════════════════════════════════════════════ */
+@media (max-width:900px) {
+  .dashboard-overlay { flex-direction: column; position: fixed; inset: 0; }
+
+  .dash-sidebar {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    height: 100% !important;
+    width: 270px !important;
+    z-index: 200 !important;
+    transform: translateX(-100%) !important;
+    transition: transform .3s cubic-bezier(.4,0,.2,1) !important;
+    background: #110d22 !important;
+    border-right: 1px solid rgba(168,85,247,.3) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow-y: auto !important;
+    padding: 24px 16px !important;
+    gap: 8px !important;
+  }
+  .dash-sidebar.open {
+    transform: translateX(0) !important;
+    box-shadow: 8px 0 48px rgba(0,0,0,.9) !important;
+  }
+
+  .dash-main { flex: 1; }
+  .dash-topbar-mobile { display: flex; }
+  .dash-tab { padding: 22px 18px 26px; }
+
+  /* Form: 2 colunas → 1 coluna */
+  .dash-form-wrap {
+    grid-template-columns: minmax(0,1fr) !important;
+  }
+  .dash-form-row {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* KPIs: 2 colunas */
+  .kpi-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+
+  /* Header: empilha título + badge */
+  .dash-header {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  /* Tiers: 2 colunas */
+  .tiers-row { grid-template-columns: repeat(2, minmax(0,1fr)); }
+  .ganhos-summary { grid-template-columns: minmax(0,1fr); }
+
+  /* Nivel tiers track: scroll horizontal */
+  .nivel-tiers-track {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* ══════════════════════════════════════════════════════
+   MOBILE ≤ 640px — telas bem pequenas
+══════════════════════════════════════════════════════ */
+@media (max-width:640px) {
+  .dash-tab { padding: 16px 14px 22px; }
+  .dash-title { font-size: 20px; }
+  .dash-subtitle { font-size: 12px; }
+
+  /* KPIs: 1 coluna */
+  .kpi-grid { grid-template-columns: minmax(0,1fr); }
+
+  /* Tiers track: vertical */
+  .nivel-tiers-track {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .tier-track-line {
+    width: 2px;
+    height: 20px;
+    margin: 0 auto;
+  }
+  .tier-track-item {
+    flex-direction: row;
+    gap: 8px;
+  }
+
+  /* Nivel display: empilha */
+  .nivel-display {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  /* Period badge: full width */
+  .dash-period-badge {
+    align-self: flex-start;
+    font-size: 11px;
+  }
+
+  /* Tabela de indicações: fonte menor */
+  .referrals-table { font-size: 11px; }
+  .referrals-table thead th { padding: 6px 4px; font-size: 10px; }
+  .referrals-table tbody td { padding: 6px 4px; }
+
+  /* Tiers showcase */
+  .tiers-row { grid-template-columns: repeat(2, minmax(0,1fr)); }
+}
+
+/* ══════════════════════════════════════════════════════
+   MOBILE ≤ 420px — celulares menores
+══════════════════════════════════════════════════════ */
+@media (max-width:420px) {
+  .dash-tab { padding: 12px 10px 18px; }
+  .dash-title { font-size: 18px; }
+
+  .kpi-card { padding: 14px; gap: 10px; }
+  .kpi-value { font-size: 18px; }
+  .kpi-icon-wrap { font-size: 20px; }
+
+  .nivel-section { padding: 16px !important; }
+
+  .tiers-row { grid-template-columns: minmax(0,1fr); }
+
+  /* Ganhos por nível no sidebar do form */
+  #tier-sidebar > div {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 2px !important;
+  }
+}
+
+/* ══════════════════════════════════════════════════════
+   PATCH: Tabela de indicações → Cards no mobile
+   Cole no FINAL do seu style.css
+══════════════════════════════════════════════════════ */
+
+@media (max-width:700px) {
+
+  /* Esconde o thead */
+  .referrals-table thead { display: none; }
+
+  /* Cada TR vira um card empilhado */
+  .referrals-table tbody tr {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 12px;
+    padding: 14px 14px 12px;
+    margin-bottom: 10px;
+    border-radius: 14px;
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.08);
+    border-bottom: 1px solid rgba(255,255,255,.08) !important;
+    position: relative;
+  }
+  .referrals-table tbody tr:hover {
+    background: rgba(255,255,255,.07);
+  }
+
+  /* Todas as TDs: reset */
+  .referrals-table tbody td {
+    display: block;
+    padding: 0 !important;
+    border: none !important;
+    font-size: 13px;
+  }
+
+  /* 1ª col — Nome: ocupa largura toda, destaque */
+  .referrals-table tbody td:nth-child(1) {
+    width: 100%;
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 4px;
+    order: 1;
+  }
+
+  /* 2ª col — WhatsApp: metade da largura */
+  .referrals-table tbody td:nth-child(2) {
+    flex: 1 1 auto;
+    order: 2;
+  }
+  .referrals-table tbody td:nth-child(2)::before {
+    content: "WhatsApp: ";
+    font-size: 11px;
+    color: rgba(255,255,255,.35);
+  }
+
+  /* 3ª col — Perfil/Papel */
+  .referrals-table tbody td:nth-child(3) {
+    flex: 1 1 auto;
+    order: 3;
+  }
+  .referrals-table tbody td:nth-child(3)::before {
+    content: "Perfil: ";
+    font-size: 11px;
+    color: rgba(255,255,255,.35);
+  }
+
+  /* 4ª col — Status: badge, fica na mesma linha do nome */
+  .referrals-table tbody td:nth-child(4) {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    order: 4;
+  }
+
+  /* 5ª col — Smashcard: destaque verde */
+  .referrals-table tbody td:nth-child(5) {
+    width: 100%;
+    order: 5;
+    margin-top: 6px;
+    padding-top: 8px !important;
+    border-top: 1px dashed rgba(255,255,255,.08) !important;
+  }
+  .referrals-table tbody td:nth-child(5)::before {
+    content: "Smashcard: ";
+    font-size: 11px;
+    color: rgba(255,255,255,.35);
+  }
+
+  /* 6ª col — Data: ao lado do Smashcard */
+  .referrals-table tbody td:nth-child(6) {
+    width: 100%;
+    order: 6;
+    font-size: 11px;
+  }
+  .referrals-table tbody td:nth-child(6)::before {
+    content: "Data: ";
+    font-size: 11px;
+    color: rgba(255,255,255,.35);
+  }
+
+  /* Linha separadora "Vinculados pelo link" — ocupa tudo */
+  .referrals-table tbody tr td[colspan] {
+    width: 100%;
+    background: rgba(168,85,247,.06);
+    border-radius: 10px;
+    padding: 10px 14px !important;
+    text-align: center;
+  }
+  .referrals-table tbody tr:has(td[colspan]) {
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin-bottom: 4px;
+  }
+
+  /* Remove o scroll lateral do wrapper */
+  .referrals-table-wrapper {
+    overflow-x: visible !important;
+  }
 }
