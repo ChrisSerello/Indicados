@@ -14,7 +14,7 @@
   const STEPS = [
     {
       type: "fullscreen",
-      title: "Olá! Eu sou a Isa 👋",
+      title: "Olá! Eu sou a Stella 👋",
       text: `Sou a assistente virtual do <strong>Indique &amp; Ganhe 2.0</strong>. 
              Vou te mostrar tudo o que você precisa saber para <span class="highlight-green">acompanhar suas indicações</span> 
              e <span class="highlight-purple">ganhar Smashcard</span>. É rapidinho, prometo!`,
@@ -177,7 +177,7 @@
     return `
       <div class="onb-avatar-wrap">
         <div class="onb-avatar-pulse"></div>
-        <img src="${ASSISTANT_IMG}" alt="Isa — Assistente Virtual" />
+        <img src="${ASSISTANT_IMG}" alt="Stella — Assistente Virtual" />
         <div class="onb-sparkle"></div>
         <div class="onb-sparkle"></div>
         <div class="onb-sparkle"></div>
