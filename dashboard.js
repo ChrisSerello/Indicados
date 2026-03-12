@@ -2,25 +2,29 @@
 (function injectMobileCSS() {
   const style = document.createElement("style");
   style.textContent = `
-    @media (max-width: 768px) {
+    @media (max-width: 900px) {
       .dash-sidebar {
         position: fixed !important;
-        top: 0; left: 0;
-        height: 100vh; width: 270px;
-        z-index: 1000;
-        transform: translateX(-100%);
-        transition: transform .3s cubic-bezier(.4,0,.2,1);
-        overflow-y: auto;
+        top: 0 !important; left: 0 !important;
+        height: 100vh !important; width: 270px !important;
+        z-index: 1000 !important;
+        transform: translateX(-100%) !important;
+        transition: transform .3s cubic-bezier(.4,0,.2,1) !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        background: #110d22 !important;
+        border-right: 1px solid rgba(168,85,247,.25) !important;
+        flex-direction: column !important;
+        display: flex !important;
       }
       .dash-sidebar.open {
-        display: flex !important;
         transform: translateX(0) !important;
-        box-shadow: 6px 0 40px rgba(0,0,0,.75);
+        box-shadow: 8px 0 48px rgba(0,0,0,.95) !important;
       }
       .sidebar-overlay {
         display: none; position: fixed; inset: 0;
-        background: rgba(0,0,0,.55); z-index: 999;
-        backdrop-filter: blur(2px); cursor: pointer;
+        background: rgba(0,0,0,.65); z-index: 999;
+        backdrop-filter: blur(3px); cursor: pointer;
       }
       .sidebar-overlay.show {
         display: block;
