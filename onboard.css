@@ -1,0 +1,451 @@
+/* ══════════════════════════════════════════════════════════
+   ONBOARDING — Assistente Virtual Tutorial
+   ══════════════════════════════════════════════════════════ */
+
+/* ── Overlay escuro ──────────────────────────────────────── */
+.onb-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .4s ease;
+}
+.onb-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ── Backdrop com buraco (spotlight) ─────────────────────── */
+.onb-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10001;
+  transition: opacity .35s ease;
+}
+.onb-backdrop.dim {
+  background: rgba(8, 3, 20, .78);
+}
+
+/* ── Spotlight ring (border ao redor do elemento) ────────── */
+.onb-spotlight {
+  position: fixed;
+  z-index: 10002;
+  border-radius: 18px;
+  box-shadow:
+    0 0 0 4px rgba(168, 85, 247, .7),
+    0 0 30px 8px rgba(168, 85, 247, .25),
+    0 0 0 9999px rgba(8, 3, 20, .78);
+  pointer-events: none;
+  transition: all .45s cubic-bezier(.4, 0, .2, 1);
+  opacity: 0;
+}
+.onb-spotlight.visible {
+  opacity: 1;
+}
+
+/* ── Container da assistente + balão ─────────────────────── */
+.onb-assistant {
+  position: fixed;
+  z-index: 10010;
+  display: flex;
+  align-items: flex-end;
+  gap: 0;
+  transition: all .45s cubic-bezier(.4, 0, .2, 1);
+  opacity: 0;
+  transform: translateY(30px);
+  pointer-events: auto;
+}
+.onb-assistant.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Avatar da assistente ────────────────────────────────── */
+.onb-avatar-wrap {
+  position: relative;
+  flex-shrink: 0;
+  width: 110px;
+  height: 110px;
+}
+.onb-avatar-wrap img {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid rgba(168, 85, 247, .6);
+  box-shadow:
+    0 0 24px rgba(168, 85, 247, .4),
+    0 8px 32px rgba(0, 0, 0, .5);
+  animation: onb-float 3s ease-in-out infinite;
+}
+.onb-avatar-pulse {
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 2px solid rgba(168, 85, 247, .3);
+  animation: onb-pulse-ring 2s ease-out infinite;
+}
+
+@keyframes onb-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
+}
+@keyframes onb-pulse-ring {
+  0%   { transform: scale(1); opacity: .6; }
+  100% { transform: scale(1.25); opacity: 0; }
+}
+
+/* ── Balão de fala ───────────────────────────────────────── */
+.onb-bubble {
+  position: relative;
+  background: linear-gradient(145deg, rgba(30, 15, 60, .97), rgba(20, 8, 45, .98));
+  border: 1px solid rgba(168, 85, 247, .35);
+  border-radius: 20px;
+  padding: 24px 26px 20px;
+  max-width: 420px;
+  min-width: 280px;
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, .6),
+    inset 0 1px 0 rgba(255, 255, 255, .06);
+  backdrop-filter: blur(20px);
+  margin-left: -12px;
+  margin-bottom: 16px;
+}
+.onb-bubble::before {
+  content: "";
+  position: absolute;
+  left: -10px;
+  bottom: 28px;
+  width: 20px;
+  height: 20px;
+  background: linear-gradient(145deg, rgba(30, 15, 60, .97), rgba(20, 8, 45, .98));
+  border-left: 1px solid rgba(168, 85, 247, .35);
+  border-bottom: 1px solid rgba(168, 85, 247, .35);
+  transform: rotate(45deg);
+}
+
+/* ── Step counter ────────────────────────────────────────── */
+.onb-step-counter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.onb-step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #a855f7, #7c3aed);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: 'Poppins', sans-serif;
+  box-shadow: 0 0 12px rgba(168, 85, 247, .4);
+}
+.onb-step-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .8px;
+  color: rgba(168, 85, 247, .8);
+  font-family: 'Poppins', sans-serif;
+}
+
+/* ── Título e texto ──────────────────────────────────────── */
+.onb-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: #f3e8ff;
+  margin-bottom: 8px;
+  line-height: 1.3;
+}
+.onb-text {
+  font-family: 'Poppins', sans-serif;
+  font-size: 13.5px;
+  color: rgba(255, 255, 255, .72);
+  line-height: 1.65;
+  margin-bottom: 18px;
+}
+.onb-text strong {
+  color: #e9d5ff;
+  font-weight: 600;
+}
+.onb-text .highlight-green {
+  color: #4ade80;
+  font-weight: 600;
+}
+.onb-text .highlight-purple {
+  color: #c084fc;
+  font-weight: 600;
+}
+.onb-text .highlight-yellow {
+  color: #facc15;
+  font-weight: 600;
+}
+
+/* ── Barra de progresso ──────────────────────────────────── */
+.onb-progress {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+.onb-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .12);
+  transition: all .3s ease;
+}
+.onb-dot.active {
+  background: linear-gradient(135deg, #a855f7, #ec4899);
+  box-shadow: 0 0 8px rgba(168, 85, 247, .5);
+  width: 24px;
+  border-radius: 4px;
+}
+.onb-dot.done {
+  background: rgba(168, 85, 247, .4);
+}
+
+/* ── Botões ──────────────────────────────────────────────── */
+.onb-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.onb-btn {
+  font-family: 'Poppins', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 10px 22px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  transition: all .25s ease;
+  letter-spacing: .02em;
+}
+.onb-btn-next {
+  background: linear-gradient(135deg, #a855f7, #7c3aed);
+  color: #fff;
+  box-shadow: 0 4px 20px rgba(168, 85, 247, .4);
+}
+.onb-btn-next:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 28px rgba(168, 85, 247, .55);
+}
+.onb-btn-prev {
+  background: rgba(255, 255, 255, .06);
+  color: rgba(255, 255, 255, .6);
+  border: 1px solid rgba(255, 255, 255, .1);
+}
+.onb-btn-prev:hover {
+  background: rgba(255, 255, 255, .1);
+  color: rgba(255, 255, 255, .85);
+}
+.onb-btn-skip {
+  background: none;
+  color: rgba(255, 255, 255, .35);
+  font-size: 12px;
+  padding: 10px 12px;
+  margin-left: auto;
+}
+.onb-btn-skip:hover {
+  color: rgba(255, 255, 255, .6);
+}
+.onb-btn-start {
+  background: linear-gradient(135deg, #34d399, #059669);
+  color: #fff;
+  box-shadow: 0 4px 20px rgba(52, 211, 153, .4);
+  padding: 12px 32px;
+  font-size: 14px;
+}
+.onb-btn-start:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 28px rgba(52, 211, 153, .55);
+}
+
+/* ── Welcome / Final — tela cheia ────────────────────────── */
+.onb-fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 10010;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 32px;
+  opacity: 0;
+  transform: scale(.96);
+  transition: all .45s cubic-bezier(.4, 0, .2, 1);
+  pointer-events: auto;
+}
+.onb-fullscreen.show {
+  opacity: 1;
+  transform: scale(1);
+}
+.onb-fullscreen .onb-avatar-wrap {
+  width: 140px;
+  height: 140px;
+  margin-bottom: 24px;
+}
+.onb-fullscreen .onb-avatar-wrap img {
+  width: 140px;
+  height: 140px;
+}
+.onb-fullscreen .onb-title {
+  font-size: 26px;
+  margin-bottom: 10px;
+}
+.onb-fullscreen .onb-text {
+  max-width: 480px;
+  font-size: 14.5px;
+  margin-bottom: 28px;
+}
+
+/* ── Confetti canvas (final) ─────────────────────────────── */
+.onb-confetti-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 10009;
+  pointer-events: none;
+}
+
+/* ── Typing animation ────────────────────────────────────── */
+.onb-typing {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px 0;
+}
+.onb-typing-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(168, 85, 247, .6);
+  animation: onb-typing-bounce .6s ease-in-out infinite;
+}
+.onb-typing-dot:nth-child(2) { animation-delay: .15s; }
+.onb-typing-dot:nth-child(3) { animation-delay: .3s; }
+
+@keyframes onb-typing-bounce {
+  0%, 100% { transform: translateY(0); opacity: .4; }
+  50%      { transform: translateY(-5px); opacity: 1; }
+}
+
+/* ── Sparkle on avatar ───────────────────────────────────── */
+.onb-sparkle {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: radial-gradient(circle, #e879f9 0%, transparent 70%);
+  border-radius: 50%;
+  animation: onb-sparkle-anim 2s ease-in-out infinite;
+}
+.onb-sparkle:nth-child(1) { top: 5px; right: 8px; animation-delay: 0s; }
+.onb-sparkle:nth-child(2) { bottom: 10px; left: 2px; animation-delay: .7s; }
+.onb-sparkle:nth-child(3) { top: 50%; right: -2px; animation-delay: 1.3s; }
+
+@keyframes onb-sparkle-anim {
+  0%, 100% { transform: scale(0); opacity: 0; }
+  50%      { transform: scale(1); opacity: 1; }
+}
+
+/* ── Feature cards no welcome ────────────────────────────── */
+.onb-features {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.onb-feature-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: rgba(168, 85, 247, .1);
+  border: 1px solid rgba(168, 85, 247, .25);
+  font-family: 'Poppins', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, .7);
+  animation: onb-chip-in .5s ease backwards;
+}
+.onb-feature-chip:nth-child(1) { animation-delay: .3s; }
+.onb-feature-chip:nth-child(2) { animation-delay: .45s; }
+.onb-feature-chip:nth-child(3) { animation-delay: .6s; }
+.onb-feature-chip:nth-child(4) { animation-delay: .75s; }
+
+@keyframes onb-chip-in {
+  from { opacity: 0; transform: translateY(10px) scale(.9); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ══════════════════════════════════════════════════════════
+   RESPONSIVO
+   ══════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .onb-assistant {
+    flex-direction: column;
+    align-items: center;
+    bottom: 16px !important;
+    left: 16px !important;
+    right: 16px !important;
+    top: auto !important;
+  }
+  .onb-avatar-wrap {
+    width: 70px;
+    height: 70px;
+    order: -1;
+  }
+  .onb-avatar-wrap img {
+    width: 70px;
+    height: 70px;
+  }
+  .onb-bubble {
+    margin-left: 0;
+    margin-bottom: 0;
+    margin-top: -8px;
+    max-width: 100%;
+    min-width: auto;
+    padding: 18px 18px 16px;
+  }
+  .onb-bubble::before {
+    display: none;
+  }
+  .onb-title {
+    font-size: 16px;
+  }
+  .onb-text {
+    font-size: 12.5px;
+  }
+  .onb-fullscreen .onb-avatar-wrap {
+    width: 100px;
+    height: 100px;
+  }
+  .onb-fullscreen .onb-avatar-wrap img {
+    width: 100px;
+    height: 100px;
+  }
+  .onb-fullscreen .onb-title {
+    font-size: 20px;
+  }
+  .onb-fullscreen .onb-text {
+    font-size: 13px;
+  }
+  .onb-actions {
+    flex-wrap: wrap;
+  }
+  .onb-btn-skip {
+    margin-left: 0;
+    order: 3;
+    width: 100%;
+    text-align: center;
+  }
+}
