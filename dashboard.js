@@ -1,3 +1,36 @@
+// ── Injeta CSS para sidebar mobile funcionar ──────────────
+(function injectMobileCSS() {
+  const style = document.createElement("style");
+  style.textContent = `
+    @media (max-width: 768px) {
+      .dash-sidebar {
+        position: fixed !important;
+        top: 0; left: 0;
+        height: 100vh; width: 270px;
+        z-index: 1000;
+        transform: translateX(-100%);
+        transition: transform .3s cubic-bezier(.4,0,.2,1);
+        overflow-y: auto;
+      }
+      .dash-sidebar.open {
+        transform: translateX(0) !important;
+        box-shadow: 6px 0 40px rgba(0,0,0,.75);
+      }
+      .sidebar-overlay {
+        display: none; position: fixed; inset: 0;
+        background: rgba(0,0,0,.55); z-index: 999;
+        backdrop-filter: blur(2px); cursor: pointer;
+      }
+      .sidebar-overlay.show {
+        display: block;
+        animation: fadeOv .2s ease;
+      }
+      @keyframes fadeOv { from{opacity:0} to{opacity:1} }
+    }
+  `;
+  document.head.appendChild(style);
+})();
+
 // Proteção de rota — redireciona para home se não estiver logado
 (async () => {
   const { data } = await window.supabaseClient.auth.getSession();
@@ -8,6 +41,24 @@
 
 document.addEventListener("DOMContentLoaded", () => {
   const supabase = window.supabaseClient || null;
+
+  // ── Overlay + funções de sidebar mobile ──────────────────
+  const overlay = document.createElement("div");
+  overlay.className = "sidebar-overlay";
+  document.body.appendChild(overlay);
+
+  function openSidebar() {
+    document.querySelector(".dash-sidebar")?.classList.add("open");
+    overlay.classList.add("show");
+    document.body.style.overflow = "hidden";
+  }
+  function closeSidebar() {
+    document.querySelector(".dash-sidebar")?.classList.remove("open");
+    overlay.classList.remove("show");
+    document.body.style.overflow = "";
+  }
+  overlay.addEventListener("click", closeSidebar);
+  document.addEventListener("keydown", e => { if (e.key === "Escape") closeSidebar(); });
 
   // ── Tabela de tiers por posição ────────────────────────────
   const TIERS = [
@@ -415,7 +466,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (empty)   empty.style.display   = "none";
     if (wrapper) wrapper.style.display = "block";
 
-    // Mapa de recompensa por posição — soma diretas + sub-referrer aprovadas
     const allForReward = [...referrals, ...allSubReferrals]
       .filter(r => isApproved(r.status))
       .sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
@@ -442,20 +492,17 @@ document.addEventListener("DOMContentLoaded", () => {
       tbody.appendChild(tr);
     }
 
-    // ── Indicações diretas (via formulário) ─────────────
     referrals.forEach(ref => {
       const cl = ref.indicated_clients || {};
       const isApprov = isApproved(ref.status);
       addRow(cl.name, cl.phone, cl.profile_type, ref.status, rewardMap[ref.id]||0, isApprov, ref.created_at, false);
     });
 
-    // ── Sub-referrers (vieram pelo link) ─────────────────
     if (subReferrers.length > 0) {
       const sep = document.createElement("tr");
       sep.innerHTML = `<td colspan="6" style="padding:8px 10px;font-size:11px;font-weight:700;color:#c084fc;text-transform:uppercase;letter-spacing:.5px;border-top:1px solid rgba(168,85,247,.2);background:rgba(168,85,247,.04);">👥 Vinculados pelo link (${subReferrers.length})</td>`;
       tbody.appendChild(sep);
 
-      // Agrupa referrals por sub-referrer para exibir corretamente
       const subRefsByReferrer = {};
       allSubReferrals.forEach(r => {
         if (!subRefsByReferrer[r.referrer_id]) subRefsByReferrer[r.referrer_id] = [];
@@ -465,7 +512,6 @@ document.addEventListener("DOMContentLoaded", () => {
       subReferrers.forEach(sr => {
         const srRefs = subRefsByReferrer[sr.id] || [];
         if (srRefs.length > 0) {
-          // Sub-referrer tem indicações → mostra cada uma com badge
           srRefs.forEach((ref, i) => {
             const cl = ref.indicated_clients || {};
             const isApprov = isApproved(ref.status);
@@ -493,7 +539,6 @@ document.addEventListener("DOMContentLoaded", () => {
             tbody.appendChild(tr2);
           });
         } else {
-          // Sub-referrer sem indicações: linha informativa simples
           addRow(sr.name, sr.phone, sr.role||"indicado", "via_link", 0, false, sr.created_at, true);
         }
       });
@@ -502,7 +547,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ── Toast notification ─────────────────────────────────────
   function showToast(msg, ok = true) {
-    // Remove existing toast se houver
     const existing = document.getElementById("dash-toast");
     if (existing) existing.remove();
 
@@ -553,13 +597,11 @@ document.addEventListener("DOMContentLoaded", () => {
   let realtimeChannel     = null;
 
   // ══════════════════════════════════════════════════════════
-  //  updateKPIsOnly — atualiza KPIs sem re-renderizar tudo
-  //  Chamado pela subscription em tempo real
+  //  updateKPIsOnly
   // ══════════════════════════════════════════════════════════
   async function updateKPIsOnly() {
     if (!currentReferrerIds.length) return;
 
-    // Indicações diretas
     const { data: referrals } = await supabase
       .from("referrals")
       .select("id, status, amount, created_at, referrer_id, indicated_clients(name, phone, profile_type)")
@@ -568,7 +610,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!referrals) return;
 
-    // Busca sub-referrers e suas referrals (indicados que vieram pelo link)
     let subReferrers = [];
     let allSubReferrals = [];
     if (currentReferrerCode) {
@@ -605,9 +646,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ══════════════════════════════════════════════════════════
-  //  setupRealtimeSubscription — ouve mudanças em referrals
-  //  para atualizar smashcard automaticamente quando admin
-  //  ou moderador aprovar uma indicação
+  //  setupRealtimeSubscription
   // ══════════════════════════════════════════════════════════
   function setupRealtimeSubscription(referrerIds) {
     if (realtimeChannel) {
@@ -628,8 +667,6 @@ document.addEventListener("DOMContentLoaded", () => {
         },
         async (payload) => {
           const changedReferrerId = payload.new?.referrer_id;
-          // Dispara atualização tanto para referrals diretas quanto para
-          // referrals dos sub-referrers (indicados que vieram pelo link)
           const shouldUpdate = referrerIds.includes(changedReferrerId)
             || (currentReferrerCode && await isSubReferrer(changedReferrerId));
 
@@ -646,7 +683,6 @@ document.addEventListener("DOMContentLoaded", () => {
       .subscribe();
   }
 
-  // Verifica se o referrerId pertence a um sub-referrer do usuário logado
   async function isSubReferrer(referrerId) {
     if (!currentReferrerCode || !referrerId) return false;
     const { data } = await supabase
@@ -676,13 +712,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if (el("dash-user-email"))     el("dash-user-email").textContent     = email;
     if (el("dash-avatar-initials"))el("dash-avatar-initials").textContent = initials(name);
 
-    // Busca por user_id
     let referrerIds = [];
     const { data: byUserId } = await supabase
       .from("referrers").select("id,code,role,ref_origin").eq("user_id", user.id);
     if (byUserId) referrerIds.push(...byUserId.map(r=>r.id));
 
-    // Busca por CPF e vincula órfãos
     if (cpf) {
       const { data: byCPF } = await supabase
         .from("referrers").select("id,code,role,ref_origin").eq("cpf", cpf);
@@ -699,7 +733,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    // Cria referrer base se não existe nenhum
     if (referrerIds.length === 0) {
       const { data: newRef } = await supabase
         .from("referrers")
@@ -711,10 +744,8 @@ document.addEventListener("DOMContentLoaded", () => {
     currentReferrerId  = referrerIds[0] || null;
     currentReferrerIds = referrerIds;
 
-    // ── Configura subscription em tempo real ─────────────────
     setupRealtimeSubscription(referrerIds);
 
-    // ── Busca dados completos do referrer principal ──────────
     let referrerCode = null;
     let referrerRole = null;
     if (currentReferrerId) {
@@ -730,7 +761,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    // ── Renderiza card de link de compartilhamento ───────────
     document.getElementById("share-card-client")?.remove();
     document.getElementById("share-card-compact")?.remove();
 
@@ -746,7 +776,6 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // Busca indicações
     const { data: referrals, error: refErr } = await supabase
       .from("referrals")
       .select("*, amount, indicated_clients(name, phone, profile_type)")
@@ -755,7 +784,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (refErr) { console.error(refErr); return; }
 
-    // ── Sub-referrers: vieram pelo link do indiquer ───────
     let subReferrers = [];
     let allSubReferrals = [];
     if (referrerCode) {
@@ -767,10 +795,6 @@ document.addEventListener("DOMContentLoaded", () => {
       subReferrers = subs || [];
     }
 
-    // ── Busca as referrals dos sub-referrers (indicados) ──
-    // Quando o admin aprova um indicado que veio pelo link, o referral
-    // é salvo com referrer_id = id do indicado. Precisamos somar essas
-    // aprovações ao smashcard do indiquer (Christian).
     if (subReferrers.length > 0) {
       const subIds = subReferrers.map(s => s.id);
       const { data: subRefs } = await supabase
@@ -781,7 +805,6 @@ document.addEventListener("DOMContentLoaded", () => {
       allSubReferrals = subRefs || [];
     }
 
-    // ── KPIs unificados: diretos + dos sub-referrers ──────
     const allReferralsForKpi   = [...referrals, ...allSubReferrals];
     const totalKpi  = referrals.length + subReferrers.length;
     const aprovadas = allReferralsForKpi.filter(r => isApproved(r.status)).length;
@@ -876,7 +899,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ── Mobile sidebar toggle ──────────────────────────────────
   document.getElementById("btn-mobile-menu")?.addEventListener("click", () => {
-    document.querySelector(".dash-sidebar")?.classList.toggle("open");
+    document.querySelector(".dash-sidebar")?.classList.contains("open")
+      ? closeSidebar()
+      : openSidebar();
   });
 
   // ── Tabs ───────────────────────────────────────────────────
@@ -888,7 +913,7 @@ document.addEventListener("DOMContentLoaded", () => {
       btn.classList.add("active");
       document.querySelectorAll(".dash-tab").forEach(t=>t.classList.remove("active"));
       document.getElementById(targetId)?.classList.add("active");
-      document.querySelector(".dash-sidebar")?.classList.remove("open");
+      closeSidebar(); // fecha sidebar no mobile ao navegar
     });
   });
 
