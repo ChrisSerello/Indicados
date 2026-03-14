@@ -48,8 +48,10 @@
     .wa-link{display:inline-flex;align-items:center;gap:5px;color:#25d366;font-size:13px;text-decoration:none;}.wa-link:hover{text-decoration:underline;}
     .status-select{padding:4px 8px;border-radius:8px;font-size:11px;font-weight:600;font-family:inherit;cursor:pointer;outline:none;border:1px solid rgba(255,255,255,.15);background:rgba(4,16,10,.9);color:var(--text);}.status-select.ss-em_analise{border-color:rgba(250,204,21,.4);color:#facc15;}.status-select.ss-em_contato{border-color:rgba(96,165,250,.4);color:#60a5fa;}.status-select.ss-aprovado{border-color:rgba(74,222,128,.4);color:#4ade80;}.status-select.ss-reprovado{border-color:rgba(251,113,133,.4);color:#fb7185;}
     .nivel-tag{display:inline-block;padding:2px 10px;border-radius:999px;font-size:11px;font-weight:700;text-transform:uppercase;}.n-plus{background:linear-gradient(135deg,#e879f9,#a855f7);color:#fff;}.n-bronze{background:linear-gradient(135deg,#f59e0b,#b45309);color:#fff;}.n-prata{background:linear-gradient(135deg,#9ca3af,#d1d5db);color:#111;}.n-ouro{background:linear-gradient(135deg,#facc15,#f59e0b);color:#111;}.n-platinum{background:linear-gradient(135deg,#a855f7,#6366f1);color:#fff;}
-    .valor-input{width:80px;padding:4px 7px;border-radius:7px;border:1px solid rgba(16,185,129,.3);background:rgba(4,16,10,.85);color:#4ade80;font-size:12px;font-family:inherit;outline:none;}
+    .valor-display{font-size:13px;font-weight:600;color:#4ade80;}
+    .valor-input{width:100px;padding:4px 7px;border-radius:7px;border:1px solid rgba(16,185,129,.3);background:rgba(4,16,10,.85);color:#4ade80;font-size:12px;font-family:inherit;outline:none;}
     .btn-save-row{padding:4px 12px;border-radius:7px;border:none;cursor:pointer;background:linear-gradient(135deg,#34d399,#059669);color:#fff;font-size:11px;font-weight:600;font-family:inherit;white-space:nowrap;}.btn-save-row:disabled{opacity:.6;cursor:not-allowed;}
+    .btn-edit-row{padding:4px 10px;border-radius:7px;border:1px solid rgba(96,165,250,.3);background:rgba(96,165,250,.1);color:#60a5fa;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;margin-right:4px;}.btn-edit-row:hover{background:rgba(96,165,250,.2);}
     .empty-msg{text-align:center;padding:20px;color:var(--muted);font-size:13px;}
     .note-btn{padding:4px 10px;border-radius:7px;border:1px solid rgba(16,185,129,.3);background:rgba(16,185,129,.08);color:#34d399;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;}.note-btn.has-note{border-color:rgba(16,185,129,.6);background:rgba(16,185,129,.2);}
     .note-popup{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);}.note-modal{width:min(460px,92vw);background:rgba(4,26,14,.98);border:1px solid rgba(16,185,129,.5);border-radius:18px;padding:24px;}.note-modal h3{font-size:16px;font-weight:700;margin-bottom:4px;}.note-modal p{font-size:12px;color:var(--muted);margin-bottom:14px;}.note-textarea{width:100%;padding:10px 12px;border-radius:10px;border:1px solid rgba(16,185,129,.4);background:rgba(4,16,10,.9);color:var(--text);font-family:inherit;font-size:13px;outline:none;resize:vertical;min-height:100px;}.note-actions{display:flex;gap:8px;margin-top:12px;justify-content:flex-end;}.btn-note-save{padding:8px 18px;border-radius:9px;border:none;cursor:pointer;background:var(--accent-g);color:#fff;font-size:13px;font-weight:600;font-family:inherit;}.btn-note-cancel{padding:8px 18px;border-radius:9px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:13px;cursor:pointer;font-family:inherit;}
@@ -87,6 +89,18 @@
     .btn-new-inq{padding:9px 18px;border-radius:10px;border:1px solid rgba(16,185,129,.45);background:rgba(16,185,129,.15);color:#34d399;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:7px;transition:background .2s;white-space:nowrap;}.btn-new-inq:hover{background:rgba(16,185,129,.28);}
     .btn-export{padding:9px 16px;border-radius:10px;border:1px solid rgba(16,185,129,.4);background:rgba(16,185,129,.1);color:#34d399;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px;transition:background .2s;white-space:nowrap;}.btn-export:hover{background:rgba(16,185,129,.2);}
     .btn-add-ref{padding:6px 14px;border-radius:8px;border:1px solid rgba(16,185,129,.38);background:rgba(16,185,129,.1);color:#34d399;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:5px;transition:background .2s;margin-top:10px;white-space:nowrap;}.btn-add-ref:hover{background:rgba(16,185,129,.22);}
+    /* ── EDIT MODAL ─────────────────────────────────────── */
+    .edit-popup{position:fixed;inset:0;z-index:250;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);}
+    .edit-modal{width:min(500px,92vw);background:rgba(4,26,14,.98);border:1px solid rgba(16,185,129,.5);border-radius:18px;padding:24px;}
+    .edit-modal h3{font-size:16px;font-weight:700;margin-bottom:4px;color:#34d399;}
+    .edit-modal p{font-size:12px;color:var(--muted);margin-bottom:14px;}
+    .edit-field{margin-bottom:12px;}
+    .edit-field label{display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:rgba(52,211,153,.75);margin-bottom:5px;}
+    .edit-field input{width:100%;padding:10px 12px;border-radius:10px;border:1px solid rgba(16,185,129,.4);background:rgba(4,16,10,.9);color:var(--text);font-family:inherit;font-size:13px;outline:none;}
+    .edit-actions{display:flex;gap:8px;margin-top:16px;justify-content:flex-end;}
+    .btn-edit-save{padding:10px 20px;border-radius:9px;border:none;cursor:pointer;background:var(--accent-g);color:#fff;font-size:13px;font-weight:600;font-family:inherit;}
+    .btn-edit-cancel{padding:10px 18px;border-radius:9px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:13px;cursor:pointer;font-family:inherit;}
+    .btn-edit-indiquer{padding:5px 12px;border-radius:8px;border:1px solid rgba(96,165,250,.35);background:rgba(96,165,250,.1);color:#60a5fa;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;margin-left:8px;}.btn-edit-indiquer:hover{background:rgba(96,165,250,.2);}
     @media(max-width:900px){.kpi-row{grid-template-columns:repeat(2,1fr);}}
     @media(max-width:600px){.kpi-row{grid-template-columns:1fr;}.mod-content{padding:16px;}.client-stats,.sub-stats{display:none;}.bf2{grid-template-columns:1fr;}.minputs{grid-template-columns:1fr 1fr;}.minputs .bmadd{grid-column:1/-1;}}
   </style>
@@ -270,6 +284,62 @@
   </div>
 </div>
 
+<!-- EDIT REFERRER MODAL -->
+<div class="edit-popup" id="edit-referrer-popup" style="display:none;">
+  <div class="edit-modal">
+    <h3>✏️ Editar Indiquer/Indicado</h3>
+    <p id="edit-referrer-subtitle">Altere as informações abaixo.</p>
+    <div class="edit-field">
+      <label>Nome completo</label>
+      <input type="text" id="edit-ref-name" placeholder="Nome"/>
+    </div>
+    <div class="edit-field">
+      <label>Celular</label>
+      <input type="text" id="edit-ref-phone" placeholder="(11) 99999-9999" maxlength="15"/>
+    </div>
+    <div class="edit-field">
+      <label>E-mail</label>
+      <input type="email" id="edit-ref-email" placeholder="email@exemplo.com"/>
+    </div>
+    <div class="edit-field">
+      <label>CPF</label>
+      <input type="text" id="edit-ref-cpf" placeholder="000.000.000-00" maxlength="14"/>
+    </div>
+    <div class="edit-actions">
+      <button class="btn-edit-cancel" onclick="closeEditReferrer()">Cancelar</button>
+      <button class="btn-edit-save" onclick="saveEditReferrer()">💾 Salvar alterações</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT INDICADO (indicated_client) MODAL -->
+<div class="edit-popup" id="edit-indicado-popup" style="display:none;">
+  <div class="edit-modal">
+    <h3>✏️ Editar Indicado</h3>
+    <p id="edit-indicado-subtitle">Altere as informações do indicado.</p>
+    <div class="edit-field">
+      <label>Nome</label>
+      <input type="text" id="edit-ind-name" placeholder="Nome"/>
+    </div>
+    <div class="edit-field">
+      <label>Celular</label>
+      <input type="text" id="edit-ind-phone" placeholder="(11) 99999-9999" maxlength="15"/>
+    </div>
+    <div class="edit-field">
+      <label>CPF</label>
+      <input type="text" id="edit-ind-cpf" placeholder="000.000.000-00" maxlength="14"/>
+    </div>
+    <div class="edit-field">
+      <label>Perfil / Observações</label>
+      <input type="text" id="edit-ind-obs" placeholder="Servidor público, aposentado, etc."/>
+    </div>
+    <div class="edit-actions">
+      <button class="btn-edit-cancel" onclick="closeEditIndicado()">Cancelar</button>
+      <button class="btn-edit-save" onclick="saveEditIndicado()">💾 Salvar alterações</button>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
@@ -287,9 +357,9 @@ const SOS=[{v:"em_analise",l:"Em análise",c:"ss-em_analise"},{v:"em_contato",l:
 const normS=s=>s==="pending"?"em_analise":s==="approved"?"aprovado":(s||"em_analise");
 function toast(msg,ok=true){const t=document.getElementById("toast");t.textContent=msg;t.style.background=ok?"rgba(74,222,128,.15)":"rgba(251,113,133,.15)";t.style.borderColor=ok?"rgba(74,222,128,.4)":"rgba(251,113,133,.4)";t.style.color=ok?"#4ade80":"#fb7185";t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2800);}
 window.onSC=function(sel){const id=sel.dataset.id,ns=sel.value,m=SOS.find(o=>o.v===ns);sel.className="status-select"+(m?" "+m.c:"");allRefs.forEach(r=>{if(r.id===id)r.status=ns;});updateKPIs();};
-window.saveRow=async function(id,btn){const tr=btn.closest("tr");const sel=tr?.querySelector(".status-select");const vi=tr?.querySelector(".valor-input");const ns=sel?.value;const na=vi?(parseFloat(vi.value)||null):null;if(!ns)return;btn.textContent="…";btn.disabled=true;const upd={status:ns};if(na!==null)upd.amount=na;const{error}=await sb.from("referrals").update(upd).eq("id",id);btn.textContent="Salvar";btn.disabled=false;if(error){toast("Erro: "+error.message,false);return;}allRefs.forEach(r=>{if(r.id===id){r.status=ns;if(na!==null)r.amount=na;}});toast("✅ Salvo!");updateKPIs();renderView();};
+window.saveRow=async function(id,btn){const tr=btn.closest("tr");const sel=tr?.querySelector(".status-select");const vi=tr?.querySelector(".valor-input");const ns=sel?.value;const na=vi?(parseFloat(vi.value.replace(/[^\d,.-]/g,"").replace(",","."))||null):null;if(!ns)return;btn.textContent="…";btn.disabled=true;const upd={status:ns};if(na!==null)upd.amount=na;const{error}=await sb.from("referrals").update(upd).eq("id",id);btn.textContent="Salvar";btn.disabled=false;if(error){toast("Erro: "+error.message,false);return;}allRefs.forEach(r=>{if(r.id===id){r.status=ns;if(na!==null)r.amount=na;}});toast("✅ Salvo!");updateKPIs();renderView();};
 function updateKPIs(){const ap=allRefs.filter(r=>isOk(r.status));let ts=0;[...allInq,...allInd].forEach(c=>{const a=(c.refs||[]).filter(r=>isOk(r.status)).length;ts+=calcSm(a);});document.getElementById("k-approved").textContent=ap.length;document.getElementById("k-smashcard").textContent=fmt(ts);}
-function buildTable(refs){if(!refs.length)return'<p class="empty-msg">Sem indicações ainda.</p>';const rows=refs.map(ref=>{const cl=ref.indicated_clients||{};const w=waHref(cl.phone);const cur=normS(ref.status);const m=SOS.find(o=>o.v===cur)||SOS[0];return`<tr><td><strong>${cl.name||"—"}</strong></td><td>${w?`<a class="wa-link" href="${w}" target="_blank">📱 ${cl.phone}</a>`:(cl.phone||"—")}</td><td style="color:var(--muted);font-size:12px;">${cl.profile_type||(cl.observations?.startsWith("E-mail:")?cl.observations.replace("E-mail:","").trim():cl.observations)||"—"}</td><td><select class="status-select ${m.c}" data-id="${ref.id}" onchange="onSC(this)">${SOS.map(o=>`<option value="${o.v}"${o.v===cur?" selected":""}>${o.l}</option>`).join("")}</select></td><td><input type="number" class="valor-input" value="${ref.amount||""}" min="0" step="0.01" placeholder="R$"/></td><td><button class="note-btn${ref.mod_note?" has-note":""}" onclick="openNote('${ref.id}',this)">${ref.mod_note?"📝 Ver":"+ Nota"}</button></td><td style="color:var(--muted);font-size:12px;">${fmtDate(ref.created_at)}</td><td><button class="btn-save-row" onclick="saveRow('${ref.id}',this)">Salvar</button></td></tr>`;}).join("");return`<div class="ref-table-wrap"><table><thead><tr><th>Nome indicado</th><th>WhatsApp</th><th>Perfil/E-mail</th><th>Status</th><th>Valor (R$)</th><th>Nota</th><th>Data</th><th>Ação</th></tr></thead><tbody>${rows}</tbody></table></div>`;}
+function buildTable(refs){if(!refs.length)return'<p class="empty-msg">Sem indicações ainda.</p>';const rows=refs.map(ref=>{const cl=ref.indicated_clients||{};const w=waHref(cl.phone);const cur=normS(ref.status);const m=SOS.find(o=>o.v===cur)||SOS[0];const valorFormatado=ref.amount?fmt(ref.amount):"—";return`<tr><td><strong>${cl.name||"—"}</strong></td><td>${w?`<a class="wa-link" href="${w}" target="_blank">📱 ${cl.phone}</a>`:(cl.phone||"—")}</td><td style="color:var(--muted);font-size:12px;">${cl.profile_type||(cl.observations?.startsWith("E-mail:")?cl.observations.replace("E-mail:","").trim():cl.observations)||"—"}</td><td><select class="status-select ${m.c}" data-id="${ref.id}" onchange="onSC(this)">${SOS.map(o=>`<option value="${o.v}"${o.v===cur?" selected":""}>${o.l}</option>`).join("")}</select></td><td><input type="text" class="valor-input" value="${ref.amount?fmt(ref.amount):""}" placeholder="R$ 0,00" style="width:100px;"/></td><td><button class="note-btn${ref.mod_note?" has-note":""}" onclick="openNote('${ref.id}',this)">${ref.mod_note?"📝 Ver":"+ Nota"}</button></td><td style="color:var(--muted);font-size:12px;">${fmtDate(ref.created_at)}</td><td><button class="btn-edit-row" onclick="openEditIndicado('${ref.indicated_client_id}')">✏️</button><button class="btn-save-row" onclick="saveRow('${ref.id}',this)">Salvar</button></td></tr>`;}).join("");return`<div class="ref-table-wrap"><table><thead><tr><th>Nome indicado</th><th>WhatsApp</th><th>Perfil/E-mail</th><th>Status</th><th>Valor (R$)</th><th>Nota</th><th>Data</th><th>Ações</th></tr></thead><tbody>${rows}</tbody></table></div>`;}
 function switchTab(t){document.querySelectorAll(".auth-tab").forEach(b=>b.classList.toggle("active",b.getAttribute("onclick").includes(`'${t}'`)));document.getElementById("panel-login").classList.toggle("active",t==="login");document.getElementById("panel-signup").classList.toggle("active",t==="signup");const ri=document.getElementById("reset-inline");if(ri)ri.style.display="none";}
 document.getElementById("btn-show-reset")?.addEventListener("click",()=>{const b=document.getElementById("reset-inline"),v=b.style.display!=="none";b.style.display=v?"none":"block";document.getElementById("btn-show-reset").textContent=v?"Esqueci minha senha":"↑ Fechar";});
 let currentMod=null,allInq=[],allInd=[],allRefs=[],curView="indiquers";
@@ -302,12 +372,12 @@ document.getElementById("btn-copy-link")?.addEventListener("click",()=>{navigato
 async function loadData(){
   if(!currentMod)return;
   document.getElementById("content-area").innerHTML="<p style='color:var(--muted);font-size:13px;'>Carregando…</p>";
-  const{data:rrs}=await sb.from("referrers").select("id,name,phone,email,code,role,ref_origin,created_at").eq("moderator_id",currentMod.id).order("created_at",{ascending:false});
+  const{data:rrs}=await sb.from("referrers").select("id,name,phone,email,cpf,code,role,ref_origin,created_at").eq("moderator_id",currentMod.id).order("created_at",{ascending:false});
   const ar=rrs||[];
   allInq=ar.filter(r=>r.role==="indiquer");
   allInd=ar.filter(r=>r.role==="indicado");
   allRefs=[];
-  if(ar.length){const{data:refs}=await sb.from("referrals").select("*,amount,mod_note,indicated_clients(name,phone,profile_type,observations)").in("referrer_id",ar.map(r=>r.id)).order("created_at",{ascending:false});allRefs=refs||[];}
+  if(ar.length){const{data:refs}=await sb.from("referrals").select("*,amount,mod_note,indicated_client_id,indicated_clients(id,name,phone,cpf,profile_type,observations)").in("referrer_id",ar.map(r=>r.id)).order("created_at",{ascending:false});allRefs=refs||[];}
   const rm={};allRefs.forEach(r=>{(rm[r.referrer_id]||(rm[r.referrer_id]=[])).push(r);});
   ar.forEach(r=>r.refs=rm[r.id]||[]);
   allInq.forEach(r=>r.subs=allInd.filter(i=>i.ref_origin===r.code));
@@ -334,8 +404,8 @@ function renderInq(){
     const ap=dirOk+subOk,nv=getNivel(ap),wa=waHref(c.phone),sm=calcSm(ap);
     const sc=(c.subs||[]).length,tr=(c.refs||[]).length;
     const cd=document.createElement("div");cd.className="client-card";
-    const subHtml=sc>0?`<div class="sub-tree"><p class="sub-tree-title">👥 Indicados vinculados (${sc})</p>${(c.subs||[]).map(sub=>{const sA=(sub.refs||[]).filter(r=>isOk(r.status)).length,sT=(sub.refs||[]).length,sN=getNivel(sA),sW=waHref(sub.phone),sS=calcSm(sA);return`<div class="sub-card"><div class="sub-head" onclick="this.closest('.sub-card').classList.toggle('open')"><div class="sub-left"><div class="sub-av">${initials(sub.name)}</div><div><div class="sub-name">${sub.name||"—"} <span class="role-tag role-indicado" style="font-size:9px;padding:1px 7px;">Indicado</span></div><div class="sub-meta">${sW?`<a class="wa-link" href="${sW}" target="_blank" onclick="event.stopPropagation()" style="font-size:11px;">📱 ${sub.phone}</a>`:sub.phone||"—"} · <strong>${sub.code||"—"}</strong></div></div></div><div style="display:flex;align-items:center;gap:6px;"><div class="sub-stats"><span class="nivel-tag ${sN.c}" style="font-size:9px;padding:1px 8px;">${sN.l}</span><span class="stat-pill" style="font-size:10px;padding:2px 8px;">${sT} ind.</span><span class="stat-pill green" style="font-size:10px;padding:2px 8px;">${sA} ok</span><span class="stat-pill" style="font-size:10px;padding:2px 8px;color:#34d399;">${fmt(sS)}</span></div><div class="sub-chevron">▼</div></div></div><div class="sub-body">${buildTable(sub.refs||[])}</div></div>`;}).join("")}</div>`:"";
-    cd.innerHTML=`<div class="client-header" onclick="this.closest('.client-card').classList.toggle('open')"><div class="client-left"><div class="client-avatar">${initials(c.name)}</div><div><div class="client-name">${c.name||"—"} <span class="role-tag role-indiquer">Indiquer</span></div><div class="client-meta">${wa?`<a class="wa-link" href="${wa}" target="_blank" onclick="event.stopPropagation()">📱 ${c.phone}</a>`:c.phone||"—"} · <strong>${c.code||"—"}</strong>${c.email?` · ${c.email}`:""} · desde ${fmtDate(c.created_at)}</div></div></div><div style="display:flex;align-items:center;gap:8px;"><div class="client-stats"><span class="nivel-tag ${nv.c}">${nv.l}</span>${tr>0?`<span class="stat-pill">${tr} ind.</span>`:""}<span class="stat-pill green">${ap} aprovado${ap!==1?"s":""}</span><span class="stat-pill" style="color:#c084fc;">${sc} indicado${sc!==1?"s":""}</span><span class="stat-pill" style="color:#34d399;">${fmt(sm)}</span></div><div class="chevron">▼</div></div></div><div class="client-body"><h4 style="font-size:12px;color:#60a5fa;font-weight:700;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;">📨 Indicações diretas (${tr})</h4>${buildTable(c.refs||[])}<button class="btn-add-ref" onclick="event.stopPropagation();openBulkExisting('${c.id}','${(c.name||"").replace(/'/g,"\\'")}','${c.code||""}','${c.phone||""}','${c.email||""}')">➕ Adicionar mais indicações</button>${subHtml}</div>`;
+    const subHtml=sc>0?`<div class="sub-tree"><p class="sub-tree-title">👥 Indicados vinculados (${sc})</p>${(c.subs||[]).map(sub=>{const sA=(sub.refs||[]).filter(r=>isOk(r.status)).length,sT=(sub.refs||[]).length,sN=getNivel(sA),sW=waHref(sub.phone),sS=calcSm(sA);return`<div class="sub-card"><div class="sub-head" onclick="this.closest('.sub-card').classList.toggle('open')"><div class="sub-left"><div class="sub-av">${initials(sub.name)}</div><div><div class="sub-name">${sub.name||"—"} <span class="role-tag role-indicado" style="font-size:9px;padding:1px 7px;">Indicado</span> <button class="btn-edit-indiquer" onclick="event.stopPropagation();openEditReferrer('${sub.id}')">✏️</button></div><div class="sub-meta">${sW?`<a class="wa-link" href="${sW}" target="_blank" onclick="event.stopPropagation()" style="font-size:11px;">📱 ${sub.phone}</a>`:sub.phone||"—"} · <strong>${sub.code||"—"}</strong></div></div></div><div style="display:flex;align-items:center;gap:6px;"><div class="sub-stats"><span class="nivel-tag ${sN.c}" style="font-size:9px;padding:1px 8px;">${sN.l}</span><span class="stat-pill" style="font-size:10px;padding:2px 8px;">${sT} ind.</span><span class="stat-pill green" style="font-size:10px;padding:2px 8px;">${sA} ok</span><span class="stat-pill" style="font-size:10px;padding:2px 8px;color:#34d399;">${fmt(sS)}</span></div><div class="sub-chevron">▼</div></div></div><div class="sub-body">${buildTable(sub.refs||[])}</div></div>`;}).join("")}</div>`:"";
+    cd.innerHTML=`<div class="client-header" onclick="this.closest('.client-card').classList.toggle('open')"><div class="client-left"><div class="client-avatar">${initials(c.name)}</div><div><div class="client-name">${c.name||"—"} <span class="role-tag role-indiquer">Indiquer</span> <button class="btn-edit-indiquer" onclick="event.stopPropagation();openEditReferrer('${c.id}')">✏️</button></div><div class="client-meta">${wa?`<a class="wa-link" href="${wa}" target="_blank" onclick="event.stopPropagation()">📱 ${c.phone}</a>`:c.phone||"—"} · <strong>${c.code||"—"}</strong>${c.email?` · ${c.email}`:""} · desde ${fmtDate(c.created_at)}</div></div></div><div style="display:flex;align-items:center;gap:8px;"><div class="client-stats"><span class="nivel-tag ${nv.c}">${nv.l}</span>${tr>0?`<span class="stat-pill">${tr} ind.</span>`:""}<span class="stat-pill green">${ap} aprovado${ap!==1?"s":""}</span><span class="stat-pill" style="color:#c084fc;">${sc} indicado${sc!==1?"s":""}</span><span class="stat-pill" style="color:#34d399;">${fmt(sm)}</span></div><div class="chevron">▼</div></div></div><div class="client-body"><h4 style="font-size:12px;color:#60a5fa;font-weight:700;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;">📨 Indicações diretas (${tr})</h4>${buildTable(c.refs||[])}<button class="btn-add-ref" onclick="event.stopPropagation();openBulkExisting('${c.id}','${(c.name||"").replace(/'/g,"\\'")}','${c.code||""}','${c.phone||""}','${c.email||""}')">➕ Adicionar mais indicações</button>${subHtml}</div>`;
     ct.appendChild(cd);
   });
 }
@@ -348,7 +418,7 @@ function renderInd(){
     const ap=(c.refs||[]).filter(r=>isOk(r.status)).length,nv=getNivel(ap),wa=waHref(c.phone),sm=calcSm(ap);
     const pi=allInq.find(i=>i.code===c.ref_origin),tr=(c.refs||[]).length;
     const cd=document.createElement("div");cd.className="client-card";
-    cd.innerHTML=`<div class="client-header" onclick="this.closest('.client-card').classList.toggle('open')"><div class="client-left"><div class="client-avatar" style="background:linear-gradient(135deg,rgba(168,85,247,.6),rgba(139,92,246,.5));">${initials(c.name)}</div><div><div class="client-name">${c.name||"—"} <span class="role-tag role-indicado">Indicado</span></div><div class="client-meta">${wa?`<a class="wa-link" href="${wa}" target="_blank" onclick="event.stopPropagation()">📱 ${c.phone}</a>`:c.phone||"—"} · <strong>${c.code||"—"}</strong> · Indiquer: <strong>${pi?.name||"—"}</strong> · desde ${fmtDate(c.created_at)}</div></div></div><div style="display:flex;align-items:center;gap:8px;"><div class="client-stats"><span class="nivel-tag ${nv.c}">${nv.l}</span><span class="stat-pill">${tr} ind.</span><span class="stat-pill green">${ap} aprov.</span><span class="stat-pill" style="color:#34d399;">${fmt(sm)}</span></div><div class="chevron">▼</div></div></div><div class="client-body"><h4 style="font-size:12px;color:#c084fc;font-weight:700;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;">📨 Indicações (${tr})</h4>${buildTable(c.refs||[])}</div>`;
+    cd.innerHTML=`<div class="client-header" onclick="this.closest('.client-card').classList.toggle('open')"><div class="client-left"><div class="client-avatar" style="background:linear-gradient(135deg,rgba(168,85,247,.6),rgba(139,92,246,.5));">${initials(c.name)}</div><div><div class="client-name">${c.name||"—"} <span class="role-tag role-indicado">Indicado</span> <button class="btn-edit-indiquer" onclick="event.stopPropagation();openEditReferrer('${c.id}')">✏️</button></div><div class="client-meta">${wa?`<a class="wa-link" href="${wa}" target="_blank" onclick="event.stopPropagation()">📱 ${c.phone}</a>`:c.phone||"—"} · <strong>${c.code||"—"}</strong> · Indiquer: <strong>${pi?.name||"—"}</strong> · desde ${fmtDate(c.created_at)}</div></div></div><div style="display:flex;align-items:center;gap:8px;"><div class="client-stats"><span class="nivel-tag ${nv.c}">${nv.l}</span><span class="stat-pill">${tr} ind.</span><span class="stat-pill green">${ap} aprov.</span><span class="stat-pill" style="color:#34d399;">${fmt(sm)}</span></div><div class="chevron">▼</div></div></div><div class="client-body"><h4 style="font-size:12px;color:#c084fc;font-weight:700;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;">📨 Indicações (${tr})</h4>${buildTable(c.refs||[])}</div>`;
     ct.appendChild(cd);
   });
 }
@@ -358,13 +428,73 @@ function renderAll(){
   const aw=allRefs.map(ref=>{const ow=[...allInq,...allInd].find(r=>r.id===ref.referrer_id);return{...ref,oN:ow?.name||"—",oC:ow?.code||"—",oR:ow?.role||"—"};});
   const fl=aw.filter(r=>{if(!s)return true;const cl=r.indicated_clients||{};return cl.name?.toLowerCase().includes(s)||r.oN.toLowerCase().includes(s)||r.oC.toLowerCase().includes(s);});
   if(!fl.length){ct.innerHTML="<p class='empty-msg'>Nenhuma indicação encontrada.</p>";return;}
-  ct.innerHTML=`<div class="ref-table-wrap"><table><thead><tr><th>Indicador</th><th>Código</th><th>Papel</th><th>Nome indicado</th><th>WhatsApp</th><th>Status</th><th>Valor</th><th>Nota</th><th>Data</th><th>Ação</th></tr></thead><tbody>${fl.map(ref=>{const cl=ref.indicated_clients||{};const w=waHref(cl.phone);const cur=normS(ref.status);const m=SOS.find(o=>o.v===cur)||SOS[0];return`<tr><td><strong>${ref.oN}</strong></td><td><code style="font-size:11px;background:rgba(255,255,255,.06);padding:2px 6px;border-radius:4px;">${ref.oC}</code></td><td><span class="role-tag ${ref.oR==="indiquer"?"role-indiquer":"role-indicado"}">${ref.oR}</span></td><td>${cl.name||"—"}</td><td>${w?`<a class="wa-link" href="${w}" target="_blank">📱 ${cl.phone}</a>`:(cl.phone||"—")}</td><td><select class="status-select ${m.c}" data-id="${ref.id}" onchange="onSC(this)">${SOS.map(o=>`<option value="${o.v}"${o.v===cur?" selected":""}>${o.l}</option>`).join("")}</select></td><td><input type="number" class="valor-input" value="${ref.amount||""}" min="0" step="0.01" placeholder="R$"/></td><td><button class="note-btn${ref.mod_note?" has-note":""}" onclick="openNote('${ref.id}',this)">${ref.mod_note?"📝 Ver":"+ Nota"}</button></td><td style="color:var(--muted);font-size:12px;">${fmtDate(ref.created_at)}</td><td><button class="btn-save-row" onclick="saveRow('${ref.id}',this)">Salvar</button></td></tr>`;}).join("")}</tbody></table></div>`;
+  ct.innerHTML=`<div class="ref-table-wrap"><table><thead><tr><th>Indicador</th><th>Código</th><th>Papel</th><th>Nome indicado</th><th>WhatsApp</th><th>Status</th><th>Valor (R$)</th><th>Nota</th><th>Data</th><th>Ações</th></tr></thead><tbody>${fl.map(ref=>{const cl=ref.indicated_clients||{};const w=waHref(cl.phone);const cur=normS(ref.status);const m=SOS.find(o=>o.v===cur)||SOS[0];return`<tr><td><strong>${ref.oN}</strong></td><td><code style="font-size:11px;background:rgba(255,255,255,.06);padding:2px 6px;border-radius:4px;">${ref.oC}</code></td><td><span class="role-tag ${ref.oR==="indiquer"?"role-indiquer":"role-indicado"}">${ref.oR}</span></td><td>${cl.name||"—"}</td><td>${w?`<a class="wa-link" href="${w}" target="_blank">📱 ${cl.phone}</a>`:(cl.phone||"—")}</td><td><select class="status-select ${m.c}" data-id="${ref.id}" onchange="onSC(this)">${SOS.map(o=>`<option value="${o.v}"${o.v===cur?" selected":""}>${o.l}</option>`).join("")}</select></td><td><input type="text" class="valor-input" value="${ref.amount?fmt(ref.amount):""}" placeholder="R$ 0,00" style="width:100px;"/></td><td><button class="note-btn${ref.mod_note?" has-note":""}" onclick="openNote('${ref.id}',this)">${ref.mod_note?"📝 Ver":"+ Nota"}</button></td><td style="color:var(--muted);font-size:12px;">${fmtDate(ref.created_at)}</td><td><button class="btn-edit-row" onclick="openEditIndicado('${ref.indicated_client_id}')">✏️</button><button class="btn-save-row" onclick="saveRow('${ref.id}',this)">Salvar</button></td></tr>`;}).join("")}</tbody></table></div>`;
 }
 document.getElementById("search-input")?.addEventListener("input",renderView);
 document.getElementById("btn-refresh")?.addEventListener("click",loadData);
 document.getElementById("btn-logout")?.addEventListener("click",async()=>{await sb.auth.signOut();location.reload();});
 (async()=>{const h=location.hash;if(h.includes("type=recovery")){const np=prompt("Nova senha (mín. 6 caracteres):");if(!np||np.length<6){alert("Senha muito curta.");return;}const{error}=await sb.auth.updateUser({password:np});alert(error?"Erro: "+error.message:"✅ Senha definida!");location.hash="";}})();
 (async()=>{const{data}=await sb.auth.getSession();if(data?.session?.user){try{await mount(data.session.user);}catch(e){}}})();
+
+// ══════════════════════════════════════════════════════
+//  EDITAR REFERRER (Indiquer/Indicado)
+// ══════════════════════════════════════════════════════
+let _editRefId=null;
+function openEditReferrer(id){
+  _editRefId=id;
+  const ref=[...allInq,...allInd].find(r=>r.id===id);
+  if(!ref)return;
+  document.getElementById("edit-ref-name").value=ref.name||"";
+  document.getElementById("edit-ref-phone").value=ref.phone||"";
+  document.getElementById("edit-ref-email").value=ref.email||"";
+  document.getElementById("edit-ref-cpf").value=ref.cpf||"";
+  document.getElementById("edit-referrer-subtitle").textContent=`Editando: ${ref.name||"—"} (${ref.role||"indiquer"})`;
+  document.getElementById("edit-referrer-popup").style.display="flex";
+}
+function closeEditReferrer(){document.getElementById("edit-referrer-popup").style.display="none";_editRefId=null;}
+async function saveEditReferrer(){
+  if(!_editRefId)return;
+  const name=document.getElementById("edit-ref-name").value.trim();
+  const phone=document.getElementById("edit-ref-phone").value.replace(/\D/g,"");
+  const email=document.getElementById("edit-ref-email").value.trim();
+  const cpf=document.getElementById("edit-ref-cpf").value.replace(/\D/g,"");
+  const{error}=await sb.from("referrers").update({name:name||null,phone:phone||null,email:email||null,cpf:cpf||null}).eq("id",_editRefId);
+  if(error){toast("Erro: "+error.message,false);return;}
+  toast("✅ Dados atualizados!");
+  closeEditReferrer();
+  loadData();
+}
+document.getElementById("edit-referrer-popup")?.addEventListener("click",e=>{if(e.target===document.getElementById("edit-referrer-popup"))closeEditReferrer();});
+
+// ══════════════════════════════════════════════════════
+//  EDITAR INDICADO (indicated_clients)
+// ══════════════════════════════════════════════════════
+let _editIndId=null;
+function openEditIndicado(id){
+  _editIndId=id;
+  const ref=allRefs.find(r=>r.indicated_client_id===id);
+  const cl=ref?.indicated_clients||{};
+  document.getElementById("edit-ind-name").value=cl.name||"";
+  document.getElementById("edit-ind-phone").value=cl.phone||"";
+  document.getElementById("edit-ind-cpf").value=cl.cpf||"";
+  document.getElementById("edit-ind-obs").value=cl.profile_type||cl.observations||"";
+  document.getElementById("edit-indicado-subtitle").textContent=`Editando: ${cl.name||"—"}`;
+  document.getElementById("edit-indicado-popup").style.display="flex";
+}
+function closeEditIndicado(){document.getElementById("edit-indicado-popup").style.display="none";_editIndId=null;}
+async function saveEditIndicado(){
+  if(!_editIndId)return;
+  const name=document.getElementById("edit-ind-name").value.trim();
+  const phone=document.getElementById("edit-ind-phone").value.replace(/\D/g,"");
+  const cpf=document.getElementById("edit-ind-cpf").value.replace(/\D/g,"");
+  const obs=document.getElementById("edit-ind-obs").value.trim();
+  const{error}=await sb.from("indicated_clients").update({name:name||null,phone:phone||null,cpf:cpf||null,profile_type:obs||null}).eq("id",_editIndId);
+  if(error){toast("Erro: "+error.message,false);return;}
+  toast("✅ Indicado atualizado!");
+  closeEditIndicado();
+  loadData();
+}
+document.getElementById("edit-indicado-popup")?.addEventListener("click",e=>{if(e.target===document.getElementById("edit-indicado-popup"))closeEditIndicado();});
 
 // ══════════════════════════════════════════════════════
 //  CADASTRO EM MASSA — INDIQUER + INDICAÇÕES
@@ -392,14 +522,14 @@ function exportData(type){
       const cl=ref.indicated_clients||{};
       const email=cl.observations?.startsWith("E-mail:")?cl.observations.replace("E-mail:","").trim():"";
       const sL={em_analise:"Em análise",em_contato:"Em contato",aprovado:"Aprovado",reprovado:"Reprovado"};
-      rows.push({"Indicador":c.name||"—","Código":c.code||"—","Papel":c.role||"—","Nome indicado":cl.name||"—","Celular":cl.phone||"—","E-mail":email,"Perfil":cl.profile_type||"—","Status":sL[ref.status]||ref.status||"—","Valor (R$)":ref.amount||"","Nota":ref.mod_note||"","Data":fmtDate(ref.created_at)});
+      rows.push({"Indicador":c.name||"—","Código":c.code||"—","Papel":c.role||"—","Nome indicado":cl.name||"—","Celular":cl.phone||"—","E-mail":email,"Perfil":cl.profile_type||"—","Status":sL[ref.status]||ref.status||"—","Valor (R$)":ref.amount?fmt(ref.amount):"","Nota":ref.mod_note||"","Data":fmtDate(ref.created_at)});
     });
   });
   if(!rows.length){toast("Nenhum dado para exportar.",false);return;}
   const today=new Date().toLocaleDateString("pt-BR").replace(/\//g,"-");
   const fn=`indicacoes_${today}`;
   if(type==="csv"){const h=Object.keys(rows[0]);const csv=[h.join(";"),...rows.map(r=>h.map(k=>`"${String(r[k]||"").replace(/"/g,'""')}"`).join(";"))].join("\n");const b=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8;"});const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=fn+".csv";a.click();toast("CSV exportado!");}
-  else{const ws=XLSX.utils.json_to_sheet(rows);ws["!cols"]=[{wch:22},{wch:8},{wch:10},{wch:22},{wch:16},{wch:26},{wch:14},{wch:14},{wch:10},{wch:30},{wch:12}];const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"Indicações");XLSX.writeFile(wb,fn+".xlsx");toast("Excel exportado!");}
+  else{const ws=XLSX.utils.json_to_sheet(rows);ws["!cols"]=[{wch:22},{wch:8},{wch:10},{wch:22},{wch:16},{wch:26},{wch:14},{wch:14},{wch:12},{wch:30},{wch:12}];const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"Indicações");XLSX.writeFile(wb,fn+".xlsx");toast("Excel exportado!");}
 }
 const BCHR="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 let _bId=null,_bRows=[];
@@ -412,6 +542,10 @@ document.getElementById("b-cpf")?.addEventListener("input",maskCPF);
 document.getElementById("b-phone")?.addEventListener("input",maskPhone);
 document.getElementById("m-cpf")?.addEventListener("input",maskCPF);
 document.getElementById("m-phone")?.addEventListener("input",maskPhone);
+document.getElementById("edit-ref-cpf")?.addEventListener("input",maskCPF);
+document.getElementById("edit-ref-phone")?.addEventListener("input",maskPhone);
+document.getElementById("edit-ind-cpf")?.addEventListener("input",maskCPF);
+document.getElementById("edit-ind-phone")?.addEventListener("input",maskPhone);
 async function bulkStep1(){
   const name=document.getElementById("b-name").value.trim();
   const cpf=document.getElementById("b-cpf").value.replace(/\D/g,"");
