@@ -41,9 +41,58 @@
     .nivel-tag{display:inline-block;padding:2px 10px;border-radius:999px;font-size:11px;font-weight:700;text-transform:uppercase;}.n-plus{background:linear-gradient(135deg,#e879f9,#a855f7);color:#fff;}.n-bronze{background:linear-gradient(135deg,#f59e0b,#b45309);color:#fff;}.n-prata{background:linear-gradient(135deg,#9ca3af,#d1d5db);color:#111;}.n-ouro{background:linear-gradient(135deg,#facc15,#f59e0b);color:#111;}.n-platinum{background:linear-gradient(135deg,#a855f7,#6366f1);color:#fff;}
     .valor-input{width:80px;padding:4px 7px;border-radius:7px;border:1px solid rgba(168,85,247,.3);background:rgba(10,2,20,.85);color:#c084fc;font-size:12px;font-family:inherit;outline:none;}
     .btn-save-row{padding:4px 12px;border-radius:7px;border:none;cursor:pointer;background:var(--accent-g);color:#fff;font-size:11px;font-weight:600;font-family:inherit;white-space:nowrap;}.btn-save-row:disabled{opacity:.6;cursor:not-allowed;}
+    .btn-edit-row{padding:4px 10px;border-radius:7px;border:1px solid rgba(168,85,247,.3);background:rgba(168,85,247,.1);color:#c084fc;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;margin-right:4px;}.btn-edit-row:hover{background:rgba(168,85,247,.2);}
+    .btn-edit-indiquer{padding:3px 8px;border-radius:7px;border:1px solid rgba(168,85,247,.3);background:rgba(168,85,247,.1);color:#c084fc;font-size:10px;font-weight:600;cursor:pointer;font-family:inherit;margin-left:6px;}.btn-edit-indiquer:hover{background:rgba(168,85,247,.2);}
     .empty-msg{text-align:center;padding:20px;color:var(--muted);font-size:13px;}
     .note-btn{padding:4px 10px;border-radius:7px;border:1px solid rgba(168,85,247,.3);background:rgba(168,85,247,.08);color:#c084fc;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;}.note-btn.has-note{background:rgba(168,85,247,.2);}
     .note-popup{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);}.note-modal{width:min(460px,92vw);background:rgba(14,4,28,.98);border:1px solid rgba(168,85,247,.5);border-radius:18px;padding:24px;}.note-modal h3{font-size:16px;font-weight:700;margin-bottom:4px;}.note-modal p{font-size:12px;color:var(--muted);margin-bottom:14px;}.note-textarea{width:100%;padding:10px 12px;border-radius:10px;border:1px solid rgba(168,85,247,.4);background:rgba(10,2,20,.9);color:var(--text);font-family:inherit;font-size:13px;outline:none;resize:vertical;min-height:100px;}.note-actions{display:flex;gap:8px;margin-top:12px;justify-content:flex-end;}.btn-note-save{padding:8px 18px;border-radius:9px;border:none;cursor:pointer;background:var(--accent-g);color:#fff;font-size:13px;font-weight:600;font-family:inherit;}.btn-note-cancel{padding:8px 18px;border-radius:9px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:13px;cursor:pointer;font-family:inherit;}
+    /* ── EDIT MODALS ─────────────────────────────────── */
+    .edit-popup{position:fixed;inset:0;z-index:250;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.75);backdrop-filter:blur(5px);}
+    .edit-modal{width:min(500px,92vw);background:rgba(14,4,28,.98);border:1px solid rgba(168,85,247,.5);border-radius:18px;padding:24px;box-shadow:0 24px 60px rgba(0,0,0,.85);}
+    .edit-modal h3{font-size:16px;font-weight:700;margin-bottom:4px;color:#c084fc;}
+    .edit-modal p.edit-sub{font-size:12px;color:var(--muted);margin-bottom:16px;}
+    .edit-field{margin-bottom:12px;}
+    .edit-field label{display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:rgba(192,132,252,.8);margin-bottom:5px;}
+    .edit-field input{width:100%;padding:10px 12px;border-radius:10px;border:1px solid rgba(168,85,247,.4);background:rgba(10,2,20,.9);color:var(--text);font-family:inherit;font-size:13px;outline:none;transition:border-color .2s;}.edit-field input:focus{border-color:rgba(192,132,252,.8);}
+    .edit-field2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+    .edit-actions{display:flex;gap:8px;margin-top:18px;justify-content:flex-end;}
+    .btn-edit-save{padding:10px 22px;border-radius:10px;border:none;cursor:pointer;background:var(--accent-g);color:#fff;font-size:13px;font-weight:600;font-family:inherit;transition:filter .2s;}.btn-edit-save:hover{filter:brightness(1.1);}
+    .btn-edit-cancel{padding:10px 18px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:transparent;color:var(--muted);font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;}
+    .edit-fb{font-size:12px;min-height:16px;margin-top:8px;}
+    /* ── PAYMENT STYLES ─────────────────────────────── */
+    .pay-summary{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:14px 0 10px;padding:14px 16px;background:rgba(74,222,128,.05);border:1px solid rgba(74,222,128,.18);border-radius:12px;}
+    .pay-sum-item{display:flex;flex-direction:column;gap:2px;}
+    .pay-sum-label{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:600;}
+    .pay-sum-val{font-size:15px;font-weight:700;}
+    .pay-sum-divider{width:1px;height:30px;background:rgba(255,255,255,.08);flex-shrink:0;}
+    .pay-sum-earned{color:#c084fc;}.pay-sum-paid{color:#facc15;}.pay-sum-balance{color:#4ade80;}
+    .pay-sum-balance.zeroed{color:#fb7185;}
+    .btn-pay{padding:7px 16px;border-radius:8px;border:1px solid rgba(74,222,128,.4);background:rgba(74,222,128,.14);color:#4ade80;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;margin-left:auto;transition:background .2s;}.btn-pay:hover{background:rgba(74,222,128,.26);}
+    .pay-hist-wrap{margin-top:10px;}
+    .pay-hist-title{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:rgba(74,222,128,.65);font-weight:700;margin-bottom:7px;}
+    .pay-hist-item{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:rgba(74,222,128,.04);border:1px solid rgba(74,222,128,.12);border-radius:9px;margin-bottom:5px;}
+    .pay-hist-item:last-child{margin-bottom:0;}
+    .pay-hist-amount{font-size:13px;font-weight:700;color:#4ade80;}
+    .pay-hist-note{font-size:11px;color:var(--muted);margin-top:2px;}
+    .pay-hist-right{text-align:right;}
+    .pay-hist-date{font-size:11px;color:rgba(255,255,255,.3);}
+    .btn-del-pay{background:none;border:none;color:rgba(251,113,133,.5);cursor:pointer;font-size:12px;padding:0 4px;margin-left:8px;transition:color .2s;}.btn-del-pay:hover{color:#fb7185;}
+    /* ── PAY MODAL ────────────────────────────────────── */
+    .pay-popup{position:fixed;inset:0;z-index:260;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.78);backdrop-filter:blur(6px);}
+    .pay-modal{width:min(460px,92vw);background:rgba(14,4,28,.98);border:1px solid rgba(74,222,128,.4);border-radius:20px;padding:26px;box-shadow:0 24px 60px rgba(0,0,0,.9);}
+    .pay-modal h3{font-size:17px;font-weight:700;margin-bottom:3px;color:#4ade80;}
+    .pay-modal-sub{font-size:12px;color:var(--muted);margin-bottom:16px;}
+    .pay-balance-chip{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:10px;background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.22);font-size:12px;margin-bottom:16px;flex-wrap:wrap;}
+    .pay-balance-chip span{font-weight:700;}
+    .pay-balance-chip .chip-earned{color:#c084fc;}.pay-balance-chip .chip-paid{color:#facc15;}.pay-balance-chip .chip-bal{color:#4ade80;}
+    .pay-field{margin-bottom:12px;}
+    .pay-field label{display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:rgba(74,222,128,.75);margin-bottom:5px;}
+    .pay-field input{width:100%;padding:10px 12px;border-radius:10px;border:1px solid rgba(74,222,128,.35);background:rgba(4,16,10,.9);color:var(--text);font-family:inherit;font-size:13px;outline:none;transition:border-color .2s;}.pay-field input:focus{border-color:rgba(74,222,128,.7);}
+    .pay-acts{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;}
+    .btn-pay-save{padding:10px 22px;border-radius:10px;border:none;cursor:pointer;background:linear-gradient(135deg,#4ade80,#16a34a);color:#000;font-size:13px;font-weight:700;font-family:inherit;transition:filter .2s;}.btn-pay-save:hover{filter:brightness(1.1);}.btn-pay-save:disabled{opacity:.6;cursor:not-allowed;}
+    .btn-pay-cancel{padding:10px 16px;border-radius:10px;border:1px solid rgba(255,255,255,.1);background:transparent;color:var(--muted);font-size:13px;font-family:inherit;cursor:pointer;}
+    .pay-fb{font-size:12px;min-height:16px;margin-top:6px;}
+    /* ───────────────────────────────────────────────── */
     .toast{position:fixed;bottom:24px;right:24px;z-index:999;padding:12px 18px;border-radius:10px;font-size:13px;font-weight:500;box-shadow:0 8px 24px rgba(0,0,0,.5);border:1px solid transparent;opacity:0;transition:opacity .3s;pointer-events:none;}.toast.show{opacity:1;}
     .sub-tree{margin-top:14px;padding:14px 16px;background:rgba(168,85,247,.05);border:1px solid rgba(168,85,247,.15);border-radius:12px;}.sub-tree-title{font-size:12px;color:#c084fc;font-weight:700;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;}
     .sub-card{background:rgba(255,255,255,.02);border:1px solid rgba(168,85,247,.12);border-radius:10px;margin-bottom:8px;overflow:hidden;}.sub-card.open{border-color:rgba(168,85,247,.4);}.sub-head{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;cursor:pointer;user-select:none;}.sub-head:hover{background:rgba(168,85,247,.06);}.sub-left{display:flex;align-items:center;gap:10px;}.sub-av{width:32px;height:32px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,rgba(168,85,247,.5),rgba(139,92,246,.4));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;}.sub-name{font-size:13px;font-weight:600;}.sub-meta{font-size:11px;color:var(--muted);}.sub-stats{display:flex;gap:6px;align-items:center;}.sub-body{display:none;border-top:1px solid rgba(168,85,247,.1);padding:12px 14px 14px;}.sub-card.open .sub-body{display:block;}.sub-chevron{width:22px;height:22px;border-radius:50%;background:rgba(168,85,247,.08);border:1px solid rgba(168,85,247,.15);display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--muted);transition:transform .3s;margin-left:8px;flex-shrink:0;}.sub-card.open .sub-chevron{transform:rotate(180deg);background:rgba(168,85,247,.2);}
@@ -132,7 +181,7 @@
     .conv-fill{height:100%;border-radius:3px;background:var(--accent-g);}
     @media(max-width:1100px){.mod-grid{grid-template-columns:1fr;}}
     @media(max-width:900px){.kpi-row,.mkpi-row{grid-template-columns:repeat(2,1fr);}}
-    @media(max-width:600px){.kpi-row{grid-template-columns:1fr;}.adm-content{padding:16px;}.client-stats,.sub-stats{display:none;}.bf2{grid-template-columns:1fr;}.minputs{grid-template-columns:1fr 1fr;}.minputs .bmadd{grid-column:1/-1;}}
+    @media(max-width:600px){.kpi-row{grid-template-columns:1fr;}.adm-content{padding:16px;}.client-stats,.sub-stats{display:none;}.bf2{grid-template-columns:1fr;}.minputs{grid-template-columns:1fr 1fr;}.minputs .bmadd{grid-column:1/-1;}.edit-field2{grid-template-columns:1fr;}.pay-summary{gap:6px;}.pay-sum-divider{display:none;}}
     /* ── ÁRVORE DE CONEXÕES ── */
     .tree-toggle{display:flex;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:4px;gap:3px;margin-bottom:20px;width:fit-content;}
     .tv-btn{display:flex;align-items:center;gap:7px;padding:8px 18px;border-radius:8px;border:none;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;transition:all .25s;background:transparent;color:rgba(255,255,255,.4);}
@@ -197,19 +246,15 @@
     <div class="adm-logo">A</div>
     <h1>Admin — Indique &amp; Ganhe</h1>
     <p id="login-box-sub">Acesso restrito a administradores.</p>
-
-    <!-- MODE: login (default) -->
     <div id="lm-login">
       <input type="email" id="adm-email" placeholder="E-mail" autocomplete="username"/>
-      <input type="password" id="adm-pass" placeholder="Senha" autocomplete="current-password" id="adm-pass"/>
+      <input type="password" id="adm-pass" placeholder="Senha" autocomplete="current-password"/>
       <button class="btn-enter" id="btn-adm-login">Entrar</button>
       <p class="auth-error" id="adm-login-error"></p>
       <p style="margin-top:14px;font-size:12px;color:var(--muted);">Primeira vez?
         <button onclick="switchMode('register')" style="background:none;border:none;color:#c084fc;font-size:12px;font-family:inherit;cursor:pointer;text-decoration:underline;padding:0;">Criar conta</button>
       </p>
     </div>
-
-    <!-- MODE: criar conta -->
     <div id="lm-register" style="display:none;">
       <input type="email" id="reg-email" placeholder="E-mail autorizado" autocomplete="username"/>
       <input type="password" id="reg-pass" placeholder="Criar senha (mín. 6 caracteres)"/>
@@ -265,7 +310,7 @@
       <button class="btn-export" style="border-color:rgba(96,165,250,.4);background:rgba(96,165,250,.1);color:#60a5fa;" onclick="exportData('csv')">📄 CSV</button>
     </div>
     <div id="content-area"><p style="color:var(--muted);font-size:13px;">Carregando…</p></div>
-    </div><!-- /sec-ind -->
+    </div>
 
     <div class="admin-section" id="sec-mods">
       <div class="chain-exp">🔗 <strong>Cadeia de rastreio:</strong> Moderador recebe código <code>2 dígitos</code>. Indiquer pelo link do mod recebe <code>4 dígitos</code> (2 mod + 2 aleat.). Indicado pelo link do indiquer recebe <code>6 dígitos</code>.</div>
@@ -294,9 +339,9 @@
           <div id="mod-list"><p style="color:var(--muted);font-size:13px;">Carregando…</p></div>
         </div>
       </div>
-    </div><!-- /sec-mods -->
+    </div>
 
-    <!-- ══ ÁRVORE ══ -->
+    <!-- ÁRVORE -->
     <div class="admin-section" id="sec-tree">
       <div class="tree-top">
         <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
@@ -319,12 +364,40 @@
       <div id="tree-kanban-wrap"></div>
       <div id="tree-graph-wrap" style="display:none;position:relative;"></div>
       <div class="tk-detail-panel" id="tree-node-detail" style="display:none;"></div>
-    </div><!-- /sec-tree -->
+    </div>
   </div>
 </div>
 <div class="toast" id="toast"></div>
 
-<!-- BULK MODAL (admin — with moderator selector) -->
+<!-- PAYMENT MODAL -->
+<div class="pay-popup" id="pay-popup" style="display:none;" onclick="if(event.target===this)closePayModal()">
+  <div class="pay-modal">
+    <h3>💰 Dar Baixa — Pagamento</h3>
+    <p class="pay-modal-sub">Registrar pagamento para: <strong id="pay-ref-name">—</strong></p>
+    <div class="pay-balance-chip">
+      <span>💳 Smashcard: <span class="chip-earned" id="pay-chip-earned">—</span></span>
+      &nbsp;·&nbsp;
+      <span>✅ Pago: <span class="chip-paid" id="pay-chip-paid">—</span></span>
+      &nbsp;·&nbsp;
+      <span>💰 Saldo: <span class="chip-bal" id="pay-chip-bal">—</span></span>
+    </div>
+    <div class="pay-field">
+      <label>Valor pago (R$) *</label>
+      <input type="number" id="pay-amount" placeholder="Ex: 200.00" min="0.01" step="0.01"/>
+    </div>
+    <div class="pay-field">
+      <label>Observação (opcional)</label>
+      <input type="text" id="pay-note" placeholder="Ex: Pix 12/03, parcela 1/2, TED…"/>
+    </div>
+    <p class="pay-fb" id="pay-fb"></p>
+    <div class="pay-acts">
+      <button class="btn-pay-cancel" onclick="closePayModal()">Cancelar</button>
+      <button class="btn-pay-save" id="btn-pay-save" onclick="savePayment()">✅ Registrar Pagamento</button>
+    </div>
+  </div>
+</div>
+
+<!-- BULK MODAL -->
 <div id="bulk-ov" class="bulk-ov" style="display:none;" onclick="if(event.target===this)closeBulk()">
   <div class="bulk-box">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px;">
@@ -338,25 +411,21 @@
       <div class="bsi active" id="bsi1">1. Dados do Indiquer</div>
       <div class="bsi" id="bsi2">2. Indicações em massa</div>
     </div>
-
     <div id="bs1">
       <div class="bf">
         <label>Moderador responsável *</label>
         <select id="b-mod" onchange="onModChange()"><option value="">— Selecione o moderador —</option></select>
       </div>
-      <!-- Mode selector (shown after mod selected) -->
       <div id="b-mode-wrap" style="display:none;margin-bottom:14px;">
         <div style="display:flex;border:1px solid rgba(168,85,247,.3);border-radius:10px;overflow:hidden;">
           <button class="bmode-btn active" id="bmode-new" onclick="setBMode('new')">➕ Criar novo indiquer</button>
           <button class="bmode-btn" id="bmode-ex" onclick="setBMode('existing')">👤 Indiquer existente</button>
         </div>
       </div>
-      <!-- Existing indiquer selector -->
       <div id="b-existing-wrap" style="display:none;">
         <div class="bf"><label>Escolher indiquer *</label><select id="b-existing-inq"><option value="">— Selecione o indiquer —</option></select></div>
         <p style="font-size:11px;color:rgba(192,132,252,.6);margin:-4px 0 12px;">ℹ️ As novas indicações serão adicionadas à lista deste indiquer.</p>
       </div>
-      <!-- New indiquer form -->
       <div id="b-new-wrap">
         <div class="bf2">
           <div class="bf"><label>Nome completo *</label><input id="b-name" type="text" placeholder="Ex: João da Silva"/></div>
@@ -370,7 +439,7 @@
           <div class="bf"><label>Senha de acesso *</label><input id="b-pass" type="password" placeholder="Mínimo 6 caracteres"/></div>
           <div class="bf"><label>Confirmar senha *</label><input id="b-pass2" type="password" placeholder="Repita a senha"/></div>
         </div>
-        <p style="font-size:11px;color:rgba(192,132,252,.6);margin:-2px 0 12px;">ℹ️ Avise o indiquer manualmente sobre o login e senha criados. O moderador verá este indiquer em seu painel.</p>
+        <p style="font-size:11px;color:rgba(192,132,252,.6);margin:-2px 0 12px;">ℹ️ Avise o indiquer manualmente sobre o login e senha criados.</p>
       </div>
       <p id="bfb1" class="bfb"></p>
       <div class="bact">
@@ -378,7 +447,6 @@
         <button class="bbtn" id="btn-bnext" onclick="bulkStep1()">Continuar →</button>
       </div>
     </div>
-
     <div id="bs2" style="display:none;">
       <div class="isum">
         <div class="isum-av" id="bsav">??</div>
@@ -391,7 +459,7 @@
       <div class="bzone" onclick="document.getElementById('b-file').click()">
         <div class="uico">📊</div>
         <p><strong>Clique para subir planilha</strong> (.xlsx ou .csv)</p>
-        <p style="font-size:11px;margin-top:3px;color:rgba(255,255,255,.3);">Colunas: Nome · CPF · <strong style="color:rgba(74,222,128,.8)">Celular*</strong> · E-mail  (só o celular é obrigatório)</p>
+        <p style="font-size:11px;margin-top:3px;color:rgba(255,255,255,.3);">Colunas: Nome · CPF · <strong style="color:rgba(74,222,128,.8)">Celular*</strong> · E-mail</p>
       </div>
       <input type="file" id="b-file" accept=".xlsx,.xls,.csv" style="display:none;" onchange="bulkFileLoad(event)"/>
       <div style="display:flex;justify-content:flex-end;margin-bottom:4px;">
@@ -429,6 +497,49 @@
   </div>
 </div>
 
+<!-- EDIT REFERRER MODAL -->
+<div class="edit-popup" id="edit-referrer-popup" style="display:none;">
+  <div class="edit-modal">
+    <h3>✏️ Editar Indiquer / Indicado</h3>
+    <p class="edit-sub" id="edit-referrer-subtitle">Altere as informações abaixo.</p>
+    <div class="edit-field2">
+      <div class="edit-field"><label>Nome completo</label><input type="text" id="edit-ref-name" placeholder="Nome"/></div>
+      <div class="edit-field"><label>CPF</label><input type="text" id="edit-ref-cpf" placeholder="000.000.000-00" maxlength="14"/></div>
+    </div>
+    <div class="edit-field2">
+      <div class="edit-field"><label>Celular</label><input type="text" id="edit-ref-phone" placeholder="(11) 99999-9999" maxlength="15"/></div>
+      <div class="edit-field"><label>E-mail</label><input type="email" id="edit-ref-email" placeholder="email@exemplo.com"/></div>
+    </div>
+    <p class="edit-fb" id="edit-ref-fb"></p>
+    <div class="edit-actions">
+      <button class="btn-edit-cancel" onclick="closeEditReferrer()">Cancelar</button>
+      <button class="btn-edit-save" onclick="saveEditReferrer()">💾 Salvar alterações</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT INDICADO MODAL -->
+<div class="edit-popup" id="edit-indicado-popup" style="display:none;">
+  <div class="edit-modal">
+    <h3>✏️ Editar Indicado</h3>
+    <p class="edit-sub" id="edit-indicado-subtitle">Altere as informações do indicado.</p>
+    <div class="edit-field2">
+      <div class="edit-field"><label>Nome</label><input type="text" id="edit-ind-name" placeholder="Nome"/></div>
+      <div class="edit-field"><label>CPF</label><input type="text" id="edit-ind-cpf" placeholder="000.000.000-00" maxlength="14"/></div>
+    </div>
+    <div class="edit-field2">
+      <div class="edit-field"><label>Celular</label><input type="text" id="edit-ind-phone" placeholder="(11) 99999-9999" maxlength="15"/></div>
+      <div class="edit-field"><label>E-mail</label><input type="email" id="edit-ind-email" placeholder="email@exemplo.com"/></div>
+    </div>
+    <div class="edit-field"><label>Perfil / Observações</label><input type="text" id="edit-ind-obs" placeholder="Servidor público, aposentado, etc."/></div>
+    <p class="edit-fb" id="edit-ind-fb"></p>
+    <div class="edit-actions">
+      <button class="btn-edit-cancel" onclick="closeEditIndicado()">Cancelar</button>
+      <button class="btn-edit-save" onclick="saveEditIndicado()">💾 Salvar alterações</button>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
@@ -448,8 +559,108 @@ function toast(msg,ok=true){const t=document.getElementById("toast");t.textConte
 window.onSC=function(sel){const id=sel.dataset.id,ns=sel.value,m=SOS.find(o=>o.v===ns);sel.className="status-select"+(m?" "+m.c:"");allRefs.forEach(r=>{if(r.id===id)r.status=ns;});updateKPIs();};
 window.saveRow=async function(id,btn){const tr=btn.closest("tr");const sel=tr?.querySelector(".status-select");const vi=tr?.querySelector(".valor-input");const ns=sel?.value;const na=vi?(parseFloat(vi.value)||null):null;if(!ns)return;btn.textContent="…";btn.disabled=true;const upd={status:ns};if(na!==null)upd.amount=na;const{error}=await sb.from("referrals").update(upd).eq("id",id);btn.textContent="Salvar";btn.disabled=false;if(error){toast("Erro: "+error.message,false);return;}allRefs.forEach(r=>{if(r.id===id){r.status=ns;if(na!==null)r.amount=na;}});toast("✅ Salvo!");updateKPIs();renderView();};
 function updateKPIs(){const ap=allRefs.filter(r=>isOk(r.status));document.getElementById("k-approved").textContent=ap.length;}
-function buildTable(refs){if(!refs.length)return'<p class="empty-msg">Sem indicações ainda.</p>';return`<div class="ref-table-wrap"><table><thead><tr><th>Nome indicado</th><th>WhatsApp</th><th>Perfil/E-mail</th><th>Status</th><th>Valor (R$)</th><th>Nota</th><th>Data</th><th>Ação</th></tr></thead><tbody>${refs.map(ref=>{const cl=ref.indicated_clients||{};const w=waHref(cl.phone);const cur=normS(ref.status);const m=SOS.find(o=>o.v===cur)||SOS[0];return`<tr><td><strong>${cl.name||"—"}</strong></td><td>${w?`<a class="wa-link" href="${w}" target="_blank">📱 ${cl.phone}</a>`:(cl.phone||"—")}</td><td style="color:var(--muted);font-size:12px;">${cl.profile_type||(cl.observations?.startsWith("E-mail:")?cl.observations.replace("E-mail:","").trim():cl.observations)||"—"}</td><td><select class="status-select ${m.c}" data-id="${ref.id}" onchange="onSC(this)">${SOS.map(o=>`<option value="${o.v}"${o.v===cur?" selected":""}>${o.l}</option>`).join("")}</select></td><td><input type="number" class="valor-input" value="${ref.amount||""}" min="0" step="0.01" placeholder="R$"/></td><td><button class="note-btn${ref.admin_note?" has-note":""}" onclick="openNote('${ref.id}',this)">${ref.admin_note?"📝 Ver":"+ Nota"}</button></td><td style="color:var(--muted);font-size:12px;">${fmtDate(ref.created_at)}</td><td><button class="btn-save-row" onclick="saveRow('${ref.id}',this)">Salvar</button></td></tr>`;}).join("")}</tbody></table></div>`;}
-let allMods=[],allInq=[],allInd=[],allRefs=[],curView="indiquers";
+
+function buildTable(refs){
+  if(!refs.length)return'<p class="empty-msg">Sem indicações ainda.</p>';
+  return`<div class="ref-table-wrap"><table><thead><tr><th>Nome indicado</th><th>WhatsApp</th><th>Perfil/E-mail</th><th>Status</th><th>Valor (R$)</th><th>Nota</th><th>Data</th><th>Ações</th></tr></thead><tbody>${refs.map(ref=>{
+    const cl=ref.indicated_clients||{};
+    const w=waHref(cl.phone);
+    const cur=normS(ref.status);
+    const m=SOS.find(o=>o.v===cur)||SOS[0];
+    return`<tr>
+      <td><strong>${cl.name||"—"}</strong></td>
+      <td>${w?`<a class="wa-link" href="${w}" target="_blank">📱 ${cl.phone}</a>`:(cl.phone||"—")}</td>
+      <td style="color:var(--muted);font-size:12px;">${cl.profile_type||(cl.observations?.startsWith("E-mail:")?cl.observations.replace("E-mail:","").trim():cl.observations)||"—"}</td>
+      <td><select class="status-select ${m.c}" data-id="${ref.id}" onchange="onSC(this)">${SOS.map(o=>`<option value="${o.v}"${o.v===cur?" selected":""}>${o.l}</option>`).join("")}</select></td>
+      <td><input type="number" class="valor-input" value="${ref.amount||""}" min="0" step="0.01" placeholder="R$"/></td>
+      <td><button class="note-btn${ref.admin_note?" has-note":""}" onclick="openNote('${ref.id}',this)">${ref.admin_note?"📝 Ver":"+ Nota"}</button></td>
+      <td style="color:var(--muted);font-size:12px;">${fmtDate(ref.created_at)}</td>
+      <td><button class="btn-edit-row" onclick="openEditIndicado('${ref.indicated_client_id||""}')">✏️</button><button class="btn-save-row" onclick="saveRow('${ref.id}',this)">Salvar</button></td>
+    </tr>`;
+  }).join("")}</tbody></table></div>`;
+}
+
+// ── PAYMENT HELPERS ───────────────────────────────────
+function getTotalPaid(referrerId){
+  return allPayments.filter(p=>p.referrer_id===referrerId).reduce((s,p)=>s+(parseFloat(p.amount)||0),0);
+}
+function getPayHistory(referrerId){
+  return allPayments.filter(p=>p.referrer_id===referrerId).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+}
+
+function buildPaySummary(referrerId, smashcard){
+  const paid=getTotalPaid(referrerId);
+  const balance=smashcard-paid;
+  const hist=getPayHistory(referrerId);
+  const balClass=balance<=0?"pay-sum-balance zeroed":"pay-sum-balance";
+  const balIcon=balance<=0?"✅":"💰";
+  return `
+    <div class="pay-summary">
+      <div class="pay-sum-item">
+        <span class="pay-sum-label">💳 Smashcard</span>
+        <span class="pay-sum-val pay-sum-earned">${fmt(smashcard)}</span>
+      </div>
+      <div class="pay-sum-divider"></div>
+      <div class="pay-sum-item">
+        <span class="pay-sum-label">✅ Total pago</span>
+        <span class="pay-sum-val pay-sum-paid">${fmt(paid)}</span>
+      </div>
+      <div class="pay-sum-divider"></div>
+      <div class="pay-sum-item">
+        <span class="pay-sum-label">${balIcon} Saldo restante</span>
+        <span class="pay-sum-val ${balClass}">${fmt(balance)}</span>
+      </div>
+      <button class="btn-pay" onclick="event.stopPropagation();openPayModal('${referrerId}')">💰 Dar Baixa</button>
+    </div>
+    ${hist.length>0?`<div class="pay-hist-wrap"><p class="pay-hist-title">Histórico de pagamentos (${hist.length})</p>${hist.map(p=>`<div class="pay-hist-item"><div><div class="pay-hist-amount">${fmt(p.amount)}</div>${p.note?`<div class="pay-hist-note">${p.note}</div>`:""}</div><div class="pay-hist-right"><div class="pay-hist-date">${fmtDate(p.created_at)}</div><button class="btn-del-pay" onclick="deletePayment('${p.id}','${referrerId}')" title="Excluir pagamento">🗑</button></div></div>`).join("")}</div>`:""}
+  `;
+}
+
+// ── PAYMENT MODAL ─────────────────────────────────────
+let _payRefId=null;
+function openPayModal(referrerId){
+  _payRefId=referrerId;
+  const ref=[...allInq,...allInd].find(r=>r.id===referrerId);
+  const sm=calcSm((ref?.refs||[]).filter(r=>isOk(r.status)).length);
+  const paid=getTotalPaid(referrerId);
+  const balance=sm-paid;
+  document.getElementById("pay-ref-name").textContent=ref?.name||"—";
+  document.getElementById("pay-chip-earned").textContent=fmt(sm);
+  document.getElementById("pay-chip-paid").textContent=fmt(paid);
+  const balEl=document.getElementById("pay-chip-bal");
+  balEl.textContent=fmt(balance);
+  balEl.style.color=balance<=0?"#fb7185":"#4ade80";
+  document.getElementById("pay-amount").value="";
+  document.getElementById("pay-note").value="";
+  document.getElementById("pay-fb").textContent="";
+  document.getElementById("pay-popup").style.display="flex";
+  setTimeout(()=>document.getElementById("pay-amount").focus(),60);
+}
+function closePayModal(){document.getElementById("pay-popup").style.display="none";_payRefId=null;}
+async function savePayment(){
+  if(!_payRefId)return;
+  const amtRaw=document.getElementById("pay-amount").value;
+  const amount=parseFloat(String(amtRaw).replace(",","."));
+  const note=document.getElementById("pay-note").value.trim();
+  const fb=document.getElementById("pay-fb");fb.textContent="";
+  if(!amount||amount<=0){fb.style.color="#fb7185";fb.textContent="Informe um valor válido maior que zero.";return;}
+  const btn=document.getElementById("btn-pay-save");btn.textContent="Salvando…";btn.disabled=true;
+  const{error}=await sb.from("payments").insert({referrer_id:_payRefId,amount,note:note||null});
+  btn.textContent="✅ Registrar Pagamento";btn.disabled=false;
+  if(error){fb.style.color="#fb7185";fb.textContent="Erro: "+error.message;return;}
+  toast("💰 Pagamento registrado com sucesso!");
+  closePayModal();
+  loadData();
+}
+async function deletePayment(payId,referrerId){
+  if(!confirm("Excluir este pagamento?"))return;
+  const{error}=await sb.from("payments").delete().eq("id",payId);
+  if(error){toast("Erro: "+error.message,false);return;}
+  toast("Pagamento removido.");
+  loadData();
+}
+
+let allMods=[],allInq=[],allInd=[],allRefs=[],allPayments=[],curView="indiquers";
 const ADMIN_WHITELIST=new Set(["christian.serello@starbank.tec.br","brunno@starbank.tec.br","mariasantos.starbank@gmail.com","ana.silva@starbank.tec.br","anasilva.starbank@gmail.com"]);
 function switchMode(mode){
   document.getElementById("lm-login").style.display=mode==="login"?"block":"none";
@@ -464,11 +675,8 @@ document.getElementById("btn-adm-login")?.addEventListener("click",async()=>{
   const err=document.getElementById("adm-login-error");err.textContent="";
   if(!ADMIN_WHITELIST.has(e)){err.textContent="Este e-mail não tem acesso ao painel de admin.";return;}
   const btn=document.getElementById("btn-adm-login");btn.textContent="Entrando…";btn.disabled=true;
-  try{
-    const{data,error}=await sb.auth.signInWithPassword({email:e,password:p});
-    if(error)throw error;
-    await mountAdmin(data.user);
-  }catch{err.textContent="Credenciais inválidas.";}
+  try{const{data,error}=await sb.auth.signInWithPassword({email:e,password:p});if(error)throw error;await mountAdmin(data.user);}
+  catch{err.textContent="Credenciais inválidas.";}
   finally{btn.textContent="Entrar";btn.disabled=false;}
 });
 document.getElementById("btn-adm-register")?.addEventListener("click",async()=>{
@@ -484,24 +692,18 @@ document.getElementById("btn-adm-register")?.addEventListener("click",async()=>{
   try{
     const{data,error}=await sb.auth.signUp({email:e,password:p});
     if(error&&!error.message.toLowerCase().includes("already"))throw error;
-    if(error?.message.toLowerCase().includes("already")){
-      err.style.color="#facc15";err.textContent="Conta já existe. Tente fazer login.";return;
-    }
+    if(error?.message.toLowerCase().includes("already")){err.style.color="#facc15";err.textContent="Conta já existe. Tente fazer login.";return;}
     err.style.color="#4ade80";err.textContent="✅ Conta criada! Fazendo login…";
     setTimeout(async()=>{
       const{data:sd,error:se}=await sb.auth.signInWithPassword({email:e,password:p});
-      if(se||!sd.user){err.style.color="#fb7185";err.textContent="Conta criada, mas login falhou. Tente entrar manualmente.";return;}
+      if(se||!sd.user){err.style.color="#fb7185";err.textContent="Conta criada, mas login falhou.";return;}
       await mountAdmin(sd.user);
     },1200);
   }catch(ex){err.textContent="Erro: "+(ex.message||"Tente novamente.");}
   finally{btn.textContent="Criar minha conta";btn.disabled=false;}
 });
 async function mountAdmin(user){
-  if(!ADMIN_WHITELIST.has(user.email?.toLowerCase())){
-    await sb.auth.signOut();
-    document.getElementById("adm-login-error").textContent="Acesso negado. E-mail não autorizado.";
-    return;
-  }
+  if(!ADMIN_WHITELIST.has(user.email?.toLowerCase())){await sb.auth.signOut();document.getElementById("adm-login-error").textContent="Acesso negado.";return;}
   document.getElementById("login-gate").style.display="none";
   document.getElementById("adm-app").classList.add("active");
   loadData();
@@ -514,15 +716,22 @@ async function loadData(){
   const fmod=document.getElementById("filter-mod");
   const curFm=fmod.value;
   fmod.innerHTML='<option value="">Todos os moderadores</option>'+allMods.map(m=>`<option value="${m.id}"${m.id===curFm?" selected":""}>${m.name} [${m.code}]</option>`).join("");
-  // Populate bulk mod selector too
   const bmod=document.getElementById("b-mod");
   bmod.innerHTML='<option value="">— Selecione o moderador —</option>'+allMods.map(m=>`<option value="${m.id}" data-code="${m.code}">${m.name} [${m.code}]</option>`).join("");
-  const{data:rrs}=await sb.from("referrers").select("id,name,phone,email,code,role,ref_origin,moderator_id,created_at").order("created_at",{ascending:false});
+  const{data:rrs}=await sb.from("referrers").select("id,name,phone,email,cpf,code,role,ref_origin,moderator_id,created_at").order("created_at",{ascending:false});
   const ar=rrs||[];
   allInq=ar.filter(r=>r.role==="indiquer");
   allInd=ar.filter(r=>r.role==="indicado");
   allRefs=[];
-  if(ar.length){const{data:refs}=await sb.from("referrals").select("*,amount,mod_note,admin_note,indicated_clients(name,phone,profile_type,observations)").in("referrer_id",ar.map(r=>r.id)).order("created_at",{ascending:false});allRefs=refs||[];}
+  if(ar.length){
+    const{data:refs}=await sb.from("referrals").select("*,amount,mod_note,admin_note,indicated_client_id,indicated_clients(id,name,phone,cpf,profile_type,observations)").in("referrer_id",ar.map(r=>r.id)).order("created_at",{ascending:false});
+    allRefs=refs||[];
+    // Load payments for all referrers
+    const{data:pays}=await sb.from("payments").select("*").in("referrer_id",ar.map(r=>r.id)).order("created_at",{ascending:false});
+    allPayments=pays||[];
+  } else {
+    allPayments=[];
+  }
   const rm={};allRefs.forEach(r=>{(rm[r.referrer_id]||(rm[r.referrer_id]=[])).push(r);});
   ar.forEach(r=>r.refs=rm[r.id]||[]);
   allInq.forEach(r=>r.subs=allInd.filter(i=>i.ref_origin===r.code));
@@ -538,6 +747,7 @@ document.querySelectorAll(".view-tab").forEach(b=>b.addEventListener("click",()=
 function getFilteredInq(){const s=(document.getElementById("search-input").value||"").toLowerCase();const mf=document.getElementById("filter-mod").value;return allInq.filter(c=>(!mf||c.moderator_id===mf)&&(!s||c.name?.toLowerCase().includes(s)||c.phone?.includes(s)||c.code?.toLowerCase().includes(s)));}
 function getFilteredInd(){const s=(document.getElementById("search-input").value||"").toLowerCase();const mf=document.getElementById("filter-mod").value;return allInd.filter(c=>{if(mf){const pi=allInq.find(i=>i.code===c.ref_origin);if(pi?.moderator_id!==mf)return false;}return!s||c.name?.toLowerCase().includes(s)||c.phone?.includes(s)||c.code?.toLowerCase().includes(s);});}
 function renderView(){if(curView==="indiquers")renderInq();else if(curView==="indicados")renderInd();else renderAll();}
+
 function renderInq(){
   const ct=document.getElementById("content-area");ct.innerHTML="";
   const fl=getFilteredInq();
@@ -547,13 +757,20 @@ function renderInq(){
     const dirOk=(c.refs||[]).filter(r=>isOk(r.status)).length;
     const subOk=(c.subs||[]).reduce((a,s)=>a+(s.refs||[]).filter(r=>isOk(r.status)).length,0);
     const ap=dirOk+subOk,nv=getNivel(ap),wa=waHref(c.phone),sm=calcSm(ap);
+    const paid=getTotalPaid(c.id);
+    const balance=sm-paid;
     const sc=(c.subs||[]).length,tr=(c.refs||[]).length;
     const cd=document.createElement("div");cd.className="client-card";
-    const subHtml=sc>0?`<div class="sub-tree"><p class="sub-tree-title">👥 Indicados vinculados (${sc})</p>${(c.subs||[]).map(sub=>{const sA=(sub.refs||[]).filter(r=>isOk(r.status)).length,sT=(sub.refs||[]).length,sN=getNivel(sA),sW=waHref(sub.phone),sS=calcSm(sA);return`<div class="sub-card"><div class="sub-head" onclick="this.closest('.sub-card').classList.toggle('open')"><div class="sub-left"><div class="sub-av">${initials(sub.name)}</div><div><div class="sub-name">${sub.name||"—"} <span class="role-tag role-indicado" style="font-size:9px;">Indicado</span></div><div class="sub-meta">${sW?`<a class="wa-link" href="${sW}" target="_blank" onclick="event.stopPropagation()" style="font-size:11px;">📱 ${sub.phone}</a>`:sub.phone||"—"} · <strong>${sub.code||"—"}</strong></div></div></div><div style="display:flex;align-items:center;gap:6px;"><div class="sub-stats"><span class="nivel-tag ${sN.c}" style="font-size:9px;padding:1px 8px;">${sN.l}</span><span class="stat-pill" style="font-size:10px;">${sT} ind.</span><span class="stat-pill green" style="font-size:10px;">${sA} ok</span><span class="stat-pill" style="font-size:10px;color:#c084fc;">${fmt(sS)}</span></div><div class="sub-chevron">▼</div></div></div><div class="sub-body">${buildTable(sub.refs||[])}</div></div>`;}).join("")}</div>`:"";
-    cd.innerHTML=`<div class="client-header" onclick="this.closest('.client-card').classList.toggle('open')"><div class="client-left"><div class="client-avatar">${initials(c.name)}</div><div><div class="client-name">${c.name||"—"} <span class="role-tag role-indiquer">Indiquer</span></div><div class="client-meta">${wa?`<a class="wa-link" href="${wa}" target="_blank" onclick="event.stopPropagation()">📱 ${c.phone}</a>`:c.phone||"—"} · <strong>${c.code||"—"}</strong>${mod?` · Mod: ${mod.name}`:""} · desde ${fmtDate(c.created_at)}</div></div></div><div style="display:flex;align-items:center;gap:8px;"><div class="client-stats"><span class="nivel-tag ${nv.c}">${nv.l}</span>${tr>0?`<span class="stat-pill">${tr} ind.</span>`:""}<span class="stat-pill green">${ap} aprov.</span><span class="stat-pill" style="color:#c084fc;">${sc} indicado${sc!==1?"s":""}</span><span class="stat-pill" style="color:#c084fc;">${fmt(sm)}</span></div><div class="chevron">▼</div></div></div><div class="client-body"><h4 style="font-size:12px;color:#60a5fa;font-weight:700;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;">📨 Indicações diretas (${tr})</h4>${buildTable(c.refs||[])}<button class="btn-add-ref" onclick="event.stopPropagation();openBulkExisting('${c.id}','${(c.name||"").replace(/'/g,"\\'")}','${c.code||""}','${c.phone||""}','${c.email||""}','${c.moderator_id||""}')">➕ Adicionar mais indicações</button>${subHtml}</div>`;
+    const subHtml=sc>0?`<div class="sub-tree"><p class="sub-tree-title">👥 Indicados vinculados (${sc})</p>${(c.subs||[]).map(sub=>{const sA=(sub.refs||[]).filter(r=>isOk(r.status)).length,sT=(sub.refs||[]).length,sN=getNivel(sA),sW=waHref(sub.phone),sS=calcSm(sA);return`<div class="sub-card"><div class="sub-head" onclick="this.closest('.sub-card').classList.toggle('open')"><div class="sub-left"><div class="sub-av">${initials(sub.name)}</div><div><div class="sub-name">${sub.name||"—"} <span class="role-tag role-indicado" style="font-size:9px;">Indicado</span> <button class="btn-edit-indiquer" onclick="event.stopPropagation();openEditReferrer('${sub.id}')">✏️</button></div><div class="sub-meta">${sW?`<a class="wa-link" href="${sW}" target="_blank" onclick="event.stopPropagation()" style="font-size:11px;">📱 ${sub.phone}</a>`:sub.phone||"—"} · <strong>${sub.code||"—"}</strong></div></div></div><div style="display:flex;align-items:center;gap:6px;"><div class="sub-stats"><span class="nivel-tag ${sN.c}" style="font-size:9px;padding:1px 8px;">${sN.l}</span><span class="stat-pill" style="font-size:10px;">${sT} ind.</span><span class="stat-pill green" style="font-size:10px;">${sA} ok</span><span class="stat-pill" style="font-size:10px;color:#c084fc;">${fmt(sS)}</span></div><div class="sub-chevron">▼</div></div></div><div class="sub-body">${buildTable(sub.refs||[])}</div></div>`;}).join("")}</div>`:"";
+    // Balance indicator for header pill
+    const balancePill=balance<=0
+      ?`<span class="stat-pill" style="color:#4ade80;border-color:rgba(74,222,128,.4);background:rgba(74,222,128,.1);">✅ Quitado</span>`
+      :(paid>0?`<span class="stat-pill" style="color:#facc15;border-color:rgba(250,204,21,.3);">💰 Saldo ${fmt(balance)}</span>`:"");
+    cd.innerHTML=`<div class="client-header" onclick="this.closest('.client-card').classList.toggle('open')"><div class="client-left"><div class="client-avatar">${initials(c.name)}</div><div><div class="client-name">${c.name||"—"} <span class="role-tag role-indiquer">Indiquer</span> <button class="btn-edit-indiquer" onclick="event.stopPropagation();openEditReferrer('${c.id}')">✏️</button></div><div class="client-meta">${wa?`<a class="wa-link" href="${wa}" target="_blank" onclick="event.stopPropagation()">📱 ${c.phone}</a>`:c.phone||"—"} · <strong>${c.code||"—"}</strong>${mod?` · Mod: ${mod.name}`:""} · desde ${fmtDate(c.created_at)}</div></div></div><div style="display:flex;align-items:center;gap:8px;"><div class="client-stats"><span class="nivel-tag ${nv.c}">${nv.l}</span>${tr>0?`<span class="stat-pill">${tr} ind.</span>`:""}<span class="stat-pill green">${ap} aprov.</span><span class="stat-pill" style="color:#c084fc;">${sc} indicado${sc!==1?"s":""}</span><span class="stat-pill" style="color:#c084fc;">${fmt(sm)}</span>${balancePill}</div><div class="chevron">▼</div></div></div><div class="client-body">${buildPaySummary(c.id,sm)}<h4 style="font-size:12px;color:#60a5fa;font-weight:700;margin:14px 0 10px;text-transform:uppercase;letter-spacing:.5px;">📨 Indicações diretas (${tr})</h4>${buildTable(c.refs||[])}<button class="btn-add-ref" onclick="event.stopPropagation();openBulkExisting('${c.id}','${(c.name||"").replace(/'/g,"\\'")}','${c.code||""}','${c.phone||""}','${c.email||""}','${c.moderator_id||""}')">➕ Adicionar mais indicações</button>${subHtml}</div>`;
     ct.appendChild(cd);
   });
 }
+
 function renderInd(){
   const ct=document.getElementById("content-area");ct.innerHTML="";
   const fl=getFilteredInd();
@@ -562,10 +779,11 @@ function renderInd(){
     const ap=(c.refs||[]).filter(r=>isOk(r.status)).length,nv=getNivel(ap),wa=waHref(c.phone),sm=calcSm(ap);
     const pi=allInq.find(i=>i.code===c.ref_origin),tr=(c.refs||[]).length;
     const cd=document.createElement("div");cd.className="client-card";
-    cd.innerHTML=`<div class="client-header" onclick="this.closest('.client-card').classList.toggle('open')"><div class="client-left"><div class="client-avatar" style="background:linear-gradient(135deg,rgba(168,85,247,.6),rgba(124,58,237,.5));">${initials(c.name)}</div><div><div class="client-name">${c.name||"—"} <span class="role-tag role-indicado">Indicado</span></div><div class="client-meta">${wa?`<a class="wa-link" href="${wa}" target="_blank" onclick="event.stopPropagation()">📱 ${c.phone}</a>`:c.phone||"—"} · <strong>${c.code||"—"}</strong> · Indiquer: <strong>${pi?.name||"—"}</strong> · desde ${fmtDate(c.created_at)}</div></div></div><div style="display:flex;align-items:center;gap:8px;"><div class="client-stats"><span class="nivel-tag ${nv.c}">${nv.l}</span><span class="stat-pill">${tr} ind.</span><span class="stat-pill green">${ap} aprov.</span><span class="stat-pill" style="color:#c084fc;">${fmt(sm)}</span></div><div class="chevron">▼</div></div></div><div class="client-body"><h4 style="font-size:12px;color:#c084fc;font-weight:700;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;">📨 Indicações (${tr})</h4>${buildTable(c.refs||[])}</div>`;
+    cd.innerHTML=`<div class="client-header" onclick="this.closest('.client-card').classList.toggle('open')"><div class="client-left"><div class="client-avatar" style="background:linear-gradient(135deg,rgba(168,85,247,.6),rgba(124,58,237,.5));">${initials(c.name)}</div><div><div class="client-name">${c.name||"—"} <span class="role-tag role-indicado">Indicado</span> <button class="btn-edit-indiquer" onclick="event.stopPropagation();openEditReferrer('${c.id}')">✏️</button></div><div class="client-meta">${wa?`<a class="wa-link" href="${wa}" target="_blank" onclick="event.stopPropagation()">📱 ${c.phone}</a>`:c.phone||"—"} · <strong>${c.code||"—"}</strong> · Indiquer: <strong>${pi?.name||"—"}</strong> · desde ${fmtDate(c.created_at)}</div></div></div><div style="display:flex;align-items:center;gap:8px;"><div class="client-stats"><span class="nivel-tag ${nv.c}">${nv.l}</span><span class="stat-pill">${tr} ind.</span><span class="stat-pill green">${ap} aprov.</span><span class="stat-pill" style="color:#c084fc;">${fmt(sm)}</span></div><div class="chevron">▼</div></div></div><div class="client-body"><h4 style="font-size:12px;color:#c084fc;font-weight:700;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;">📨 Indicações (${tr})</h4>${buildTable(c.refs||[])}</div>`;
     ct.appendChild(cd);
   });
 }
+
 function renderAll(){
   const s=(document.getElementById("search-input").value||"").toLowerCase();
   const mf=document.getElementById("filter-mod").value;
@@ -573,17 +791,88 @@ function renderAll(){
   const aw=allRefs.map(ref=>{const ow=[...allInq,...allInd].find(r=>r.id===ref.referrer_id);return{...ref,oN:ow?.name||"—",oC:ow?.code||"—",oR:ow?.role||"—",oMid:ow?.moderator_id||""};});
   const fl=aw.filter(r=>{if(mf&&r.oMid!==mf)return false;if(!s)return true;const cl=r.indicated_clients||{};return cl.name?.toLowerCase().includes(s)||r.oN.toLowerCase().includes(s)||r.oC.toLowerCase().includes(s);});
   if(!fl.length){ct.innerHTML="<p class='empty-msg'>Nenhuma indicação encontrada.</p>";return;}
-  ct.innerHTML=`<div class="ref-table-wrap"><table><thead><tr><th>Indicador</th><th>Código</th><th>Papel</th><th>Nome indicado</th><th>WhatsApp</th><th>Status</th><th>Valor</th><th>Nota</th><th>Data</th><th>Ação</th></tr></thead><tbody>${fl.map(ref=>{const cl=ref.indicated_clients||{};const w=waHref(cl.phone);const cur=normS(ref.status);const m=SOS.find(o=>o.v===cur)||SOS[0];return`<tr><td><strong>${ref.oN}</strong></td><td><code style="font-size:11px;background:rgba(255,255,255,.06);padding:2px 6px;border-radius:4px;">${ref.oC}</code></td><td><span class="role-tag ${ref.oR==="indiquer"?"role-indiquer":"role-indicado"}">${ref.oR}</span></td><td>${cl.name||"—"}</td><td>${w?`<a class="wa-link" href="${w}" target="_blank">📱 ${cl.phone}</a>`:(cl.phone||"—")}</td><td><select class="status-select ${m.c}" data-id="${ref.id}" onchange="onSC(this)">${SOS.map(o=>`<option value="${o.v}"${o.v===cur?" selected":""}>${o.l}</option>`).join("")}</select></td><td><input type="number" class="valor-input" value="${ref.amount||""}" min="0" step="0.01" placeholder="R$"/></td><td><button class="note-btn${ref.admin_note?" has-note":""}" onclick="openNote('${ref.id}',this)">${ref.admin_note?"📝 Ver":"+ Nota"}</button></td><td style="color:var(--muted);font-size:12px;">${fmtDate(ref.created_at)}</td><td><button class="btn-save-row" onclick="saveRow('${ref.id}',this)">Salvar</button></td></tr>`;}).join("")}</tbody></table></div>`;
+  ct.innerHTML=`<div class="ref-table-wrap"><table><thead><tr><th>Indicador</th><th>Código</th><th>Papel</th><th>Nome indicado</th><th>WhatsApp</th><th>Status</th><th>Valor</th><th>Nota</th><th>Data</th><th>Ações</th></tr></thead><tbody>${fl.map(ref=>{const cl=ref.indicated_clients||{};const w=waHref(cl.phone);const cur=normS(ref.status);const m=SOS.find(o=>o.v===cur)||SOS[0];return`<tr><td><strong>${ref.oN}</strong></td><td><code style="font-size:11px;background:rgba(255,255,255,.06);padding:2px 6px;border-radius:4px;">${ref.oC}</code></td><td><span class="role-tag ${ref.oR==="indiquer"?"role-indiquer":"role-indicado"}">${ref.oR}</span></td><td>${cl.name||"—"}</td><td>${w?`<a class="wa-link" href="${w}" target="_blank">📱 ${cl.phone}</a>`:(cl.phone||"—")}</td><td><select class="status-select ${m.c}" data-id="${ref.id}" onchange="onSC(this)">${SOS.map(o=>`<option value="${o.v}"${o.v===cur?" selected":""}>${o.l}</option>`).join("")}</select></td><td><input type="number" class="valor-input" value="${ref.amount||""}" min="0" step="0.01" placeholder="R$"/></td><td><button class="note-btn${ref.admin_note?" has-note":""}" onclick="openNote('${ref.id}',this)">${ref.admin_note?"📝 Ver":"+ Nota"}</button></td><td style="color:var(--muted);font-size:12px;">${fmtDate(ref.created_at)}</td><td><button class="btn-edit-row" onclick="openEditIndicado('${ref.indicated_client_id||""}')">✏️</button><button class="btn-save-row" onclick="saveRow('${ref.id}',this)">Salvar</button></td></tr>`;}).join("")}</tbody></table></div>`;
 }
+
 document.querySelectorAll(".admin-tab-btn").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".admin-tab-btn").forEach(x=>x.classList.remove("active"));b.classList.add("active");const sec=b.dataset.sec;document.querySelectorAll(".admin-section").forEach(s=>s.classList.toggle("active",s.id===sec));}));
 document.getElementById("search-input")?.addEventListener("input",renderView);
 document.getElementById("btn-refresh")?.addEventListener("click",loadData);
 document.getElementById("btn-logout")?.addEventListener("click",async()=>{await sb.auth.signOut();location.reload();});
 (async()=>{const{data}=await sb.auth.getSession();if(data?.session?.user)await mountAdmin(data.session.user);})();
 
-// ══════════════════════════════════════════════════════
-//  MODERADORES — render, create, delete, ranking
-// ══════════════════════════════════════════════════════
+// ── EDIT REFERRER ─────────────────────────────────────
+let _editRefId=null;
+const maskCPFInput=e=>{let v=e.target.value.replace(/\D/g,"");v=v.replace(/(\d{3})(\d)/,"$1.$2").replace(/(\d{3})(\d)/,"$1.$2").replace(/(\d{3})(\d{1,2})/,"$1-$2").replace(/(-\d{2})\d+$/,"$1");e.target.value=v;};
+const maskPhoneInput=e=>{let v=e.target.value.replace(/\D/g,"");v=v.replace(/(\d{2})(\d)/,"($1) $2").replace(/(\d{5})(\d)/,"$1-$2").replace(/(-\d{4})\d+$/,"$1");e.target.value=v;};
+document.getElementById("edit-ref-cpf")?.addEventListener("input",maskCPFInput);
+document.getElementById("edit-ref-phone")?.addEventListener("input",maskPhoneInput);
+document.getElementById("edit-ind-cpf")?.addEventListener("input",maskCPFInput);
+document.getElementById("edit-ind-phone")?.addEventListener("input",maskPhoneInput);
+
+function openEditReferrer(id){
+  _editRefId=id;
+  const ref=[...allInq,...allInd].find(r=>r.id===id);
+  if(!ref){toast("Registro não encontrado.",false);return;}
+  document.getElementById("edit-ref-name").value=ref.name||"";
+  document.getElementById("edit-ref-phone").value=ref.phone||"";
+  document.getElementById("edit-ref-email").value=ref.email||"";
+  document.getElementById("edit-ref-cpf").value=ref.cpf||"";
+  document.getElementById("edit-ref-fb").textContent="";
+  document.getElementById("edit-referrer-subtitle").textContent=`Editando: ${ref.name||"—"} (${ref.role==="indiquer"?"Indiquer":"Indicado"})`;
+  document.getElementById("edit-referrer-popup").style.display="flex";
+}
+function closeEditReferrer(){document.getElementById("edit-referrer-popup").style.display="none";_editRefId=null;}
+async function saveEditReferrer(){
+  if(!_editRefId)return;
+  const name=document.getElementById("edit-ref-name").value.trim();
+  const phone=document.getElementById("edit-ref-phone").value.replace(/\D/g,"");
+  const email=document.getElementById("edit-ref-email").value.trim();
+  const cpf=document.getElementById("edit-ref-cpf").value.replace(/\D/g,"");
+  const fb=document.getElementById("edit-ref-fb");fb.textContent="";
+  const btn=document.querySelector("#edit-referrer-popup .btn-edit-save");btn.textContent="Salvando…";btn.disabled=true;
+  const{error}=await sb.from("referrers").update({name:name||null,phone:phone||null,email:email||null,cpf:cpf||null}).eq("id",_editRefId);
+  btn.textContent="💾 Salvar alterações";btn.disabled=false;
+  if(error){fb.style.color="#fb7185";fb.textContent="Erro: "+error.message;return;}
+  toast("✅ Dados atualizados!");closeEditReferrer();loadData();
+}
+document.getElementById("edit-referrer-popup")?.addEventListener("click",e=>{if(e.target===document.getElementById("edit-referrer-popup"))closeEditReferrer();});
+
+// ── EDIT INDICADO ─────────────────────────────────────
+let _editIndId=null;
+function openEditIndicado(id){
+  if(!id){toast("ID do indicado não encontrado.",false);return;}
+  _editIndId=id;
+  const ref=allRefs.find(r=>r.indicated_client_id===id);
+  const cl=ref?.indicated_clients||{};
+  document.getElementById("edit-ind-name").value=cl.name||"";
+  document.getElementById("edit-ind-phone").value=cl.phone||"";
+  document.getElementById("edit-ind-cpf").value=cl.cpf||"";
+  const emailFromObs=cl.observations?.startsWith("E-mail:")?cl.observations.replace("E-mail:","").trim():"";
+  document.getElementById("edit-ind-email").value=emailFromObs;
+  document.getElementById("edit-ind-obs").value=cl.profile_type||"";
+  document.getElementById("edit-ind-fb").textContent="";
+  document.getElementById("edit-indicado-subtitle").textContent=`Editando: ${cl.name||cl.phone||"—"}`;
+  document.getElementById("edit-indicado-popup").style.display="flex";
+}
+function closeEditIndicado(){document.getElementById("edit-indicado-popup").style.display="none";_editIndId=null;}
+async function saveEditIndicado(){
+  if(!_editIndId)return;
+  const name=document.getElementById("edit-ind-name").value.trim();
+  const phone=document.getElementById("edit-ind-phone").value.replace(/\D/g,"");
+  const cpf=document.getElementById("edit-ind-cpf").value.replace(/\D/g,"");
+  const email=document.getElementById("edit-ind-email").value.trim();
+  const obs=document.getElementById("edit-ind-obs").value.trim();
+  const fb=document.getElementById("edit-ind-fb");fb.textContent="";
+  const btn=document.querySelector("#edit-indicado-popup .btn-edit-save");btn.textContent="Salvando…";btn.disabled=true;
+  const upd={name:name||null,phone:phone||null,cpf:cpf||null,profile_type:obs||null,observations:email?`E-mail: ${email}`:null};
+  const{error}=await sb.from("indicated_clients").update(upd).eq("id",_editIndId);
+  btn.textContent="💾 Salvar alterações";btn.disabled=false;
+  if(error){fb.style.color="#fb7185";fb.textContent="Erro: "+error.message;return;}
+  toast("✅ Indicado atualizado!");closeEditIndicado();loadData();
+}
+document.getElementById("edit-indicado-popup")?.addEventListener("click",e=>{if(e.target===document.getElementById("edit-indicado-popup"))closeEditIndicado();});
+
+// ── MODERADORES ───────────────────────────────────────
 const CODE_CHARS2="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 function genModCode(){let c="";for(let i=0;i<2;i++)c+=CODE_CHARS2[Math.floor(Math.random()*CODE_CHARS2.length)];return c;}
 function renderCodeSegs(code){if(!code)return"—";const s=`<span style="font-family:monospace;font-size:12px;font-weight:700;">`;if(code.length===2)return s+`<span style="background:rgba(168,85,247,.2);color:#c084fc;padding:2px 4px;border-radius:4px;">${code}</span></span>`;if(code.length===4)return s+`<span style="background:rgba(168,85,247,.2);color:#c084fc;padding:2px 4px;border-radius:4px;">${code.slice(0,2)}</span><span style="background:rgba(96,165,250,.2);color:#60a5fa;padding:2px 4px;border-radius:4px;margin-left:2px;">${code.slice(2)}</span></span>`;if(code.length>=6)return s+`<span style="background:rgba(168,85,247,.2);color:#c084fc;padding:2px 4px;border-radius:4px;">${code.slice(0,2)}</span><span style="background:rgba(96,165,250,.2);color:#60a5fa;padding:2px 4px;border-radius:4px;margin-left:2px;">${code.slice(2,4)}</span><span style="background:rgba(74,222,128,.2);color:#4ade80;padding:2px 4px;border-radius:4px;margin-left:2px;">${code.slice(4)}</span></span>`;return`<code>${code}</code>`;}
@@ -673,9 +962,7 @@ document.getElementById("btn-create-mod")?.addEventListener("click",async()=>{
 function copyModLink(btn,link){navigator.clipboard.writeText(link).then(()=>{btn.textContent="✅ Copiado!";setTimeout(()=>btn.textContent="📋 Copiar",2000);});}
 async function deleteMod(id,name){if(!confirm(`Remover o moderador "${name}"?\n\nOs indiquers vinculados continuarão existindo, mas perderão o vínculo.`))return;const{error}=await sb.from("moderators").delete().eq("id",id);if(error){toast("Erro: "+error.message,false);return;}toast(`Moderador "${name}" removido.`);loadData();}
 
-// ══════════════════════════════════════════════════════
-//  CADASTRO EM MASSA — ADMIN (com seletor de moderador)
-// ══════════════════════════════════════════════════════
+// ── BULK MODAL ────────────────────────────────────────
 const BCHR="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 let _bId=null,_bRows=[];
 function openBulk(){_bId=null;_bRows=[];["b-name","b-cpf","b-phone","b-email","b-pass","b-pass2"].forEach(id=>{const el=document.getElementById(id);if(el)el.value="";});document.getElementById("b-mod").value="";document.getElementById("bfb1").textContent="";document.getElementById("b-mode-wrap").style.display="none";document.getElementById("b-existing-wrap").style.display="none";document.getElementById("b-new-wrap").style.display="block";document.getElementById("bmode-new").classList.add("active");document.getElementById("bmode-ex").classList.remove("active");document.getElementById("bs1").style.display="block";document.getElementById("bs2").style.display="none";document.getElementById("bsi1").className="bsi active";document.getElementById("bsi2").className="bsi";_bRender();document.getElementById("bulk-ov").style.display="flex";}
@@ -698,18 +985,20 @@ function exportData(type){
   const rows=[];
   [...allInq,...allInd].forEach(c=>{
     const mod=allMods.find(m=>m.id===c.moderator_id);
+    const paid=getTotalPaid(c.id);
+    const sm=calcSm((c.refs||[]).filter(r=>isOk(r.status)).length);
     (c.refs||[]).forEach(ref=>{
       const cl=ref.indicated_clients||{};
       const email=cl.observations?.startsWith("E-mail:")?cl.observations.replace("E-mail:","").trim():"";
       const sL={em_analise:"Em análise",em_contato:"Em contato",aprovado:"Aprovado",reprovado:"Reprovado"};
-      rows.push({"Moderador":mod?.name||"—","Indicador":c.name||"—","Código indicador":c.code||"—","Papel":c.role||"—","Nome indicado":cl.name||"—","Celular":cl.phone||"—","E-mail":email,"Perfil":cl.profile_type||"—","Status":sL[ref.status]||ref.status||"—","Valor (R$)":ref.amount||"","Nota":ref.admin_note||ref.mod_note||"","Data":fmtDate(ref.created_at)});
+      rows.push({"Moderador":mod?.name||"—","Indicador":c.name||"—","Código indicador":c.code||"—","Papel":c.role||"—","Smashcard Total":fmt(sm),"Total Pago":fmt(paid),"Saldo":fmt(sm-paid),"Nome indicado":cl.name||"—","Celular":cl.phone||"—","E-mail":email,"Perfil":cl.profile_type||"—","Status":sL[ref.status]||ref.status||"—","Valor (R$)":ref.amount||"","Nota":ref.admin_note||ref.mod_note||"","Data":fmtDate(ref.created_at)});
     });
   });
   if(!rows.length){toast("Nenhum dado para exportar.",false);return;}
   const today=new Date().toLocaleDateString("pt-BR").replace(/\//g,"-");
   const fn=`indicacoes_${today}`;
   if(type==="csv"){const h=Object.keys(rows[0]);const csv=[h.join(";"),...rows.map(r=>h.map(k=>`"${String(r[k]||"").replace(/"/g,'""')}"`).join(";"))].join("\n");const b=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8;"});const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=fn+".csv";a.click();toast("CSV exportado!");}
-  else{const ws=XLSX.utils.json_to_sheet(rows);ws["!cols"]=[{wch:18},{wch:22},{wch:10},{wch:10},{wch:22},{wch:16},{wch:26},{wch:14},{wch:14},{wch:10},{wch:30},{wch:12}];const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"Indicações");XLSX.writeFile(wb,fn+".xlsx");toast("Excel exportado!");}
+  else{const ws=XLSX.utils.json_to_sheet(rows);ws["!cols"]=[{wch:18},{wch:22},{wch:10},{wch:10},{wch:14},{wch:14},{wch:14},{wch:22},{wch:16},{wch:26},{wch:14},{wch:14},{wch:10},{wch:30},{wch:12}];const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"Indicações");XLSX.writeFile(wb,fn+".xlsx");toast("Excel exportado!");}
 }
 function closeBulk(){document.getElementById("bulk-ov").style.display="none";}
 async function _genCode(mc){for(let i=0;i<20;i++){let s="";for(let j=0;j<2;j++)s+=BCHR[Math.floor(Math.random()*BCHR.length)];const code=mc+s;const{data}=await sb.from("referrers").select("id").eq("code",code).maybeSingle();if(!data)return code;}throw new Error("Código único não encontrado.");}
@@ -724,7 +1013,6 @@ function onModChange(){
   const wrap=document.getElementById("b-mode-wrap");
   if(!modId){wrap.style.display="none";return;}
   wrap.style.display="block";
-  // Populate existing indiquer select
   const sel=document.getElementById("b-existing-inq");
   const modInq=allInq.filter(i=>i.moderator_id===modId);
   sel.innerHTML='<option value="">— Selecione o indiquer —</option>'+modInq.map(i=>`<option value="${i.id}" data-name="${(i.name||"").replace(/"/g,"&quot;")}" data-code="${i.code||""}" data-phone="${i.phone||""}" data-email="${i.email||""}">${i.name||"—"} [${i.code}]</option>`).join("");
@@ -746,8 +1034,7 @@ async function bulkStep1(){
   const btn=document.getElementById("btn-bnext");btn.textContent="…";btn.disabled=true;
   try{
     if(isExisting){
-      const exSel=document.getElementById("b-existing-inq");
-      const exId=exSel.value;
+      const exSel=document.getElementById("b-existing-inq");const exId=exSel.value;
       if(!exId)throw new Error("Selecione o indiquer existente.");
       const opt=exSel.options[exSel.selectedIndex];
       const name=opt.dataset.name||"—",code=opt.dataset.code||"",phone=opt.dataset.phone||"",email=opt.dataset.email||"";
@@ -797,335 +1084,70 @@ function bulkRemRow(i){_bRows.splice(i,1);_bRender();}
 function _bRender(){const c=document.getElementById("bprev"),cnt=document.getElementById("bcnt"),btn=document.getElementById("btn-bconfirm");if(cnt)cnt.textContent=_bRows.length;if(btn)btn.disabled=_bRows.length===0;if(!c)return;if(!_bRows.length){c.innerHTML='<p style="text-align:center;color:var(--muted);font-size:12px;padding:14px 0;">Nenhuma indicação adicionada ainda.</p>';return;}c.innerHTML='<div class="bprev-wrap"><table><thead><tr><th>#</th><th>Nome</th><th>CPF</th><th>Celular</th><th>E-mail</th><th></th></tr></thead><tbody>'+_bRows.map((r,i)=>`<tr><td style="color:var(--muted);">${i+1}</td><td><strong>${r.name}</strong></td><td style="color:var(--muted);font-size:11px;">${r.cpf||"—"}</td><td style="color:var(--muted);font-size:11px;">${r.phone||"—"}</td><td style="color:var(--muted);font-size:11px;">${r.email||"—"}</td><td><button class="bxrow" onclick="bulkRemRow(${i})">✕</button></td></tr>`).join("")+'</tbody></table></div>';}
 async function bulkConfirm(){if(!_bId||!_bRows.length)return;const btn=document.getElementById("btn-bconfirm"),fb=document.getElementById("bfb2");btn.textContent="Cadastrando…";btn.disabled=true;fb.textContent="";let ok=0,fail=0,lastErr="";for(const row of _bRows){try{const nm=row.name?.trim()||null;const ph=row.phone?.replace(/\D/g,"")||null;const obs=[row.email?`E-mail: ${row.email}`:null].filter(Boolean).join(" | ")||null;const{data:cl,error:ce}=await sb.from("indicated_clients").insert({name:nm||(ph?`Contato ${ph}`:"Desconhecido"),cpf:row.cpf?.replace(/\D/g,"")||null,phone:ph,observations:obs}).select("id").single();if(ce){lastErr=ce.message;fail++;continue;}const{error:re}=await sb.from("referrals").insert({referrer_id:_bId,indicated_client_id:cl.id,status:"em_analise"});if(re){lastErr=re.message;fail++;}else ok++;}catch(e){lastErr=e?.message||"Erro desconhecido";fail++;}}if(fail>0){fb.innerHTML=`✅ ${ok} cadastrada${ok!==1?"s":""}. ⚠️ ${fail} com erro.${lastErr?`<br><span style="font-size:11px;opacity:.7;">${lastErr}</span>`:""}`;fb.style.color="#facc15";btn.textContent="✅ Cadastrar indicações";btn.disabled=false;}else{fb.textContent=`✅ ${ok} indicaç${ok===1?"ão":"ões"} cadastrada${ok!==1?"s":""}!`;fb.style.color="#c084fc";toast(`${ok} indicaç${ok===1?"ão":"ões"} cadastrada${ok!==1?"s":""}!`);setTimeout(()=>{closeBulk();loadData();},1600);}}
 
-// NOTE
+// ── NOTE ──────────────────────────────────────────────
 let _nId=null,_nBtn=null;
 function openNote(id,btn){_nId=id;_nBtn=btn;let n="";allRefs.forEach(r=>{if(r.id===id)n=r.admin_note||"";});document.getElementById("note-ta").value=n;const nm=btn.closest("tr")?.querySelector("td:first-child strong")?.textContent||"";document.getElementById("note-subtitle").textContent=nm?`Sobre: ${nm}`:"Observação interna.";document.getElementById("note-popup").style.display="flex";setTimeout(()=>document.getElementById("note-ta").focus(),50);}
 function closeNote(){document.getElementById("note-popup").style.display="none";_nId=null;_nBtn=null;}
 async function saveNote(){const n=document.getElementById("note-ta").value.trim();if(!_nId)return;const{error}=await sb.from("referrals").update({admin_note:n||null}).eq("id",_nId);if(error){alert("Erro: "+error.message);return;}allRefs.forEach(r=>{if(r.id===_nId)r.admin_note=n||null;});if(_nBtn){_nBtn.textContent=n?"📝 Ver":"+ Nota";_nBtn.classList.toggle("has-note",!!n);}closeNote();toast("Nota salva!");}
 document.getElementById("note-popup")?.addEventListener("click",e=>{if(e.target===document.getElementById("note-popup"))closeNote();});
 
-// ══════════════════════════════════════════════════════
-//  ÁRVORE DE CONEXÕES
-// ══════════════════════════════════════════════════════
+// ── ÁRVORE DE CONEXÕES ────────────────────────────────
 let _tv='kanban',_tSelId=null;
-
-function onTreeTabOpen(){
-  const s=document.getElementById('tree-mod-sel');if(!s)return;
-  const c=s.value;
-  s.innerHTML='<option value="">Todos os moderadores</option>'+allMods.map(m=>`<option value="${m.id}"${m.id===c?' selected':''}>${m.name} [${m.code}]</option>`).join('');
-  renderTree();
-}
-
-function setTreeView(v){
-  _tv=v;
-  document.getElementById('tv-kanban')?.classList.toggle('active',v==='kanban');
-  document.getElementById('tv-graph')?.classList.toggle('active',v==='graph');
-  const kw=document.getElementById('tree-kanban-wrap'),gw=document.getElementById('tree-graph-wrap');
-  if(kw)kw.style.display=v==='kanban'?'block':'none';
-  if(gw)gw.style.display=v==='graph'?'block':'none';
-  renderTree();
-}
-
+function onTreeTabOpen(){const s=document.getElementById('tree-mod-sel');if(!s)return;const c=s.value;s.innerHTML='<option value="">Todos os moderadores</option>'+allMods.map(m=>`<option value="${m.id}"${m.id===c?' selected':''}>${m.name} [${m.code}]</option>`).join('');renderTree();}
+function setTreeView(v){_tv=v;document.getElementById('tv-kanban')?.classList.toggle('active',v==='kanban');document.getElementById('tv-graph')?.classList.toggle('active',v==='graph');const kw=document.getElementById('tree-kanban-wrap'),gw=document.getElementById('tree-graph-wrap');if(kw)kw.style.display=v==='kanban'?'block':'none';if(gw)gw.style.display=v==='graph'?'block':'none';renderTree();}
 function renderTree(){
   const mid=document.getElementById('tree-mod-sel')?.value||'';
   const mods=mid?allMods.filter(m=>m.id===mid):allMods;
   const inqs=mid?allInq.filter(i=>i.moderator_id===mid):allInq;
-  const inqIds=new Set(inqs.map(i=>i.id));
-
-  // Level 3 = indicated_clients from referrals of visible indiquers
   const refClients=[];
-  inqs.forEach(inq=>{
-    (inq.refs||[]).forEach(ref=>{
-      const cl=ref.indicated_clients||{};
-      refClients.push({
-        _rid:ref.id,           // referral id (unique key)
-        referrerId:inq.id,
-        referrerName:inq.name||'—',
-        referrerCode:inq.code||'—',
-        name:cl.name||cl.phone||'—',
-        phone:cl.phone||'',
-        profile:cl.profile_type||'',
-        obs:cl.observations||'',
-        status:ref.status,
-        amount:ref.amount,
-        adminNote:ref.admin_note,
-        modNote:ref.mod_note,
-      });
-    });
-  });
-
+  inqs.forEach(inq=>{(inq.refs||[]).forEach(ref=>{const cl=ref.indicated_clients||{};refClients.push({_rid:ref.id,referrerId:inq.id,referrerName:inq.name||'—',referrerCode:inq.code||'—',name:cl.name||cl.phone||'—',phone:cl.phone||'',profile:cl.profile_type||'',obs:cl.observations||'',status:ref.status,amount:ref.amount,adminNote:ref.admin_note,modNote:ref.mod_note});});});
   const ap=refClients.filter(c=>isOk(c.status)).length;
   const st=document.getElementById('tree-stats');
-  if(st)st.innerHTML=
-    `<span class="tk-stat"><span class="tk-dot" style="background:#7c3aed;"></span>${mods.length} moderador${mods.length!==1?'es':''}</span>`+
-    `<span class="tk-stat"><span class="tk-dot" style="background:#10b981;"></span>${inqs.length} indiquer${inqs.length!==1?'s':''}</span>`+
-    `<span class="tk-stat"><span class="tk-dot" style="background:#9333ea;"></span>${refClients.length} indicado${refClients.length!==1?'s':''}</span>`+
-    `<span class="tk-stat" style="color:#4ade80;border-color:rgba(74,222,128,.25);background:rgba(74,222,128,.06);"><span class="tk-dot" style="background:#4ade80;box-shadow:0 0 5px rgba(74,222,128,.5);"></span>${ap} aprovado${ap!==1?'s':''}</span>`;
-  document.getElementById('tree-node-detail').style.display='none';
-  _tSelId=null;
-  if(_tv==='kanban')_renderKanban(mods,inqs,refClients);
-  else _renderGraph(mods,inqs,refClients);
+  if(st)st.innerHTML=`<span class="tk-stat"><span class="tk-dot" style="background:#7c3aed;"></span>${mods.length} moderador${mods.length!==1?'es':''}</span><span class="tk-stat"><span class="tk-dot" style="background:#10b981;"></span>${inqs.length} indiquer${inqs.length!==1?'s':''}</span><span class="tk-stat"><span class="tk-dot" style="background:#9333ea;"></span>${refClients.length} indicado${refClients.length!==1?'s':''}</span><span class="tk-stat" style="color:#4ade80;border-color:rgba(74,222,128,.25);background:rgba(74,222,128,.06);"><span class="tk-dot" style="background:#4ade80;box-shadow:0 0 5px rgba(74,222,128,.5);"></span>${ap} aprovado${ap!==1?'s':''}</span>`;
+  document.getElementById('tree-node-detail').style.display='none';_tSelId=null;
+  if(_tv==='kanban')_renderKanban(mods,inqs,refClients);else _renderGraph(mods,inqs,refClients);
 }
-
 function _showNodeDetail(id,type){
   const det=document.getElementById('tree-node-detail');if(!det)return;
   if(_tSelId===id){_tSelId=null;det.style.display='none';document.querySelectorAll('.tk-card').forEach(c=>c.classList.remove('sel'));return;}
   _tSelId=id;document.querySelectorAll('.tk-card').forEach(c=>c.classList.remove('sel'));
   const el=document.getElementById('tkc-'+id);if(el)el.classList.add('sel');
-
   let html='';
-  if(type==='mod'){
-    const m=allMods.find(x=>x.id===id);if(!m)return;
-    const mi=allInq.filter(x=>x.moderator_id===id);
-    const mr=allRefs.filter(r=>mi.some(j=>j.id===r.referrer_id));
-    const map=mr.filter(r=>isOk(r.status)).length;
-    html=`<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
-      <div class="tk-av" style="width:40px;height:40px;font-size:14px;background:linear-gradient(135deg,#7c3aed,#4f46e5);flex-shrink:0;">${initials(m.name)}</div>
-      <div><div style="font-size:15px;font-weight:700;">${m.name}</div><div style="font-size:11px;color:var(--muted);">Moderador · ${m.email}</div></div></div>
-    <div class="tk-det-stats">
-      <span class="tk-det-pill">${mi.length} indiquer${mi.length!==1?'s':''}</span>
-      <span class="tk-det-pill">${mr.length} indicação${mr.length!==1?'ões':''}</span>
-      <span class="tk-det-pill" style="color:#4ade80;border-color:rgba(74,222,128,.3);">${map} aprovado${map!==1?'s':''}</span>
-    </div>
-    <div style="font-size:11px;color:var(--muted);">Código raiz: <strong style="color:#c084fc;">${m.code}</strong></div>`;
-  }else if(type==='inq'){
-    const r=allInq.find(x=>x.id===id);if(!r)return;
-    const m=allMods.find(x=>x.id===r.moderator_id);
-    const refs=r.refs||[];const ap=refs.filter(x=>isOk(x.status)).length;
-    const sm=calcSm(ap);const nv=getNivel(ap);
-    html=`<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
-      <div class="tk-av" style="width:40px;height:40px;font-size:14px;background:linear-gradient(135deg,#059669,#10b981);flex-shrink:0;">${initials(r.name)}</div>
-      <div><div style="font-size:15px;font-weight:700;">${r.name||'—'} <span class="nivel-tag ${nv.c}" style="font-size:9px;padding:2px 7px;">${nv.l}</span></div>
-      <div style="font-size:11px;color:var(--muted);">Indiquer · via ${m?.name||'—'}</div></div></div>
-    <div class="tk-det-stats">
-      <span class="tk-det-pill">${refs.length} indicação${refs.length!==1?'ões':''}</span>
-      <span class="tk-det-pill" style="color:#4ade80;border-color:rgba(74,222,128,.3);">${ap} aprovado${ap!==1?'s':''}</span>
-      <span class="tk-det-pill" style="color:#c084fc;border-color:rgba(168,85,247,.3);">${fmt(sm)}</span>
-    </div>
-    <div style="font-size:11px;color:var(--muted);">Código: <strong style="color:#c084fc;">${r.code}</strong> · Cadeia: <strong>${m?.code||'—'}</strong> → <strong>${r.code}</strong>${r.phone?` · 📱 ${r.phone}`:''}</div>`;
-  }else{
-    // type='ind' — id = referral _rid
-    // find in allRefs using ref.id
-    const ref=allRefs.find(x=>x.id===id);
-    if(!ref)return;
-    const cl=ref.indicated_clients||{};
-    const inq=allInq.find(x=>x.id===ref.referrer_id);
-    const mod=allMods.find(x=>x.id===inq?.moderator_id);
-    const sLabel={em_analise:'⏳ Em análise',em_contato:'📞 Em contato',aprovado:'✅ Aprovado',reprovado:'❌ Reprovado'};
-    const email=cl.observations?.startsWith('E-mail:')?cl.observations.replace('E-mail:','').trim():cl.observations||'';
-    html=`<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
-      <div class="tk-av" style="width:40px;height:40px;font-size:14px;background:linear-gradient(135deg,#9333ea,#7c3aed);flex-shrink:0;">${initials(cl.name||cl.phone)}</div>
-      <div><div style="font-size:15px;font-weight:700;">${cl.name||cl.phone||'—'}</div>
-      <div style="font-size:11px;color:var(--muted);">Indicado · via ${inq?.name||'—'}</div></div></div>
-    <div class="tk-det-stats">
-      <span class="tk-det-pill">${sLabel[normS(ref.status)]||ref.status||'—'}</span>
-      ${ref.amount?`<span class="tk-det-pill" style="color:#c084fc;border-color:rgba(168,85,247,.3);">${fmt(ref.amount)}</span>`:''}
-      ${cl.profile_type?`<span class="tk-det-pill">${cl.profile_type}</span>`:''}
-      ${cl.phone?`<span class="tk-det-pill">📱 ${cl.phone}</span>`:''}
-    </div>
-    <div style="font-size:11px;color:var(--muted);">
-      ${email?`E-mail: <strong>${email}</strong> · `:''}
-      Cadeia: <strong>${mod?.code||'—'}</strong> → <strong>${inq?.code||'—'}</strong>
-      ${ref.admin_note||ref.mod_note?`<br><em style="color:rgba(255,255,255,.35);">Nota: ${ref.admin_note||ref.mod_note}</em>`:''}
-    </div>`;
-  }
+  if(type==='mod'){const m=allMods.find(x=>x.id===id);if(!m)return;const mi=allInq.filter(x=>x.moderator_id===id);const mr=allRefs.filter(r=>mi.some(j=>j.id===r.referrer_id));const map=mr.filter(r=>isOk(r.status)).length;html=`<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;"><div class="tk-av" style="width:40px;height:40px;font-size:14px;background:linear-gradient(135deg,#7c3aed,#4f46e5);flex-shrink:0;">${initials(m.name)}</div><div><div style="font-size:15px;font-weight:700;">${m.name}</div><div style="font-size:11px;color:var(--muted);">Moderador · ${m.email}</div></div></div><div class="tk-det-stats"><span class="tk-det-pill">${mi.length} indiquer${mi.length!==1?'s':''}</span><span class="tk-det-pill">${mr.length} indicação${mr.length!==1?'ões':''}</span><span class="tk-det-pill" style="color:#4ade80;border-color:rgba(74,222,128,.3);">${map} aprovado${map!==1?'s':''}</span></div><div style="font-size:11px;color:var(--muted);">Código raiz: <strong style="color:#c084fc;">${m.code}</strong></div>`;}
+  else if(type==='inq'){const r=allInq.find(x=>x.id===id);if(!r)return;const m=allMods.find(x=>x.id===r.moderator_id);const refs=r.refs||[];const ap=refs.filter(x=>isOk(x.status)).length;const sm=calcSm(ap);const nv=getNivel(ap);const paid=getTotalPaid(r.id);const balance=sm-paid;html=`<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;"><div class="tk-av" style="width:40px;height:40px;font-size:14px;background:linear-gradient(135deg,#059669,#10b981);flex-shrink:0;">${initials(r.name)}</div><div><div style="font-size:15px;font-weight:700;">${r.name||'—'} <span class="nivel-tag ${nv.c}" style="font-size:9px;padding:2px 7px;">${nv.l}</span></div><div style="font-size:11px;color:var(--muted);">Indiquer · via ${m?.name||'—'}</div></div></div><div class="tk-det-stats"><span class="tk-det-pill">${refs.length} indicação${refs.length!==1?'ões':''}</span><span class="tk-det-pill" style="color:#4ade80;border-color:rgba(74,222,128,.3);">${ap} aprovado${ap!==1?'s':''}</span><span class="tk-det-pill" style="color:#c084fc;border-color:rgba(168,85,247,.3);">${fmt(sm)}</span><span class="tk-det-pill" style="color:#facc15;border-color:rgba(250,204,21,.3);">Pago: ${fmt(paid)}</span><span class="tk-det-pill" style="color:${balance<=0?'#fb7185':'#4ade80'};border-color:${balance<=0?'rgba(251,113,133,.3)':'rgba(74,222,128,.3)'};">Saldo: ${fmt(balance)}</span></div><div style="font-size:11px;color:var(--muted);">Código: <strong style="color:#c084fc;">${r.code}</strong>${r.phone?` · 📱 ${r.phone}`:''}</div><div style="display:flex;gap:8px;margin-top:10px;"><button class="btn-edit-indiquer" onclick="openEditReferrer('${r.id}')">✏️ Editar</button><button class="btn-pay" style="margin-left:0;" onclick="openPayModal('${r.id}')">💰 Dar Baixa</button></div>`;}
+  else{const ref=allRefs.find(x=>x.id===id);if(!ref)return;const cl=ref.indicated_clients||{};const inq=allInq.find(x=>x.id===ref.referrer_id);const mod=allMods.find(x=>x.id===inq?.moderator_id);const sLabel={em_analise:'⏳ Em análise',em_contato:'📞 Em contato',aprovado:'✅ Aprovado',reprovado:'❌ Reprovado'};const email=cl.observations?.startsWith('E-mail:')?cl.observations.replace('E-mail:','').trim():cl.observations||'';html=`<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;"><div class="tk-av" style="width:40px;height:40px;font-size:14px;background:linear-gradient(135deg,#9333ea,#7c3aed);flex-shrink:0;">${initials(cl.name||cl.phone)}</div><div><div style="font-size:15px;font-weight:700;">${cl.name||cl.phone||'—'}</div><div style="font-size:11px;color:var(--muted);">Indicado · via ${inq?.name||'—'}</div></div></div><div class="tk-det-stats"><span class="tk-det-pill">${sLabel[normS(ref.status)]||ref.status||'—'}</span>${ref.amount?`<span class="tk-det-pill" style="color:#c084fc;border-color:rgba(168,85,247,.3);">${fmt(ref.amount)}</span>`:''}${cl.profile_type?`<span class="tk-det-pill">${cl.profile_type}</span>`:''}${cl.phone?`<span class="tk-det-pill">📱 ${cl.phone}</span>`:''}</div><div style="font-size:11px;color:var(--muted);">${email?`E-mail: <strong>${email}</strong> · `:''}Cadeia: <strong>${mod?.code||'—'}</strong> → <strong>${inq?.code||'—'}</strong>${ref.admin_note||ref.mod_note?`<br><em style="color:rgba(255,255,255,.35);">Nota: ${ref.admin_note||ref.mod_note}</em>`:''}</div><button class="btn-edit-indiquer" style="margin-top:10px;" onclick="openEditIndicado('${ref.indicated_client_id||''}')">✏️ Editar indicado</button>`;}
   det.innerHTML=html;det.style.display='block';
   setTimeout(()=>det.scrollIntoView({behavior:'smooth',block:'nearest'}),50);
 }
-
 function _renderKanban(mods,inqs,refClients){
   const ct=document.getElementById('tree-kanban-wrap');if(!ct)return;
-
-  const mkModCard=(m)=>{
-    const mi=inqs.filter(i=>i.moderator_id===m.id).length;
-    const mr=refClients.filter(c=>inqs.some(i=>i.id===c.referrerId&&i.moderator_id===m.id));
-    const ap=mr.filter(c=>isOk(c.status)).length;
-    return`<div class="tk-card" id="tkc-${m.id}" onclick="_showNodeDetail('${m.id}','mod')">
-      <div class="tk-av" style="background:linear-gradient(135deg,#7c3aed,#4f46e5);">${initials(m.name)}</div>
-      <div class="tk-card-name">${m.name}</div>
-      <div class="tk-card-code">${m.code}</div>
-      <div class="tk-pills">
-        <span class="tk-pill">${mi} inq.</span>
-        <span class="tk-pill">${mr.length} ind.</span>
-        ${ap?`<span class="tk-pill green">${ap} ok</span>`:''}
-      </div>
-      <div class="tk-stripe" style="background:linear-gradient(#7c3aed,#4f46e5);"></div>
-    </div>`;
-  };
-  const mkInqCard=(i)=>{
-    const m=allMods.find(x=>x.id===i.moderator_id);
-    const refs=i.refs||[];const ap=refs.filter(r=>isOk(r.status)).length;
-    const sm=calcSm(ap);const nv=getNivel(ap);
-    return`<div class="tk-card" id="tkc-${i.id}" onclick="_showNodeDetail('${i.id}','inq')">
-      <div class="tk-av" style="background:linear-gradient(135deg,#059669,#10b981);">${initials(i.name)}</div>
-      <div class="tk-card-name">${i.name||'—'}</div>
-      <div class="tk-card-code">${i.code||'—'}</div>
-      <div class="tk-card-via">via ${m?.name||'—'}</div>
-      <div class="tk-pills">
-        <span class="tk-pill">${refs.length} ind.</span>
-        <span class="tk-pill green">${ap} ok</span>
-        ${sm>0?`<span class="tk-pill" style="color:#c084fc;">${fmt(sm)}</span>`:''}
-        <span class="tk-pill" style="font-size:8px;padding:1px 5px;" title="${nv.l}">${nv.l}</span>
-      </div>
-      <div class="tk-stripe" style="background:linear-gradient(#059669,#10b981);"></div>
-    </div>`;
-  };
-  const mkIndCard=(c)=>{
-    const sColor={em_analise:'#facc15',em_contato:'#60a5fa',aprovado:'#4ade80',reprovado:'#fb7185'};
-    const sc=sColor[normS(c.status)]||'rgba(255,255,255,.3)';
-    return`<div class="tk-card" id="tkc-${c._rid}" onclick="_showNodeDetail('${c._rid}','ind')">
-      <div class="tk-av" style="background:linear-gradient(135deg,#9333ea,#7c3aed);">${initials(c.name)}</div>
-      <div class="tk-card-name">${c.name}</div>
-      <div class="tk-card-via">via ${c.referrerName}</div>
-      <div class="tk-pills">
-        <span class="tk-pill" style="color:${sc};border-color:${sc}44;">${normS(c.status).replace('_',' ')}</span>
-        ${c.phone?`<span class="tk-pill">📱</span>`:''}
-        ${c.amount?`<span class="tk-pill" style="color:#c084fc;">${fmt(c.amount)}</span>`:''}
-      </div>
-      <div class="tk-stripe" style="background:${sc};"></div>
-    </div>`;
-  };
-
+  const mkModCard=(m)=>{const mi=inqs.filter(i=>i.moderator_id===m.id).length;const mr=refClients.filter(c=>inqs.some(i=>i.id===c.referrerId&&i.moderator_id===m.id));const ap=mr.filter(c=>isOk(c.status)).length;return`<div class="tk-card" id="tkc-${m.id}" onclick="_showNodeDetail('${m.id}','mod')"><div class="tk-av" style="background:linear-gradient(135deg,#7c3aed,#4f46e5);">${initials(m.name)}</div><div class="tk-card-name">${m.name}</div><div class="tk-card-code">${m.code}</div><div class="tk-pills"><span class="tk-pill">${mi} inq.</span><span class="tk-pill">${mr.length} ind.</span>${ap?`<span class="tk-pill green">${ap} ok</span>`:''}</div><div class="tk-stripe" style="background:linear-gradient(#7c3aed,#4f46e5);"></div></div>`;};
+  const mkInqCard=(i)=>{const m=allMods.find(x=>x.id===i.moderator_id);const refs=i.refs||[];const ap=refs.filter(r=>isOk(r.status)).length;const sm=calcSm(ap);const nv=getNivel(ap);const paid=getTotalPaid(i.id);const balance=sm-paid;return`<div class="tk-card" id="tkc-${i.id}" onclick="_showNodeDetail('${i.id}','inq')"><div class="tk-av" style="background:linear-gradient(135deg,#059669,#10b981);">${initials(i.name)}</div><div class="tk-card-name">${i.name||'—'}</div><div class="tk-card-code">${i.code||'—'}</div><div class="tk-card-via">via ${m?.name||'—'}</div><div class="tk-pills"><span class="tk-pill">${refs.length} ind.</span><span class="tk-pill green">${ap} ok</span>${sm>0?`<span class="tk-pill" style="color:#c084fc;">${fmt(sm)}</span>`:''}<span class="tk-pill" style="color:${balance<=0?'#4ade80':'#facc15'};">${balance<=0?'✅ Quitado':'💰 '+fmt(balance)}</span></div><div class="tk-stripe" style="background:linear-gradient(#059669,#10b981);"></div></div>`;};
+  const mkIndCard=(c)=>{const sColor={em_analise:'#facc15',em_contato:'#60a5fa',aprovado:'#4ade80',reprovado:'#fb7185'};const sc=sColor[normS(c.status)]||'rgba(255,255,255,.3)';return`<div class="tk-card" id="tkc-${c._rid}" onclick="_showNodeDetail('${c._rid}','ind')"><div class="tk-av" style="background:linear-gradient(135deg,#9333ea,#7c3aed);">${initials(c.name)}</div><div class="tk-card-name">${c.name}</div><div class="tk-card-via">via ${c.referrerName}</div><div class="tk-pills"><span class="tk-pill" style="color:${sc};border-color:${sc}44;">${normS(c.status).replace('_',' ')}</span>${c.phone?`<span class="tk-pill">📱</span>`:''}</div><div class="tk-stripe" style="background:${sc};"></div></div>`;};
   const modCards=mods.length?mods.map(mkModCard).join(''):`<p class="tk-empty">—</p>`;
   const inqCards=inqs.length?inqs.map(mkInqCard).join(''):`<p class="tk-empty">Nenhum indiquer</p>`;
   const indCards=refClients.length?refClients.map(mkIndCard).join(''):`<p class="tk-empty">Nenhum indicado</p>`;
-  ct.innerHTML=`<div class="tk-scroll"><div class="tk-board">
-    <div class="tk-col">
-      <div class="tk-col-head tkh-mod">🛡️ Moderadores <span style="background:rgba(124,58,237,.2);color:#c084fc;padding:1px 8px;border-radius:999px;font-size:10px;margin-left:4px;">${mods.length}</span></div>
-      <div class="tk-col-body tkb-mod">${modCards}</div>
-    </div>
-    <div class="tk-conn-svg"><svg width="40" height="80" viewBox="0 0 40 80" fill="none"><path d="M0 25 Q20 25 20 40 Q20 55 40 55" stroke="rgba(255,255,255,.1)" stroke-width="1.5" fill="none" stroke-dasharray="3,3"/></svg></div>
-    <div class="tk-col">
-      <div class="tk-col-head tkh-inq">🤝 Indiquers <span style="background:rgba(16,185,129,.12);color:#34d399;padding:1px 8px;border-radius:999px;font-size:10px;margin-left:4px;">${inqs.length}</span></div>
-      <div class="tk-col-body tkb-inq">${inqCards}</div>
-    </div>
-    <div class="tk-conn-svg"><svg width="40" height="80" viewBox="0 0 40 80" fill="none"><path d="M0 25 Q20 25 20 40 Q20 55 40 55" stroke="rgba(255,255,255,.08)" stroke-width="1.5" fill="none" stroke-dasharray="3,3"/></svg></div>
-    <div class="tk-col" style="width:210px;">
-      <div class="tk-col-head tkh-ind">👤 Indicados <span style="background:rgba(147,51,234,.12);color:#c084fc;padding:1px 8px;border-radius:999px;font-size:10px;margin-left:4px;">${refClients.length}</span></div>
-      <div class="tk-col-body tkb-ind">${indCards}</div>
-    </div>
-  </div></div>`;
+  ct.innerHTML=`<div class="tk-scroll"><div class="tk-board"><div class="tk-col"><div class="tk-col-head tkh-mod">🛡️ Moderadores <span style="background:rgba(124,58,237,.2);color:#c084fc;padding:1px 8px;border-radius:999px;font-size:10px;margin-left:4px;">${mods.length}</span></div><div class="tk-col-body tkb-mod">${modCards}</div></div><div class="tk-conn-svg"><svg width="40" height="80" viewBox="0 0 40 80" fill="none"><path d="M0 25 Q20 25 20 40 Q20 55 40 55" stroke="rgba(255,255,255,.1)" stroke-width="1.5" fill="none" stroke-dasharray="3,3"/></svg></div><div class="tk-col"><div class="tk-col-head tkh-inq">🤝 Indiquers <span style="background:rgba(16,185,129,.12);color:#34d399;padding:1px 8px;border-radius:999px;font-size:10px;margin-left:4px;">${inqs.length}</span></div><div class="tk-col-body tkb-inq">${inqCards}</div></div><div class="tk-conn-svg"><svg width="40" height="80" viewBox="0 0 40 80" fill="none"><path d="M0 25 Q20 25 20 40 Q20 55 40 55" stroke="rgba(255,255,255,.08)" stroke-width="1.5" fill="none" stroke-dasharray="3,3"/></svg></div><div class="tk-col" style="width:210px;"><div class="tk-col-head tkh-ind">👤 Indicados <span style="background:rgba(147,51,234,.12);color:#c084fc;padding:1px 8px;border-radius:999px;font-size:10px;margin-left:4px;">${refClients.length}</span></div><div class="tk-col-body tkb-ind">${indCards}</div></div></div></div>`;
 }
-
 function _renderGraph(mods,inqs,refClients){
   const ct=document.getElementById('tree-graph-wrap');if(!ct)return;
   if(!mods.length&&!inqs.length){ct.innerHTML='<p style="color:var(--muted);font-size:13px;padding:24px;text-align:center;">Aguarde os dados carregarem.</p>';return;}
-
-  const NS=130,LY=[65,210,360];
-  const pos={};
-
-  // width per indiquer = max(1, # of their indicated clients)
-  const iw={};
-  inqs.forEach(inq=>{iw[inq.id]=Math.max(1,refClients.filter(c=>c.referrerId===inq.id).length);});
-  const mw={};
-  mods.forEach(mod=>{const ch=inqs.filter(i=>i.moderator_id===mod.id);mw[mod.id]=ch.length===0?1:ch.reduce((s,i)=>s+(iw[i.id]||1),0);});
-
+  const NS=130,LY=[65,210,360];const pos={};
+  const iw={};inqs.forEach(inq=>{iw[inq.id]=Math.max(1,refClients.filter(c=>c.referrerId===inq.id).length);});
+  const mw={};mods.forEach(mod=>{const ch=inqs.filter(i=>i.moderator_id===mod.id);mw[mod.id]=ch.length===0?1:ch.reduce((s,i)=>s+(iw[i.id]||1),0);});
   const total=Math.max(1,mods.reduce((s,m)=>s+(mw[m.id]||1),0));
-  const svgW=Math.max(700,total*NS+100);
-  const svgH=refClients.length>0?440:inqs.length>0?280:160;
-
-  let edges='';
-  let mx=60;
-  mods.forEach(mod=>{
-    const mWpx=(mw[mod.id]||1)*NS;
-    const mx0=mx+mWpx/2;
-    pos[mod.id]={x:mx0,y:LY[0]};
-    const mch=inqs.filter(i=>i.moderator_id===mod.id);
-    let ix=mx;
-    mch.forEach(inq=>{
-      const iwpx=(iw[inq.id]||1)*NS;
-      const ix0=ix+iwpx/2;
-      pos[inq.id]={x:ix0,y:LY[1]};
-      edges+=`<path d="M${mx0} ${LY[0]+28} C${mx0} ${(LY[0]+LY[1])/2},${ix0} ${(LY[0]+LY[1])/2},${ix0} ${LY[1]-22}" fill="none" stroke="rgba(124,58,237,.3)" stroke-width="1.5" stroke-dasharray="5,4"/>`;
-      const ich=refClients.filter(c=>c.referrerId===inq.id);
-      ich.forEach((cl,ii)=>{
-        const cx=ix+ii*NS+NS/2;
-        pos[cl._rid]={x:cx,y:LY[2]};
-        const sc=isOk(cl.status)?'rgba(74,222,128,.4)':'rgba(147,51,234,.2)';
-        edges+=`<path d="M${ix0} ${LY[1]+22} C${ix0} ${(LY[1]+LY[2])/2},${cx} ${(LY[1]+LY[2])/2},${cx} ${LY[2]-18}" fill="none" stroke="${sc}" stroke-width="1.5" stroke-dasharray="4,4"/>`;
-      });
-      ix+=iwpx;
-    });
-    mx+=mWpx;
-  });
-
-  const drawMod=(m)=>{
-    const p=pos[m.id];if(!p)return'';
-    return`<g class="tg-node" id="tgn-${m.id}" onclick="_showNodeDetail('${m.id}','mod')" data-name="${(m.name||'').replace(/"/g,'&quot;')}" data-code="${m.code||''}" data-type="mod">
-      <circle cx="${p.x}" cy="${p.y}" r="28" fill="url(#tg-mg)" stroke="rgba(124,58,237,.7)" stroke-width="1.5" filter="url(#tg-glow)"/>
-      <text x="${p.x}" y="${p.y-3}" text-anchor="middle" dominant-baseline="middle" fill="white" font-size="11" font-weight="700" font-family="Poppins,sans-serif">${initials(m.name)}</text>
-      <text x="${p.x}" y="${p.y+11}" text-anchor="middle" dominant-baseline="middle" fill="rgba(255,255,255,.5)" font-size="8" font-family="monospace">${m.code}</text>
-    </g>`;
-  };
-  const drawInq=(i)=>{
-    const p=pos[i.id];if(!p)return'';
-    const refs=i.refs||[];const ap=refs.filter(x=>isOk(x.status)).length;
-    const badge=ap>0?`<circle cx="${p.x+18}" cy="${p.y-16}" r="8" fill="#059669" stroke="#0a0a1a" stroke-width="1.5"/><text x="${p.x+18}" y="${p.y-12}" text-anchor="middle" fill="white" font-size="7" font-weight="700" font-family="Poppins,sans-serif">${ap}</text>`:'';
-    return`<g class="tg-node" id="tgn-${i.id}" onclick="_showNodeDetail('${i.id}','inq')" data-name="${(i.name||'').replace(/"/g,'&quot;')}" data-code="${i.code||''}" data-type="inq">
-      <circle cx="${p.x}" cy="${p.y}" r="22" fill="url(#tg-ig)" stroke="rgba(16,185,129,.6)" stroke-width="1.5"/>
-      <text x="${p.x}" y="${p.y-3}" text-anchor="middle" dominant-baseline="middle" fill="white" font-size="9" font-weight="700" font-family="Poppins,sans-serif">${initials(i.name)}</text>
-      <text x="${p.x}" y="${p.y+9}" text-anchor="middle" dominant-baseline="middle" fill="rgba(255,255,255,.5)" font-size="7.5" font-family="monospace">${(i.code||'').slice(0,6)}</text>
-      ${badge}
-    </g>`;
-  };
-  const drawInd=(c)=>{
-    const p=pos[c._rid];if(!p)return'';
-    const approved=isOk(c.status);
-    const sc=approved?'rgba(74,222,128,.6)':'rgba(147,51,234,.55)';
-    const sf=approved?'url(#tg-ag)':'url(#tg-dg)';
-    return`<g class="tg-node" id="tgn-${c._rid}" onclick="_showNodeDetail('${c._rid}','ind')" data-name="${(c.name||'').replace(/"/g,'&quot;')}" data-code="${normS(c.status)}" data-type="ind">
-      <circle cx="${p.x}" cy="${p.y}" r="18" fill="${sf}" stroke="${sc}" stroke-width="1.5"/>
-      <text x="${p.x}" y="${p.y-3}" text-anchor="middle" dominant-baseline="middle" fill="white" font-size="8.5" font-weight="700" font-family="Poppins,sans-serif">${initials(c.name)}</text>
-      <text x="${p.x}" y="${p.y+9}" text-anchor="middle" dominant-baseline="middle" fill="rgba(255,255,255,.45)" font-size="6.5" font-family="monospace">${(c.name||'').slice(0,7)}</text>
-    </g>`;
-  };
-
-  let nodes='';
-  mods.forEach(m=>nodes+=drawMod(m));
-  inqs.forEach(i=>nodes+=drawInq(i));
-  refClients.forEach(c=>nodes+=drawInd(c));
-
-  ct.innerHTML=`<div class="tg-wrap">
-    <svg viewBox="0 0 ${svgW} ${svgH}" width="${svgW}" height="${svgH}" style="min-width:${svgW}px;display:block;">
-      <defs>
-        <linearGradient id="tg-mg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#7c3aed"/><stop offset="100%" stop-color="#4f46e5"/></linearGradient>
-        <linearGradient id="tg-ig" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#059669"/><stop offset="100%" stop-color="#10b981"/></linearGradient>
-        <linearGradient id="tg-dg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#9333ea"/><stop offset="100%" stop-color="#7c3aed"/></linearGradient>
-        <linearGradient id="tg-ag" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#059669"/><stop offset="100%" stop-color="#4ade80"/></linearGradient>
-        <filter id="tg-glow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-      </defs>
-      <rect width="${svgW}" height="${svgH}" fill="rgba(255,255,255,.01)"/>
-      ${edges}${nodes}
-    </svg>
-    <div class="tg-legend">
-      <div class="tg-legend-item"><div class="tg-legend-dot" style="background:#7c3aed;"></div>Moderador</div>
-      <div class="tg-legend-item"><div class="tg-legend-dot" style="background:#10b981;"></div>Indiquer</div>
-      <div class="tg-legend-item"><div class="tg-legend-dot" style="background:#9333ea;"></div>Indicado pendente</div>
-      <div class="tg-legend-item"><div class="tg-legend-dot" style="background:#4ade80;"></div>Indicado aprovado</div>
-      <div class="tg-legend-item"><div class="tg-legend-dot" style="background:#059669;width:8px;height:8px;border-radius:50%;"></div>Badge verde = aprovações</div>
-      <div style="margin-left:auto;font-size:11px;color:rgba(255,255,255,.2);">Clique em qualquer nó para ver detalhes</div>
-    </div>
-    <div class="tg-tooltip" id="tg-tt"></div>
-  </div>`;
-
-  // Hover tooltips
+  const svgW=Math.max(700,total*NS+100);const svgH=refClients.length>0?440:inqs.length>0?280:160;
+  let edges='';let mx=60;
+  mods.forEach(mod=>{const mWpx=(mw[mod.id]||1)*NS;const mx0=mx+mWpx/2;pos[mod.id]={x:mx0,y:LY[0]};const mch=inqs.filter(i=>i.moderator_id===mod.id);let ix=mx;mch.forEach(inq=>{const iwpx=(iw[inq.id]||1)*NS;const ix0=ix+iwpx/2;pos[inq.id]={x:ix0,y:LY[1]};edges+=`<path d="M${mx0} ${LY[0]+28} C${mx0} ${(LY[0]+LY[1])/2},${ix0} ${(LY[0]+LY[1])/2},${ix0} ${LY[1]-22}" fill="none" stroke="rgba(124,58,237,.3)" stroke-width="1.5" stroke-dasharray="5,4"/>`;const ich=refClients.filter(c=>c.referrerId===inq.id);ich.forEach((cl,ii)=>{const cx=ix+ii*NS+NS/2;pos[cl._rid]={x:cx,y:LY[2]};const sc=isOk(cl.status)?'rgba(74,222,128,.4)':'rgba(147,51,234,.2)';edges+=`<path d="M${ix0} ${LY[1]+22} C${ix0} ${(LY[1]+LY[2])/2},${cx} ${(LY[1]+LY[2])/2},${cx} ${LY[2]-18}" fill="none" stroke="${sc}" stroke-width="1.5" stroke-dasharray="4,4"/>`;});ix+=iwpx;});mx+=mWpx;});
+  const drawMod=(m)=>{const p=pos[m.id];if(!p)return'';return`<g class="tg-node" id="tgn-${m.id}" onclick="_showNodeDetail('${m.id}','mod')" data-name="${(m.name||'').replace(/"/g,'&quot;')}" data-code="${m.code||''}" data-type="mod"><circle cx="${p.x}" cy="${p.y}" r="28" fill="url(#tg-mg)" stroke="rgba(124,58,237,.7)" stroke-width="1.5" filter="url(#tg-glow)"/><text x="${p.x}" y="${p.y-3}" text-anchor="middle" dominant-baseline="middle" fill="white" font-size="11" font-weight="700" font-family="Poppins,sans-serif">${initials(m.name)}</text><text x="${p.x}" y="${p.y+11}" text-anchor="middle" dominant-baseline="middle" fill="rgba(255,255,255,.5)" font-size="8" font-family="monospace">${m.code}</text></g>`;};
+  const drawInq=(i)=>{const p=pos[i.id];if(!p)return'';const refs=i.refs||[];const ap=refs.filter(x=>isOk(x.status)).length;const badge=ap>0?`<circle cx="${p.x+18}" cy="${p.y-16}" r="8" fill="#059669" stroke="#0a0a1a" stroke-width="1.5"/><text x="${p.x+18}" y="${p.y-12}" text-anchor="middle" fill="white" font-size="7" font-weight="700" font-family="Poppins,sans-serif">${ap}</text>`:'';return`<g class="tg-node" id="tgn-${i.id}" onclick="_showNodeDetail('${i.id}','inq')" data-name="${(i.name||'').replace(/"/g,'&quot;')}" data-code="${i.code||''}" data-type="inq"><circle cx="${p.x}" cy="${p.y}" r="22" fill="url(#tg-ig)" stroke="rgba(16,185,129,.6)" stroke-width="1.5"/><text x="${p.x}" y="${p.y-3}" text-anchor="middle" dominant-baseline="middle" fill="white" font-size="9" font-weight="700" font-family="Poppins,sans-serif">${initials(i.name)}</text><text x="${p.x}" y="${p.y+9}" text-anchor="middle" dominant-baseline="middle" fill="rgba(255,255,255,.5)" font-size="7.5" font-family="monospace">${(i.code||'').slice(0,6)}</text>${badge}</g>`;};
+  const drawInd=(c)=>{const p=pos[c._rid];if(!p)return'';const approved=isOk(c.status);const sc=approved?'rgba(74,222,128,.6)':'rgba(147,51,234,.55)';const sf=approved?'url(#tg-ag)':'url(#tg-dg)';return`<g class="tg-node" id="tgn-${c._rid}" onclick="_showNodeDetail('${c._rid}','ind')" data-name="${(c.name||'').replace(/"/g,'&quot;')}" data-code="${normS(c.status)}" data-type="ind"><circle cx="${p.x}" cy="${p.y}" r="18" fill="${sf}" stroke="${sc}" stroke-width="1.5"/><text x="${p.x}" y="${p.y-3}" text-anchor="middle" dominant-baseline="middle" fill="white" font-size="8.5" font-weight="700" font-family="Poppins,sans-serif">${initials(c.name)}</text><text x="${p.x}" y="${p.y+9}" text-anchor="middle" dominant-baseline="middle" fill="rgba(255,255,255,.45)" font-size="6.5" font-family="monospace">${(c.name||'').slice(0,7)}</text></g>`;};
+  let nodes='';mods.forEach(m=>nodes+=drawMod(m));inqs.forEach(i=>nodes+=drawInq(i));refClients.forEach(c=>nodes+=drawInd(c));
+  ct.innerHTML=`<div class="tg-wrap"><svg viewBox="0 0 ${svgW} ${svgH}" width="${svgW}" height="${svgH}" style="min-width:${svgW}px;display:block;"><defs><linearGradient id="tg-mg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#7c3aed"/><stop offset="100%" stop-color="#4f46e5"/></linearGradient><linearGradient id="tg-ig" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#059669"/><stop offset="100%" stop-color="#10b981"/></linearGradient><linearGradient id="tg-dg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#9333ea"/><stop offset="100%" stop-color="#7c3aed"/></linearGradient><linearGradient id="tg-ag" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#059669"/><stop offset="100%" stop-color="#4ade80"/></linearGradient><filter id="tg-glow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><rect width="${svgW}" height="${svgH}" fill="rgba(255,255,255,.01)"/>${edges}${nodes}</svg><div class="tg-legend"><div class="tg-legend-item"><div class="tg-legend-dot" style="background:#7c3aed;"></div>Moderador</div><div class="tg-legend-item"><div class="tg-legend-dot" style="background:#10b981;"></div>Indiquer</div><div class="tg-legend-item"><div class="tg-legend-dot" style="background:#9333ea;"></div>Indicado pendente</div><div class="tg-legend-item"><div class="tg-legend-dot" style="background:#4ade80;"></div>Indicado aprovado</div><div style="margin-left:auto;font-size:11px;color:rgba(255,255,255,.2);">Clique em qualquer nó para ver detalhes</div></div><div class="tg-tooltip" id="tg-tt"></div></div>`;
   const sLabels={em_analise:'Em análise',em_contato:'Em contato',aprovado:'Aprovado',reprovado:'Reprovado'};
   ct.querySelectorAll('.tg-node').forEach(g=>{
-    g.addEventListener('mouseenter',()=>{
-      const tt=document.getElementById('tg-tt');if(!tt)return;
-      const n=g.getAttribute('data-name'),c=g.getAttribute('data-code'),t=g.getAttribute('data-type');
-      const roles={mod:'Moderador',inq:'Indiquer',ind:'Indicado'};
-      const sub=t==='ind'?(sLabels[c]||c):(`Código: ${c}`);
-      tt.innerHTML=`<strong style="display:block;margin-bottom:2px;">${n}</strong><span style="font-size:10px;color:rgba(255,255,255,.4);">${roles[t]||t} · ${sub}</span>`;
-      tt.classList.add('show');
-    });
-    g.addEventListener('mousemove',e=>{
-      const tt=document.getElementById('tg-tt');if(!tt)return;
-      const box=ct.getBoundingClientRect();
-      let x=e.clientX-box.left+14,y=e.clientY-box.top+14;
-      if(x+170>box.width)x=e.clientX-box.left-170;
-      tt.style.left=x+'px';tt.style.top=y+'px';
-    });
+    g.addEventListener('mouseenter',()=>{const tt=document.getElementById('tg-tt');if(!tt)return;const n=g.getAttribute('data-name'),c=g.getAttribute('data-code'),t=g.getAttribute('data-type');const roles={mod:'Moderador',inq:'Indiquer',ind:'Indicado'};const sub=t==='ind'?(sLabels[c]||c):(`Código: ${c}`);tt.innerHTML=`<strong style="display:block;margin-bottom:2px;">${n}</strong><span style="font-size:10px;color:rgba(255,255,255,.4);">${roles[t]||t} · ${sub}</span>`;tt.classList.add('show');});
+    g.addEventListener('mousemove',e=>{const tt=document.getElementById('tg-tt');if(!tt)return;const box=ct.getBoundingClientRect();let x=e.clientX-box.left+14,y=e.clientY-box.top+14;if(x+170>box.width)x=e.clientX-box.left-170;tt.style.left=x+'px';tt.style.top=y+'px';});
     g.addEventListener('mouseleave',()=>{const tt=document.getElementById('tg-tt');if(tt)tt.classList.remove('show');});
   });
 }
