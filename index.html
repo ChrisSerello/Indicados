@@ -388,9 +388,17 @@
         </p>
 
         <!-- TABS: Login / Criar Conta -->
+        <!-- A aba "Criar conta" fica oculta por padrão; só aparece com ?ref= válido -->
         <div class="auth-tabs-client">
           <button class="auth-tab-client active" data-tab="login">Entrar</button>
-          <button class="auth-tab-client" data-tab="signup">Criar conta</button>
+          <button class="auth-tab-client" data-tab="signup" id="tab-signup" style="display:none;">Criar conta</button>
+        </div>
+
+        <!-- Mensagem exibida quando o cadastro é bloqueado (sem link válido) -->
+        <div id="signup-blocked-msg" style="display:none; background:rgba(251,113,133,.08); border:1px solid rgba(251,113,133,.3); border-radius:12px; padding:16px; margin-top:16px; font-size:13px; color:#fb7185; line-height:1.7;">
+          🔒 <strong>Cadastro restrito.</strong><br>
+          Para criar sua conta como Indiquer, você precisa acessar pelo link exclusivo fornecido pelo seu <strong>Moderador</strong>.<br><br>
+          Já tem conta? Faça login normalmente.
         </div>
 
         <!-- LOGIN FORM -->
@@ -414,7 +422,7 @@
           <p class="auth-error" id="client-login-error"></p>
         </form>
 
-        <!-- SIGNUP FORM (for Indiquers & Indicados) -->
+        <!-- SIGNUP FORM (only accessible via valid ?ref= link) -->
         <form id="client-signup-form" class="login-form" style="display:none;">
           <div class="floating-field">
             <input type="text" id="client-signup-name" required placeholder=" " />
@@ -653,56 +661,43 @@
   /* ═══════════════════════════════════════════════════════════════
      INDICA CONSIGNADO - SCRIPT PRINCIPAL
      Sistema de cadeia de indicação: Moderador → Indiquer → Indicado
-     
+
      Código de rastreio:
      - Moderador: 2 chars (ex: "AB")
      - Indiquer:  4 chars = 2 mod + 2 random (ex: "ABXY")
      - Indicado:  6 chars = 2 mod + 2 indiquer + 2 random (ex: "ABXYZW")
-     
-     Assim, de qualquer código é possível rastrear a cadeia completa.
+
+     Regra de cadastro:
+     - SEM ?ref=        → cadastro bloqueado (somente admin/mod cadastra)
+     - ?ref=XX  (2chr)  → validado contra tabela "moderators"
+     - ?ref=XXXX (4chr) → validado contra tabela "referrers" role=indiquer
+     - ?ref=XXXXXX(6chr)→ validado pelo código pai (4 primeiros chars)
   ═══════════════════════════════════════════════════════════════ */
 
   const sb = window.supabaseClient;
 
   // ── URL Params ───────────────────────────────────────────────
   const urlParams = new URLSearchParams(window.location.search);
-  const paramRef  = urlParams.get("ref");  // código de quem compartilhou o link
+  const paramRef  = urlParams.get("ref");
 
-  /* 
-    Lógica do ?ref= :
-    - ref com 2 chars → veio de um moderador  → quem criar conta aqui será INDIQUER
-    - ref com 4 chars → veio de um indiquer   → quem criar conta aqui será INDICADO
-    - ref com 6 chars → veio de um indicado   → quem criar conta aqui será INDICADO (sub-rede)
-    - sem ref         → cadastro avulso (sem vínculo)
-  */
+  // ── Estado da validação do ref ───────────────────────────────
+  // Será true apenas se o ?ref= existir e pertencer a um código real no banco
+  let _refValid = false;
 
   // ── Helpers ──────────────────────────────────────────────────
   function genChars(n) {
-    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // sem I,O,0,1 para evitar confusão
+    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
     let r = "";
     for (let i = 0; i < n; i++) r += chars[Math.floor(Math.random() * chars.length)];
     return r;
   }
 
   function buildCode(refCode) {
-    if (!refCode) {
-      // Sem ref = cadastro avulso, gera 4 chars (tratado como indiquer "órfão")
-      return genChars(4);
-    }
+    if (!refCode) return genChars(4);
     const len = refCode.length;
-    if (len === 2) {
-      // Veio de moderador → será indiquer → código = 2 mod + 2 random = 4 chars
-      return refCode + genChars(2);
-    }
-    if (len === 4) {
-      // Veio de indiquer → será indicado → código = 4 do indiquer + 2 random = 6 chars
-      return refCode + genChars(2);
-    }
-    if (len === 6) {
-      // Veio de indicado → será indicado sub → código = primeiros 4 (mod+indiquer) + 2 random = 6 chars
-      // Mantém rastreio ao moderador e indiquer original
-      return refCode.substring(0, 4) + genChars(2);
-    }
+    if (len === 2) return refCode + genChars(2);
+    if (len === 4) return refCode + genChars(2);
+    if (len === 6) return refCode.substring(0, 4) + genChars(2);
     return genChars(4);
   }
 
@@ -743,13 +738,65 @@
   document.getElementById("year").textContent = new Date().getFullYear();
 
   // ══════════════════════════════════════════════════════════════
+  //  VALIDAÇÃO DO ?ref= — checa o banco antes de liberar signup
+  // ══════════════════════════════════════════════════════════════
+  async function validateRef() {
+    if (!paramRef) return false;
+    const code = paramRef.toUpperCase();
+    const len  = code.length;
+
+    if (len === 2) {
+      // Veio de moderador — verifica na tabela moderators
+      const { data } = await sb.from("moderators")
+        .select("id")
+        .eq("code", code)
+        .maybeSingle();
+      return !!data;
+    }
+
+    if (len === 4) {
+      // Veio de indiquer — verifica na tabela referrers com role=indiquer
+      const { data } = await sb.from("referrers")
+        .select("id")
+        .eq("code", code)
+        .eq("role", "indiquer")
+        .maybeSingle();
+      return !!data;
+    }
+
+    if (len === 6) {
+      // Veio de indicado — valida pelo código pai (4 primeiros chars = indiquer)
+      const parentCode = code.substring(0, 4);
+      const { data } = await sb.from("referrers")
+        .select("id")
+        .eq("code", parentCode)
+        .maybeSingle();
+      return !!data;
+    }
+
+    return false;
+  }
+
+  // ══════════════════════════════════════════════════════════════
   //  LOGIN MODAL LOGIC
   // ══════════════════════════════════════════════════════════════
   const loginOverlay = document.getElementById("login-overlay");
 
   function openLoginModal(tab = "login") {
     loginOverlay.style.display = "flex";
-    switchClientTab(tab);
+
+    // Só exibe aba "Criar conta" se o ref for válido
+    const signupTab = document.getElementById("tab-signup");
+    if (signupTab) signupTab.style.display = _refValid ? "" : "none";
+
+    // Se signup não está disponível, força aba de login
+    switchClientTab(_refValid ? tab : "login");
+
+    // Exibe aviso de bloqueio se tentar acessar sem ref
+    const blockedMsg = document.getElementById("signup-blocked-msg");
+    if (blockedMsg) {
+      blockedMsg.style.display = (!_refValid && tab === "signup") ? "block" : "none";
+    }
   }
 
   function closeLoginModal() {
@@ -768,29 +815,25 @@
 
   function switchClientTab(tab) {
     document.querySelectorAll(".auth-tab-client").forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
-    document.getElementById("login-form").style.display = tab === "login" ? "block" : "none";
-    document.getElementById("client-signup-form").style.display = tab === "signup" ? "block" : "none";
-    document.getElementById("client-login-error").textContent = "";
-    document.getElementById("client-signup-error").textContent = "";
+    document.getElementById("login-form").style.display           = tab === "login"  ? "block" : "none";
+    document.getElementById("client-signup-form").style.display   = tab === "signup" ? "block" : "none";
+    document.getElementById("client-login-error").textContent     = "";
+    document.getElementById("client-signup-error").textContent    = "";
+    document.getElementById("signup-blocked-msg").style.display   = "none";
 
-    // Show context info if user came from a referral link
-    if (tab === "signup" && paramRef) {
+    // Mostra contexto do convite ao abrir signup
+    if (tab === "signup" && paramRef && _refValid) {
       const info = document.getElementById("signup-context-info");
-      const len = paramRef.length;
+      const len  = paramRef.length;
       let msg = "";
-      if (len === 2) msg = `Você foi convidado por um moderador (código: ${paramRef}). Ao criar sua conta, você será um <strong>Indiquer</strong> e receberá seu próprio link de indicação.`;
-      else if (len === 4) msg = `Você foi convidado por um indiquer (código: ${paramRef}). Ao criar sua conta, você será um <strong>Indicado</strong> e também poderá indicar outras pessoas.`;
-      else if (len === 6) msg = `Você foi convidado (código: ${paramRef}). Ao criar sua conta, você também poderá indicar outras pessoas.`;
+      if (len === 2) msg = `Você foi convidado por um moderador (código: <strong>${paramRef}</strong>). Ao criar sua conta, você será um <strong>Indiquer</strong> e receberá seu próprio link de indicação.`;
+      else if (len === 4) msg = `Você foi convidado por um indiquer (código: <strong>${paramRef}</strong>). Ao criar sua conta, você será um <strong>Indicado</strong> e também poderá indicar outras pessoas.`;
+      else if (len === 6) msg = `Você foi convidado (código: <strong>${paramRef}</strong>). Ao criar sua conta, você também poderá indicar outras pessoas.`;
       if (msg) {
         info.innerHTML = `<div style="background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:#34d399;line-height:1.6;">${msg}</div>`;
         info.style.display = "block";
       }
     }
-  }
-
-  // If user arrived with ?ref=, auto-open signup
-  if (paramRef) {
-    setTimeout(() => openLoginModal("signup"), 800);
   }
 
   // ── Toggle password ──────────────────────────────────────────
@@ -800,6 +843,39 @@
     inp.type = isPass ? "text" : "password";
     this.textContent = isPass ? "Ocultar" : "Mostrar";
   });
+
+  // ══════════════════════════════════════════════════════════════
+  //  INICIALIZAÇÃO: valida ref e libera/bloqueia signup
+  // ══════════════════════════════════════════════════════════════
+  (async () => {
+    // Primeiro checa sessão ativa — redireciona se já logado
+    const { data: sessionData } = await sb.auth.getSession();
+    if (sessionData?.session?.user) {
+      window.location.href = "dashboard.html";
+      return;
+    }
+
+    if (paramRef) {
+      _refValid = await validateRef();
+
+      if (_refValid) {
+        // Link legítimo → mostra aba e abre signup automaticamente
+        document.getElementById("tab-signup").style.display = "";
+        setTimeout(() => openLoginModal("signup"), 800);
+      } else {
+        // Link inválido → abre modal de login com aviso
+        setTimeout(() => {
+          openLoginModal("login");
+          const blockedMsg = document.getElementById("signup-blocked-msg");
+          blockedMsg.innerHTML = `🚫 <strong>Link inválido ou expirado.</strong><br>
+            O código <code style="background:rgba(251,113,133,.15);padding:1px 5px;border-radius:4px;">${paramRef}</code>
+            não foi encontrado.<br>Peça um novo link ao seu Moderador.`;
+          blockedMsg.style.display = "block";
+        }, 600);
+      }
+    }
+    // Sem ?ref= → nada acontece, aba de signup permanece oculta
+  })();
 
   // ══════════════════════════════════════════════════════════════
   //  CLIENT LOGIN
@@ -823,17 +899,26 @@
   });
 
   // ══════════════════════════════════════════════════════════════
-  //  CLIENT SIGNUP (Indiquer / Indicado)
+  //  CLIENT SIGNUP — bloqueado sem ?ref= válido
   // ══════════════════════════════════════════════════════════════
   document.getElementById("client-signup-form")?.addEventListener("submit", async (e) => {
     e.preventDefault();
+    const errEl = document.getElementById("client-signup-error");
+    errEl.textContent = "";
+
+    // ── BLOQUEIO DE SEGURANÇA ─────────────────────────────────
+    // Impede cadastro mesmo que alguém manipule o DOM manualmente
+    if (!paramRef || !_refValid) {
+      errEl.textContent = "Cadastro não permitido. Acesse pelo link do seu Moderador.";
+      return;
+    }
+    // ─────────────────────────────────────────────────────────
+
     const name  = document.getElementById("client-signup-name").value.trim();
     const cpf   = document.getElementById("client-signup-cpf").value.trim();
     const phone = document.getElementById("client-signup-phone").value.trim();
     const email = document.getElementById("client-signup-email").value.trim();
     const pass  = document.getElementById("client-signup-password").value;
-    const errEl = document.getElementById("client-signup-error");
-    errEl.textContent = "";
 
     if (!name || !cpf || !phone || !email || !pass) {
       errEl.textContent = "Preencha todos os campos."; return;
@@ -842,14 +927,12 @@
       errEl.textContent = "A senha deve ter ao menos 6 caracteres."; return;
     }
 
-    // Generate the referral code for this new user
     const newCode = buildCode(paramRef || null);
-    const role = getRoleFromCode(newCode);
+    const role    = getRoleFromCode(newCode);
     const modCode = getModCodeFromCode(newCode);
-    const indiquerCode = getIndiquerCodeFromCode(newCode);
 
     try {
-      // 1. Create Supabase auth user
+      // 1. Cria usuário no Supabase Auth
       const { data: authData, error: authErr } = await sb.auth.signUp({
         email, password: pass,
         options: { data: { name } }
@@ -857,21 +940,21 @@
       if (authErr) throw authErr;
       if (!authData.user) throw new Error("Erro ao criar conta. Tente novamente.");
 
-      // 2. Find moderator_id from mod code
+      // 2. Busca moderator_id pelo código do moderador
       let moderatorId = null;
       if (modCode) {
         const { data: modRow } = await sb.from("moderators").select("id").eq("code", modCode).maybeSingle();
         if (modRow) moderatorId = modRow.id;
       }
 
-      // 3. Find parent referrer (who shared the link) from the full ref code
+      // 3. Busca o referrer pai (quem compartilhou o link)
       let parentReferrerId = null;
       if (paramRef) {
         const { data: parentRow } = await sb.from("referrers").select("id").eq("code", paramRef).maybeSingle();
         if (parentRow) parentReferrerId = parentRow.id;
       }
 
-      // 4. Insert into referrers table
+      // 4. Insere na tabela referrers
       const { error: insertErr } = await sb.from("referrers").insert({
         user_id: authData.user.id,
         name,
@@ -879,14 +962,14 @@
         phone,
         email,
         code: newCode,
-        role, // "indiquer" or "indicado"
+        role,
         moderator_id: moderatorId,
         parent_referrer_id: parentReferrerId,
         ref_origin: paramRef || null
       });
       if (insertErr) throw insertErr;
 
-      // 5. Auto-login
+      // 5. Auto-login após cadastro
       const { data: loginData, error: loginErr } = await sb.auth.signInWithPassword({ email, password: pass });
       if (loginErr) throw loginErr;
 
@@ -904,9 +987,8 @@
   let currentClient = null;
 
   async function loadClientDashboard(user) {
-    // Apenas redireciona; o dashboard.html cuida de carregar os dados
     closeLoginModal();
-    window.location.href = 'dashboard.html';
+    window.location.href = "dashboard.html";
   }
 
   async function refreshClientData() {
@@ -917,15 +999,14 @@
       .eq("referrer_id", currentClient.id)
       .order("created_at", { ascending: false });
 
-    const refs = referrals || [];
+    const refs     = referrals || [];
     const approved = refs.filter(r => r.status === "aprovado" || r.status === "approved");
     const pending  = refs.filter(r => r.status === "em_analise" || r.status === "pending");
 
-    document.getElementById("total-indicacoes").textContent = refs.length;
+    document.getElementById("total-indicacoes").textContent    = refs.length;
     document.getElementById("indicacoes-aprovadas").textContent = approved.length;
-    document.getElementById("indicacoes-analise").textContent = pending.length;
+    document.getElementById("indicacoes-analise").textContent   = pending.length;
 
-    // Calculate earnings
     const TIERS = [
       { min: 1, max: 3, reward: 50 }, { min: 4, max: 6, reward: 75 },
       { min: 7, max: 10, reward: 100 }, { min: 11, max: 14, reward: 150 },
@@ -936,14 +1017,13 @@
     for (let i = 1; i <= approved.length; i++) totalEarnings += rewardByPos(i);
     document.getElementById("ganhos-totais").textContent = fmt(totalEarnings);
 
-    // Nível
     const ap = approved.length;
     let nivelLabel, nivelClass, nivelDesc, nivelValor;
     if (ap >= 15)      { nivelLabel = "PLATINUM"; nivelClass = "platinum"; nivelDesc = "15+ indicações fechadas"; nivelValor = "R$ 200"; }
-    else if (ap >= 11) { nivelLabel = "OURO";     nivelClass = "ouro";     nivelDesc = "11 a 14 indicações";       nivelValor = "R$ 150"; }
-    else if (ap >= 7)  { nivelLabel = "PRATA";    nivelClass = "prata";    nivelDesc = "7 a 10 indicações";        nivelValor = "R$ 100"; }
-    else if (ap >= 4)  { nivelLabel = "BRONZE";   nivelClass = "bronze";   nivelDesc = "4 a 6 indicações";         nivelValor = "R$ 75";  }
-    else               { nivelLabel = "INICIANTE"; nivelClass = "bronze";  nivelDesc = "0 a 3 indicações";         nivelValor = "R$ 50";  }
+    else if (ap >= 11) { nivelLabel = "OURO";     nivelClass = "ouro";     nivelDesc = "11 a 14 indicações";      nivelValor = "R$ 150"; }
+    else if (ap >= 7)  { nivelLabel = "PRATA";    nivelClass = "prata";    nivelDesc = "7 a 10 indicações";       nivelValor = "R$ 100"; }
+    else if (ap >= 4)  { nivelLabel = "BRONZE";   nivelClass = "bronze";   nivelDesc = "4 a 6 indicações";        nivelValor = "R$ 75";  }
+    else               { nivelLabel = "INICIANTE"; nivelClass = "bronze";  nivelDesc = "0 a 3 indicações";        nivelValor = "R$ 50";  }
 
     const nivelCard = document.getElementById("nivel-atual");
     nivelCard.innerHTML = `
@@ -952,15 +1032,13 @@
       <p class="nivel-valor">${nivelValor} por cada indicação</p>
     `;
 
-    // Progress bar
     const nextThresholds = [4, 7, 11, 15];
-    const nextTarget = nextThresholds.find(t => t > ap) || ap;
-    const prevTarget = [...nextThresholds].reverse().find(t => t <= ap) || 0;
+    const nextTarget  = nextThresholds.find(t => t > ap) || ap;
+    const prevTarget  = [...nextThresholds].reverse().find(t => t <= ap) || 0;
     const pct = nextTarget > prevTarget ? Math.min(100, ((ap - prevTarget) / (nextTarget - prevTarget)) * 100) : 100;
     document.getElementById("progress-fill").style.width = pct + "%";
     document.getElementById("progress-text").textContent = `${ap} de ${nextTarget} indicações aprovadas`;
 
-    // Table
     const tbody = document.getElementById("indicacoes-tbody");
     if (!refs.length) {
       tbody.innerHTML = '<tr class="empty-state"><td colspan="5">Nenhuma indicação realizada ainda</td></tr>';
@@ -968,12 +1046,12 @@
       tbody.innerHTML = refs.map(r => {
         const cl = r.indicated_clients || {};
         const statusMap = {
-          em_analise: { label: "Em análise", cls: "status-pending" },
-          em_contato: { label: "Em contato", cls: "status-contact" },
+          em_analise: { label: "Em análise", cls: "status-pending"  },
+          em_contato: { label: "Em contato", cls: "status-contact"  },
           aprovado:   { label: "Aprovado",   cls: "status-approved" },
           approved:   { label: "Aprovado",   cls: "status-approved" },
           reprovado:  { label: "Reprovado",  cls: "status-rejected" },
-          pending:    { label: "Em análise", cls: "status-pending" },
+          pending:    { label: "Em análise", cls: "status-pending"  },
         };
         const st = statusMap[r.status] || { label: r.status || "-", cls: "" };
         return `<tr>
@@ -986,25 +1064,20 @@
       }).join("");
     }
 
-    // Load network (sub-referrers who used this user's code)
     await loadRedeIndicados();
   }
 
   async function loadRedeIndicados() {
     if (!currentClient?.code) return;
     const section = document.getElementById("rede-section");
-    const list = document.getElementById("rede-list");
+    const list    = document.getElementById("rede-list");
 
-    // Find referrers whose ref_origin matches currentClient's code
     const { data: subRefs } = await sb.from("referrers")
       .select("id, name, code, role, created_at")
       .eq("ref_origin", currentClient.code)
       .order("created_at", { ascending: false });
 
-    if (!subRefs || !subRefs.length) {
-      section.style.display = "none";
-      return;
-    }
+    if (!subRefs || !subRefs.length) { section.style.display = "none"; return; }
 
     section.style.display = "block";
     list.innerHTML = subRefs.map(r => `
@@ -1041,7 +1114,6 @@
     btn.addEventListener("click", () => {
       document.querySelectorAll(".indicacoes-filters .filter-btn").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
-      // TODO: implement filter logic
     });
   });
 
@@ -1068,12 +1140,10 @@
     }
 
     try {
-      // 1. Upsert referrer (if logged in, use their ID; otherwise create/find)
       let referrerId;
       if (currentClient?.id) {
         referrerId = currentClient.id;
       } else {
-        // Check if referrer already exists by CPF
         const { data: existing } = await sb.from("referrers")
           .select("id")
           .eq("cpf", referrerDoc)
@@ -1082,7 +1152,6 @@
         if (existing) {
           referrerId = existing.id;
         } else {
-          // Determine moderator from URL param
           let moderatorId = null;
           const modCode = paramRef ? paramRef.substring(0, 2) : null;
           if (modCode) {
@@ -1106,7 +1175,6 @@
         }
       }
 
-      // 2. Insert indicated client
       const { data: newClient, error: clientErr } = await sb.from("indicated_clients").insert({
         name: indicatedName,
         cpf: indicatedDoc,
@@ -1115,7 +1183,6 @@
       }).select("id").single();
       if (clientErr) throw clientErr;
 
-      // 3. Insert referral
       const { error: referralErr } = await sb.from("referrals").insert({
         referrer_id: referrerId,
         indicated_client_id: newClient.id,
@@ -1124,7 +1191,6 @@
       });
       if (referralErr) throw referralErr;
 
-      // 4. Show thank you
       document.getElementById("thankyou-overlay").style.display = "flex";
       document.getElementById("referral-form").reset();
 
@@ -1138,18 +1204,8 @@
   document.getElementById("thankyou-close")?.addEventListener("click", () => {
     document.getElementById("thankyou-overlay").style.display = "none";
   });
-
-  // ══════════════════════════════════════════════════════════════
-  //  AUTO-LOGIN ON PAGE LOAD
-  // ══════════════════════════════════════════════════════════════
-  // AUTO-LOGIN ON PAGE LOAD — redireciona direto se já estiver logado
-  (async () => {
-    const { data } = await sb.auth.getSession();
-    const user = data?.session?.user;
-    if (user) {
-      window.location.href = 'dashboard.html';
-    }
-  })();
   </script>
+  <!-- ── Assistente Virtual Stella ─────────────────────────── -->
+  <script src="stella-widget.js"></script>
 </body>
 </html>
