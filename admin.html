@@ -75,10 +75,8 @@
     .pay-hist-right{text-align:right;}
     .pay-hist-date{font-size:11px;color:rgba(255,255,255,.3);}
     .btn-del-pay{background:none;border:none;color:rgba(251,113,133,.5);cursor:pointer;font-size:12px;padding:0 4px;margin-left:8px;transition:color .2s;}.btn-del-pay:hover{color:#fb7185;}
-    /* ── BTN HISTÓRICO ────────────────────────────────── */
     .btn-pay-hist{padding:7px 14px;border-radius:8px;border:1px solid rgba(74,222,128,.28);background:rgba(74,222,128,.06);color:rgba(74,222,128,.75);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;transition:all .2s;}.btn-pay-hist:hover{background:rgba(74,222,128,.16);color:#4ade80;border-color:rgba(74,222,128,.5);}
     .btn-pay-hist.has-hist{color:#4ade80;border-color:rgba(74,222,128,.45);background:rgba(74,222,128,.1);}
-    /* ── HIST POPUP ───────────────────────────────────── */
     .hist-popup{position:fixed;inset:0;z-index:260;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.78);backdrop-filter:blur(6px);}
     .hist-modal{width:min(440px,92vw);background:rgba(10,4,22,.98);border:1px solid rgba(74,222,128,.35);border-radius:20px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.9);animation:fadeDown .18s ease;}
     .hist-modal-head{display:flex;align-items:center;justify-content:space-between;padding:15px 20px;border-bottom:1px solid rgba(74,222,128,.12);background:rgba(74,222,128,.03);}
@@ -106,7 +104,6 @@
     .hist-item-del{background:none;border:none;color:rgba(251,113,133,.3);cursor:pointer;font-size:11px;padding:2px;transition:color .2s;display:block;margin-top:2px;}.hist-item-del:hover{color:#fb7185;}
     .hist-empty{text-align:center;padding:30px 20px;color:rgba(255,255,255,.25);font-size:13px;}
     .hist-modal-foot{padding:9px 18px;border-top:1px solid rgba(74,222,128,.08);text-align:center;font-size:11px;color:rgba(255,255,255,.22);}
-    /* ── PAY MODAL ────────────────────────────────────── */
     .pay-popup{position:fixed;inset:0;z-index:260;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.78);backdrop-filter:blur(6px);}
     .pay-modal{width:min(460px,92vw);background:rgba(14,4,28,.98);border:1px solid rgba(74,222,128,.4);border-radius:20px;padding:26px;box-shadow:0 24px 60px rgba(0,0,0,.9);}
     .pay-modal h3{font-size:17px;font-weight:700;margin-bottom:3px;color:#4ade80;}
@@ -203,20 +200,14 @@
     .r1{background:linear-gradient(135deg,#facc15,#f59e0b);color:#111;}.r2{background:linear-gradient(135deg,#e5e7eb,#9ca3af);color:#111;}.r3{background:linear-gradient(135deg,#f59e0b,#b45309);color:#fff;}.rn{background:rgba(255,255,255,.08);color:var(--muted);}
     .conv-bar{width:80px;height:5px;background:rgba(255,255,255,.08);border-radius:3px;display:inline-block;vertical-align:middle;margin-left:6px;}
     .conv-fill{height:100%;border-radius:3px;background:var(--accent-g);}
-    @media(max-width:1100px){.mod-grid{grid-template-columns:1fr;}}
-    @media(max-width:900px){.kpi-row,.mkpi-row{grid-template-columns:repeat(2,1fr);}}
-    @media(max-width:600px){.kpi-row{grid-template-columns:1fr;}.adm-content{padding:16px;}.client-stats,.sub-stats{display:none;}.bf2{grid-template-columns:1fr;}.minputs{grid-template-columns:1fr 1fr;}.minputs .bmadd{grid-column:1/-1;}.edit-field2{grid-template-columns:1fr;}.pay-summary{gap:6px;}.pay-sum-divider{display:none;}}
     .tree-toggle{display:flex;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:4px;gap:3px;margin-bottom:20px;width:fit-content;}
     .tv-btn{display:flex;align-items:center;gap:7px;padding:8px 18px;border-radius:8px;border:none;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;transition:all .25s;background:transparent;color:rgba(255,255,255,.4);}
     .tv-btn.active{background:rgba(255,255,255,.1);color:#fff;box-shadow:0 2px 12px rgba(0,0,0,.4);}
     .tv-btn svg{width:15px;height:15px;flex-shrink:0;opacity:.7;transition:opacity .2s;}.tv-btn.active svg{opacity:1;}
-    .tk-stats{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;}
-    .tk-stat{display:flex;align-items:center;gap:8px;padding:8px 14px;background:var(--surface);border:1px solid var(--border);border-radius:10px;font-size:12px;color:var(--muted);}
-    .tk-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
-    .tk-stat strong{margin-left:2px;color:var(--text);}
+    .tree-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;margin-bottom:20px;}
+    .tree-top select{padding:8px 12px;border-radius:9px;border:1px solid rgba(168,85,247,.35);background:rgba(10,2,20,.9);color:var(--text);font-family:inherit;font-size:13px;outline:none;min-width:220px;}
     .tk-scroll{overflow-x:auto;padding-bottom:12px;}
     .tk-board{display:flex;gap:0;align-items:flex-start;min-width:max-content;}
-    .tk-conn{display:flex;align-items:center;padding:52px 6px 0;color:rgba(255,255,255,.15);font-size:20px;flex-shrink:0;}
     .tk-col{flex-shrink:0;width:195px;}
     .tk-col-head{padding:10px 14px;border-radius:12px 12px 0 0;border:1px solid transparent;border-bottom:none;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;}
     .tk-col-body{border:1px solid var(--border);border-radius:0 12px 12px 12px;padding:10px;background:rgba(255,255,255,.015);min-height:80px;}
@@ -224,40 +215,35 @@
     .tk-card{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:8px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;}
     .tk-card:last-child{margin-bottom:0;}
     .tk-card:hover{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.15);transform:translateY(-1px);}
-    .tk-card.selected{border-color:rgba(192,132,252,.5);background:rgba(168,85,247,.08);}
     .tk-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;margin-bottom:6px;flex-shrink:0;}
     .tk-card-name{font-size:12px;font-weight:700;margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
     .tk-card-code{font-family:monospace;font-size:10px;color:var(--muted);margin-bottom:3px;}
     .tk-card-via{font-size:10px;color:rgba(255,255,255,.25);margin-bottom:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-    .tk-card-stats{display:flex;gap:3px;flex-wrap:wrap;}
     .tk-pill{font-size:9px;padding:2px 6px;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid var(--border);}
     .tk-pill.green{background:rgba(52,211,153,.1);border-color:rgba(52,211,153,.25);color:#34d399;}
     .tk-stripe{position:absolute;top:0;right:0;width:3px;height:100%;border-radius:0 10px 10px 0;}
-    .tk-detail{background:rgba(168,85,247,.05);border:1px solid rgba(168,85,247,.2);border-radius:14px;padding:16px 20px;margin-top:16px;animation:fadeDown .2s ease;}
-    .tk-dpill{padding:6px 12px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid var(--border);font-size:12px;}
-    .tg-container{background:rgba(255,255,255,.015);border:1px solid var(--border);border-radius:18px;overflow:hidden;}
-    .tg-legend{display:flex;gap:16px;padding:12px 18px;border-top:1px solid var(--border);flex-wrap:wrap;}
-    .tg-legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);}
-    .tg-legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
-    .tg-node{cursor:pointer;}.tg-node circle{transition:filter .2s;}
-    .tkh-mod{background:rgba(124,58,237,.1);border-color:rgba(124,58,237,.25);color:#a78bfa;}
-    .tkh-inq{background:rgba(16,185,129,.08);border-color:rgba(16,185,129,.22);color:#34d399;}
-    .tkh-ind{background:rgba(147,51,234,.08);border-color:rgba(147,51,234,.2);color:#c084fc;}
-    .tkb-mod{border-color:rgba(124,58,237,.2);}.tkb-inq{border-color:rgba(16,185,129,.18);}.tkb-ind{border-color:rgba(147,51,234,.16);}
-    .tk-card.sel{border-color:rgba(192,132,252,.6);background:rgba(168,85,247,.1);}
-    .tk-pills{display:flex;gap:3px;flex-wrap:wrap;margin-top:5px;}
-    .tk-conn-svg{display:flex;align-items:flex-start;padding-top:44px;flex-shrink:0;}
+    .tk-detail-panel{background:rgba(168,85,247,.05);border:1px solid rgba(168,85,247,.2);border-radius:14px;padding:16px 20px;margin-top:16px;animation:fadeDown .2s ease;}
+    .tk-det-stats{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0;}
+    .tk-det-pill{padding:5px 12px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid var(--border);font-size:12px;}
     .tg-wrap{overflow-x:auto;overflow-y:hidden;background:rgba(255,255,255,.015);border:1px solid var(--border);border-radius:18px;}
     .tg-legend{display:flex;gap:16px;padding:12px 18px;border-top:1px solid var(--border);flex-wrap:wrap;align-items:center;}
     .tg-legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);}
     .tg-legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
-    .tree-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;margin-bottom:20px;}
-    .tree-top select{padding:8px 12px;border-radius:9px;border:1px solid rgba(168,85,247,.35);background:rgba(10,2,20,.9);color:var(--text);font-family:inherit;font-size:13px;outline:none;min-width:220px;}
-    .tk-detail-panel{background:rgba(168,85,247,.05);border:1px solid rgba(168,85,247,.2);border-radius:14px;padding:16px 20px;margin-top:16px;animation:fadeDown .2s ease;}
-    .tk-det-stats{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0;}
-    .tk-det-pill{padding:5px 12px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid var(--border);font-size:12px;}
     .tg-tooltip{position:absolute;background:rgba(14,4,28,.97);border:1px solid rgba(168,85,247,.4);border-radius:10px;padding:10px 14px;font-size:12px;pointer-events:none;opacity:0;transition:opacity .15s;z-index:20;min-width:140px;box-shadow:0 8px 28px rgba(0,0,0,.6);}
     .tg-tooltip.show{opacity:1;}
+    .tg-node{cursor:pointer;}
+    .tkh-mod{background:rgba(124,58,237,.1);border-color:rgba(124,58,237,.25);color:#a78bfa;}
+    .tkh-inq{background:rgba(16,185,129,.08);border-color:rgba(16,185,129,.22);color:#34d399;}
+    .tkh-ind{background:rgba(147,51,234,.08);border-color:rgba(147,51,234,.2);color:#c084fc;}
+    .tkb-mod{border-color:rgba(124,58,237,.2);}.tkb-inq{border-color:rgba(16,185,129,.18);}.tkb-ind{border-color:rgba(147,51,234,.16);}
+    .tk-pills{display:flex;gap:3px;flex-wrap:wrap;margin-top:5px;}
+    .tk-conn-svg{display:flex;align-items:flex-start;padding-top:44px;flex-shrink:0;}
+    @media(max-width:1100px){.mod-grid{grid-template-columns:1fr;}}
+    @media(max-width:900px){.kpi-row,.mkpi-row{grid-template-columns:repeat(2,1fr);}}
+    @media(max-width:600px){.kpi-row{grid-template-columns:1fr;}.adm-content{padding:16px;}.client-stats,.sub-stats{display:none;}.bf2{grid-template-columns:1fr;}.minputs{grid-template-columns:1fr 1fr;}.minputs .bmadd{grid-column:1/-1;}.edit-field2{grid-template-columns:1fr;}.pay-summary{gap:6px;}.pay-sum-divider{display:none;}}
+    /* ── Botão Atribuir 🔀 ─────────────────────────────── */
+    .btn-assign{padding:3px 9px;border-radius:7px;border:1px solid lab(32.24% 42.41 -62.83 / 0.4);background:rgba(71, 21, 250, 0.1);color:#ffffff;font-size:10px;font-weight:600;cursor:pointer;font-family:inherit;margin-left:6px;white-space:nowrap;transition:background .2s;}
+    .btn-assign:hover{background:rgba(250,204,21,.22);}
   </style>
 </head>
 
@@ -396,10 +382,7 @@
 <div class="hist-popup" id="hist-popup" style="display:none;" onclick="if(event.target===this)closeHistModal()">
   <div class="hist-modal">
     <div class="hist-modal-head">
-      <div class="hist-modal-title">
-        <span class="hist-modal-dot"></span>
-        Histórico de Pagamentos
-      </div>
+      <div class="hist-modal-title"><span class="hist-modal-dot"></span>Histórico de Pagamentos</div>
       <button class="hist-modal-close" onclick="closeHistModal()">✕</button>
     </div>
     <div class="hist-modal-kpis" id="hist-kpis"></div>
@@ -580,11 +563,35 @@
   </div>
 </div>
 
+<!-- ASSIGN MODAL -->
+<div class="edit-popup" id="assign-popup" style="display:none;" onclick="if(event.target===this)closeAssign()">
+  <div class="edit-modal">
+    <h3>🔀 Atribuição</h3>
+    <p class="edit-sub" id="assign-subtitle">Reatribuir para outro moderador.</p>
+    <div class="edit-field">
+      <label>Moderador de destino *</label>
+      <select id="assign-mod-sel" style="width:100%;padding:10px 12px;border-radius:10px;border:1px solid rgba(168,85,247,.4);background:rgba(10,2,20,.9);color:var(--text);font-family:inherit;font-size:13px;outline:none;" onchange="onAssignModChange()">
+        <option value="">— Selecione o moderador —</option>
+      </select>
+    </div>
+    <div class="edit-field" id="assign-inq-field" style="display:none;">
+      <label>Indiquer de destino *</label>
+      <select id="assign-inq-sel" style="width:100%;padding:10px 12px;border-radius:10px;border:1px solid rgba(168,85,247,.4);background:rgba(10,2,20,.9);color:var(--text);font-family:inherit;font-size:13px;outline:none;">
+        <option value="">— Selecione o indiquer —</option>
+      </select>
+    </div>
+    <p id="assign-fb" style="color:#fb7185;font-size:12px;min-height:16px;margin-top:8px;"></p>
+    <div class="edit-actions">
+      <button class="btn-edit-cancel" onclick="closeAssign()">Cancelar</button>
+      <button class="btn-edit-save" id="btn-assign-save" onclick="saveAssign()">🔀 Confirmar Atribuição</button>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="assign.js"></script>
 <script>
-// JS part - will be wrapped in script tags
-
 const SURL="https://jwnycywdmaebojqhezmg.supabase.co",SKEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp3bnljeXdkbWFlYm9qcWhlem1nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwMjIyODUsImV4cCI6MjA4NzU5ODI4NX0.EuyJGfG6T_jgtTPF-Wu_rRF6kgoU2E0CKUgzVB1c-2g",sb=supabase.createClient(SURL,SKEY);
 const TIERS=[{min:1,max:3,r:50},{min:4,max:6,r:75},{min:7,max:10,r:100},{min:11,max:14,r:150},{min:15,max:9999,r:200}];
 const rByPos=p=>(TIERS.find(t=>p>=t.min&&p<=t.max)||TIERS[0]).r;
@@ -625,198 +632,34 @@ function buildTable(refs){
   }).join("")}</tbody></table></div>`;
 }
 
-// ── PAYMENT HELPERS ───────────────────────────────────
-function getTotalPaid(referrerId){
-  return allPayments.filter(p=>p.referrer_id===referrerId).reduce((s,p)=>s+(parseFloat(p.amount)||0),0);
-}
-function getPayHistory(referrerId){
-  return allPayments.filter(p=>p.referrer_id===referrerId).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
-}
+function getTotalPaid(referrerId){return allPayments.filter(p=>p.referrer_id===referrerId).reduce((s,p)=>s+(parseFloat(p.amount)||0),0);}
+function getPayHistory(referrerId){return allPayments.filter(p=>p.referrer_id===referrerId).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));}
 
-// ── HIST MODAL ─────────────────────────────────────────
 let _histRefId=null;
-function openHistModal(referrerId){
-  _histRefId=referrerId;
-  const ref=[...allInq,...allInd].find(r=>r.id===referrerId);
-  const sm=calcSm((ref?.refs||[]).filter(r=>isOk(r.status)).length);
-  const paid=getTotalPaid(referrerId);
-  const balance=sm-paid;
-  const hist=getPayHistory(referrerId);
-  const pct=sm>0?Math.min(100,Math.round(paid/sm*100)):0;
-  const balColor=balance<=0?"#fb7185":"#4ade80";
-  document.getElementById("hist-kpis").innerHTML=`
-    <div class="hist-kpi"><div class="hist-kpi-label">💳 Smashcard</div><div class="hist-kpi-val" style="color:#c084fc;">${fmt(sm)}</div></div>
-    <div class="hist-kpi"><div class="hist-kpi-label">✅ Total pago</div><div class="hist-kpi-val" style="color:#facc15;">${fmt(paid)}</div></div>
-    <div class="hist-kpi"><div class="hist-kpi-label">${balance<=0?"✅":"💰"} Saldo</div><div class="hist-kpi-val" style="color:${balColor};">${fmt(balance)}</div></div>
-  `;
-  document.getElementById("hist-bar").innerHTML=`
-    <div class="hist-bar-track"><div class="hist-bar-fill" style="width:${pct}%;"></div></div>
-    <div class="hist-bar-labels"><span>${pct}% pago</span><span>${balance<=0?'Quitado':fmt(balance)+' pendente'}</span></div>
-  `;
-  const listEl=document.getElementById("hist-list");
-  if(!hist.length){
-    listEl.innerHTML='<div class="hist-empty">Nenhum pagamento registrado ainda.</div>';
-  } else {
-    listEl.innerHTML=hist.map((p,i)=>`
-      <div class="hist-item">
-        <div class="hist-item-icon">PIX</div>
-        <div class="hist-item-info">
-          <div class="hist-item-desc">${p.note||'Pagamento registrado'}</div>
-          <div class="hist-item-meta">Entrada ${i+1} de ${hist.length}</div>
-        </div>
-        <div class="hist-item-right">
-          <div class="hist-item-date">${fmtDate(p.created_at)}</div>
-          <div class="hist-item-val">${fmt(p.amount)}</div>
-          <button class="hist-item-del" onclick="deletePaymentFromHist('${p.id}','${referrerId}')" title="Excluir">🗑</button>
-        </div>
-      </div>
-    `).join("");
-  }
-  document.getElementById("hist-foot").textContent=hist.length+' pagamento'+(hist.length!==1?'s':'')+' registrado'+(hist.length!==1?'s':'');
-  document.getElementById("hist-popup").style.display="flex";
-}
+function openHistModal(referrerId){_histRefId=referrerId;const ref=[...allInq,...allInd].find(r=>r.id===referrerId);const sm=calcSm((ref?.refs||[]).filter(r=>isOk(r.status)).length);const paid=getTotalPaid(referrerId);const balance=sm-paid;const hist=getPayHistory(referrerId);const pct=sm>0?Math.min(100,Math.round(paid/sm*100)):0;const balColor=balance<=0?"#fb7185":"#4ade80";document.getElementById("hist-kpis").innerHTML=`<div class="hist-kpi"><div class="hist-kpi-label">💳 Smashcard</div><div class="hist-kpi-val" style="color:#c084fc;">${fmt(sm)}</div></div><div class="hist-kpi"><div class="hist-kpi-label">✅ Total pago</div><div class="hist-kpi-val" style="color:#facc15;">${fmt(paid)}</div></div><div class="hist-kpi"><div class="hist-kpi-label">${balance<=0?"✅":"💰"} Saldo</div><div class="hist-kpi-val" style="color:${balColor};">${fmt(balance)}</div></div>`;document.getElementById("hist-bar").innerHTML=`<div class="hist-bar-track"><div class="hist-bar-fill" style="width:${pct}%;"></div></div><div class="hist-bar-labels"><span>${pct}% pago</span><span>${balance<=0?'Quitado':fmt(balance)+' pendente'}</span></div>`;const listEl=document.getElementById("hist-list");if(!hist.length){listEl.innerHTML='<div class="hist-empty">Nenhum pagamento registrado ainda.</div>';}else{listEl.innerHTML=hist.map((p,i)=>`<div class="hist-item"><div class="hist-item-icon">PIX</div><div class="hist-item-info"><div class="hist-item-desc">${p.note||'Pagamento registrado'}</div><div class="hist-item-meta">Entrada ${i+1} de ${hist.length}</div></div><div class="hist-item-right"><div class="hist-item-date">${fmtDate(p.created_at)}</div><div class="hist-item-val">${fmt(p.amount)}</div><button class="hist-item-del" onclick="deletePaymentFromHist('${p.id}','${referrerId}')" title="Excluir">🗑</button></div></div>`).join("");}document.getElementById("hist-foot").textContent=hist.length+' pagamento'+(hist.length!==1?'s':'')+' registrado'+(hist.length!==1?'s':'');document.getElementById("hist-popup").style.display="flex";}
 function closeHistModal(){document.getElementById("hist-popup").style.display="none";_histRefId=null;}
-async function deletePaymentFromHist(payId,referrerId){
-  if(!confirm("Excluir este pagamento?"))return;
-  const{error}=await sb.from("payments").delete().eq("id",payId);
-  if(error){toast("Erro: "+error.message,false);return;}
-  toast("Pagamento removido.");
-  await loadData();
-  if(_histRefId)openHistModal(referrerId);
-}
+async function deletePaymentFromHist(payId,referrerId){if(!confirm("Excluir este pagamento?"))return;const{error}=await sb.from("payments").delete().eq("id",payId);if(error){toast("Erro: "+error.message,false);return;}toast("Pagamento removido.");await loadData();if(_histRefId)openHistModal(referrerId);}
 
-// ── buildPaySummary — COMPACT (popup trigger) ─────────
-function buildPaySummary(referrerId, smashcard){
-  const paid=getTotalPaid(referrerId);
-  const balance=smashcard-paid;
-  const hist=getPayHistory(referrerId);
-  const balClass=balance<=0?"pay-sum-balance zeroed":"pay-sum-balance";
-  const balIcon=balance<=0?"✅":"💰";
-  const histClass=hist.length>0?" has-hist":"";
-  const histLabel=hist.length>0?`🗒️ Histórico (${hist.length})`:"🗒️ Histórico";
-  return `
-    <div class="pay-summary">
-      <div class="pay-sum-item">
-        <span class="pay-sum-label">💳 Smashcard</span>
-        <span class="pay-sum-val pay-sum-earned">${fmt(smashcard)}</span>
-      </div>
-      <div class="pay-sum-divider"></div>
-      <div class="pay-sum-item">
-        <span class="pay-sum-label">✅ Total pago</span>
-        <span class="pay-sum-val pay-sum-paid">${fmt(paid)}</span>
-      </div>
-      <div class="pay-sum-divider"></div>
-      <div class="pay-sum-item">
-        <span class="pay-sum-label">${balIcon} Saldo restante</span>
-        <span class="pay-sum-val ${balClass}">${fmt(balance)}</span>
-      </div>
-      <div style="display:flex;gap:8px;margin-left:auto;flex-wrap:wrap;">
-        <button class="btn-pay-hist${histClass}" onclick="event.stopPropagation();openHistModal('${referrerId}')">${histLabel}</button>
-        <button class="btn-pay" onclick="event.stopPropagation();openPayModal('${referrerId}')">💰 Dar Baixa</button>
-      </div>
-    </div>
-  `;
-}
+function buildPaySummary(referrerId,smashcard){const paid=getTotalPaid(referrerId);const balance=smashcard-paid;const hist=getPayHistory(referrerId);const balClass=balance<=0?"pay-sum-balance zeroed":"pay-sum-balance";const balIcon=balance<=0?"✅":"💰";const histClass=hist.length>0?" has-hist":"";const histLabel=hist.length>0?`🗒️ Histórico (${hist.length})`:"🗒️ Histórico";return`<div class="pay-summary"><div class="pay-sum-item"><span class="pay-sum-label">💳 Smashcard</span><span class="pay-sum-val pay-sum-earned">${fmt(smashcard)}</span></div><div class="pay-sum-divider"></div><div class="pay-sum-item"><span class="pay-sum-label">✅ Total pago</span><span class="pay-sum-val pay-sum-paid">${fmt(paid)}</span></div><div class="pay-sum-divider"></div><div class="pay-sum-item"><span class="pay-sum-label">${balIcon} Saldo restante</span><span class="pay-sum-val ${balClass}">${fmt(balance)}</span></div><div style="display:flex;gap:8px;margin-left:auto;flex-wrap:wrap;"><button class="btn-pay-hist${histClass}" onclick="event.stopPropagation();openHistModal('${referrerId}')">${histLabel}</button><button class="btn-pay" onclick="event.stopPropagation();openPayModal('${referrerId}')">💰 Dar Baixa</button></div></div>`;}
 
-// ── PAYMENT MODAL ─────────────────────────────────────
 let _payRefId=null;
-function openPayModal(referrerId){
-  _payRefId=referrerId;
-  const ref=[...allInq,...allInd].find(r=>r.id===referrerId);
-  const sm=calcSm((ref?.refs||[]).filter(r=>isOk(r.status)).length);
-  const paid=getTotalPaid(referrerId);
-  const balance=sm-paid;
-  document.getElementById("pay-ref-name").textContent=ref?.name||"—";
-  document.getElementById("pay-chip-earned").textContent=fmt(sm);
-  document.getElementById("pay-chip-paid").textContent=fmt(paid);
-  const balEl=document.getElementById("pay-chip-bal");
-  balEl.textContent=fmt(balance);
-  balEl.style.color=balance<=0?"#fb7185":"#4ade80";
-  document.getElementById("pay-amount").value="";
-  document.getElementById("pay-note").value="";
-  document.getElementById("pay-fb").textContent="";
-  document.getElementById("pay-popup").style.display="flex";
-  setTimeout(()=>document.getElementById("pay-amount").focus(),60);
-}
+function openPayModal(referrerId){_payRefId=referrerId;const ref=[...allInq,...allInd].find(r=>r.id===referrerId);const sm=calcSm((ref?.refs||[]).filter(r=>isOk(r.status)).length);const paid=getTotalPaid(referrerId);const balance=sm-paid;document.getElementById("pay-ref-name").textContent=ref?.name||"—";document.getElementById("pay-chip-earned").textContent=fmt(sm);document.getElementById("pay-chip-paid").textContent=fmt(paid);const balEl=document.getElementById("pay-chip-bal");balEl.textContent=fmt(balance);balEl.style.color=balance<=0?"#fb7185":"#4ade80";document.getElementById("pay-amount").value="";document.getElementById("pay-note").value="";document.getElementById("pay-fb").textContent="";document.getElementById("pay-popup").style.display="flex";setTimeout(()=>document.getElementById("pay-amount").focus(),60);}
 function closePayModal(){document.getElementById("pay-popup").style.display="none";_payRefId=null;}
-async function savePayment(){
-  if(!_payRefId)return;
-  const amtRaw=document.getElementById("pay-amount").value;
-  const amount=parseFloat(String(amtRaw).replace(",","."));
-  const note=document.getElementById("pay-note").value.trim();
-  const fb=document.getElementById("pay-fb");fb.textContent="";
-  if(!amount||amount<=0){fb.style.color="#fb7185";fb.textContent="Informe um valor válido maior que zero.";return;}
-  const btn=document.getElementById("btn-pay-save");btn.textContent="Salvando…";btn.disabled=true;
-  const{error}=await sb.from("payments").insert({referrer_id:_payRefId,amount,note:note||null});
-  btn.textContent="✅ Registrar Pagamento";btn.disabled=false;
-  if(error){fb.style.color="#fb7185";fb.textContent="Erro: "+error.message;return;}
-  toast("💰 Pagamento registrado com sucesso!");
-  closePayModal();
-  loadData();
-}
-async function deletePayment(payId,referrerId){
-  if(!confirm("Excluir este pagamento?"))return;
-  const{error}=await sb.from("payments").delete().eq("id",payId);
-  if(error){toast("Erro: "+error.message,false);return;}
-  toast("Pagamento removido.");
-  loadData();
-}
+async function savePayment(){if(!_payRefId)return;const amtRaw=document.getElementById("pay-amount").value;const amount=parseFloat(String(amtRaw).replace(",","."));const note=document.getElementById("pay-note").value.trim();const fb=document.getElementById("pay-fb");fb.textContent="";if(!amount||amount<=0){fb.style.color="#fb7185";fb.textContent="Informe um valor válido maior que zero.";return;}const btn=document.getElementById("btn-pay-save");btn.textContent="Salvando…";btn.disabled=true;const{error}=await sb.from("payments").insert({referrer_id:_payRefId,amount,note:note||null});btn.textContent="✅ Registrar Pagamento";btn.disabled=false;if(error){fb.style.color="#fb7185";fb.textContent="Erro: "+error.message;return;}toast("💰 Pagamento registrado com sucesso!");closePayModal();loadData();}
+async function deletePayment(payId,referrerId){if(!confirm("Excluir este pagamento?"))return;const{error}=await sb.from("payments").delete().eq("id",payId);if(error){toast("Erro: "+error.message,false);return;}toast("Pagamento removido.");loadData();}
 
 let allMods=[],allInq=[],allInd=[],allRefs=[],allPayments=[],curView="indiquers";
 const ADMIN_WHITELIST=new Set(["christian.serello@starbank.tec.br","brunno@starbank.tec.br","mariasantos.starbank@gmail.com","ana.silva@starbank.tec.br","anasilva.starbank@gmail.com"]);
-function switchMode(mode){
-  document.getElementById("lm-login").style.display=mode==="login"?"block":"none";
-  document.getElementById("lm-register").style.display=mode==="register"?"block":"none";
-  document.getElementById("login-box-sub").textContent=mode==="login"?"Acesso restrito a administradores.":"Crie sua conta de administrador.";
-  document.getElementById("adm-login-error").textContent="";
-  document.getElementById("adm-register-error").textContent="";
-}
-document.getElementById("btn-adm-login")?.addEventListener("click",async()=>{
-  const e=document.getElementById("adm-email").value.trim().toLowerCase();
-  const p=document.getElementById("adm-pass").value;
-  const err=document.getElementById("adm-login-error");err.textContent="";
-  if(!ADMIN_WHITELIST.has(e)){err.textContent="Este e-mail não tem acesso ao painel de admin.";return;}
-  const btn=document.getElementById("btn-adm-login");btn.textContent="Entrando…";btn.disabled=true;
-  try{const{data,error}=await sb.auth.signInWithPassword({email:e,password:p});if(error)throw error;await mountAdmin(data.user);}
-  catch{err.textContent="Credenciais inválidas.";}
-  finally{btn.textContent="Entrar";btn.disabled=false;}
-});
-document.getElementById("btn-adm-register")?.addEventListener("click",async()=>{
-  const e=document.getElementById("reg-email").value.trim().toLowerCase();
-  const p=document.getElementById("reg-pass").value;
-  const p2=document.getElementById("reg-pass2").value;
-  const err=document.getElementById("adm-register-error");err.textContent="";err.style.color="#fb7185";
-  if(!e||!p){err.textContent="Preencha e-mail e senha.";return;}
-  if(!ADMIN_WHITELIST.has(e)){err.textContent="Este e-mail não está autorizado a criar conta de admin.";return;}
-  if(p.length<6){err.textContent="Senha mínima: 6 caracteres.";return;}
-  if(p!==p2){err.textContent="As senhas não coincidem.";return;}
-  const btn=document.getElementById("btn-adm-register");btn.textContent="Criando…";btn.disabled=true;
-  try{
-    const{data,error}=await sb.auth.signUp({email:e,password:p});
-    if(error&&!error.message.toLowerCase().includes("already"))throw error;
-    if(error?.message.toLowerCase().includes("already")){err.style.color="#facc15";err.textContent="Conta já existe. Tente fazer login.";return;}
-    err.style.color="#4ade80";err.textContent="✅ Conta criada! Fazendo login…";
-    setTimeout(async()=>{
-      const{data:sd,error:se}=await sb.auth.signInWithPassword({email:e,password:p});
-      if(se||!sd.user){err.style.color="#fb7185";err.textContent="Conta criada, mas login falhou.";return;}
-      await mountAdmin(sd.user);
-    },1200);
-  }catch(ex){err.textContent="Erro: "+(ex.message||"Tente novamente.");}
-  finally{btn.textContent="Criar minha conta";btn.disabled=false;}
-});
-async function mountAdmin(user){
-  if(!ADMIN_WHITELIST.has(user.email?.toLowerCase())){await sb.auth.signOut();document.getElementById("adm-login-error").textContent="Acesso negado.";return;}
-  document.getElementById("login-gate").style.display="none";
-  document.getElementById("adm-app").classList.add("active");
-  loadData();
-}
+function switchMode(mode){document.getElementById("lm-login").style.display=mode==="login"?"block":"none";document.getElementById("lm-register").style.display=mode==="register"?"block":"none";document.getElementById("login-box-sub").textContent=mode==="login"?"Acesso restrito a administradores.":"Crie sua conta de administrador.";document.getElementById("adm-login-error").textContent="";document.getElementById("adm-register-error").textContent="";}
+document.getElementById("btn-adm-login")?.addEventListener("click",async()=>{const e=document.getElementById("adm-email").value.trim().toLowerCase();const p=document.getElementById("adm-pass").value;const err=document.getElementById("adm-login-error");err.textContent="";if(!ADMIN_WHITELIST.has(e)){err.textContent="Este e-mail não tem acesso ao painel de admin.";return;}const btn=document.getElementById("btn-adm-login");btn.textContent="Entrando…";btn.disabled=true;try{const{data,error}=await sb.auth.signInWithPassword({email:e,password:p});if(error)throw error;await mountAdmin(data.user);}catch{err.textContent="Credenciais inválidas.";}finally{btn.textContent="Entrar";btn.disabled=false;}});
+document.getElementById("btn-adm-register")?.addEventListener("click",async()=>{const e=document.getElementById("reg-email").value.trim().toLowerCase();const p=document.getElementById("reg-pass").value;const p2=document.getElementById("reg-pass2").value;const err=document.getElementById("adm-register-error");err.textContent="";err.style.color="#fb7185";if(!e||!p){err.textContent="Preencha e-mail e senha.";return;}if(!ADMIN_WHITELIST.has(e)){err.textContent="Este e-mail não está autorizado a criar conta de admin.";return;}if(p.length<6){err.textContent="Senha mínima: 6 caracteres.";return;}if(p!==p2){err.textContent="As senhas não coincidem.";return;}const btn=document.getElementById("btn-adm-register");btn.textContent="Criando…";btn.disabled=true;try{const{data,error}=await sb.auth.signUp({email:e,password:p});if(error&&!error.message.toLowerCase().includes("already"))throw error;if(error?.message.toLowerCase().includes("already")){err.style.color="#facc15";err.textContent="Conta já existe. Tente fazer login.";return;}err.style.color="#4ade80";err.textContent="✅ Conta criada! Fazendo login…";setTimeout(async()=>{const{data:sd,error:se}=await sb.auth.signInWithPassword({email:e,password:p});if(se||!sd.user){err.style.color="#fb7185";err.textContent="Conta criada, mas login falhou.";return;}await mountAdmin(sd.user);},1200);}catch(ex){err.textContent="Erro: "+(ex.message||"Tente novamente.");}finally{btn.textContent="Criar minha conta";btn.disabled=false;}});
+async function mountAdmin(user){if(!ADMIN_WHITELIST.has(user.email?.toLowerCase())){await sb.auth.signOut();document.getElementById("adm-login-error").textContent="Acesso negado.";return;}document.getElementById("login-gate").style.display="none";document.getElementById("adm-app").classList.add("active");loadData();}
 async function loadData(){
   document.getElementById("content-area").innerHTML="<p style='color:var(--muted);font-size:13px;'>Carregando…</p>";
   const{data:mods}=await sb.from("moderators").select("id,name,email,code,user_id,created_at").order("name");
   allMods=mods||[];
   document.getElementById("k-mods").textContent=allMods.length;
-  const fmod=document.getElementById("filter-mod");
-  const curFm=fmod.value;
+  const fmod=document.getElementById("filter-mod");const curFm=fmod.value;
   fmod.innerHTML='<option value="">Todos os moderadores</option>'+allMods.map(m=>`<option value="${m.id}"${m.id===curFm?" selected":""}>${m.name} [${m.code}]</option>`).join("");
   const bmod=document.getElementById("b-mod");
   bmod.innerHTML='<option value="">— Selecione o moderador —</option>'+allMods.map(m=>`<option value="${m.id}" data-code="${m.code}">${m.name} [${m.code}]</option>`).join("");
@@ -830,9 +673,7 @@ async function loadData(){
     allRefs=refs||[];
     const{data:pays}=await sb.from("payments").select("*").in("referrer_id",ar.map(r=>r.id)).order("created_at",{ascending:false});
     allPayments=pays||[];
-  } else {
-    allPayments=[];
-  }
+  }else{allPayments=[];}
   const rm={};allRefs.forEach(r=>{(rm[r.referrer_id]||(rm[r.referrer_id]=[])).push(r);});
   ar.forEach(r=>r.refs=rm[r.id]||[]);
   allInq.forEach(r=>r.subs=allInd.filter(i=>i.ref_origin===r.code));
@@ -841,8 +682,7 @@ async function loadData(){
   document.getElementById("k-ind").textContent=allInd.length;
   document.getElementById("k-total").textContent=allRefs.length;
   document.getElementById("k-approved").textContent=ap.length;
-  renderView();
-  renderModSection();
+  renderView();renderModSection();
 }
 document.querySelectorAll(".view-tab").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".view-tab").forEach(x=>x.classList.remove("active"));b.classList.add("active");curView=b.dataset.view;renderView();}));
 function getFilteredInq(){const s=(document.getElementById("search-input").value||"").toLowerCase();const mf=document.getElementById("filter-mod").value;return allInq.filter(c=>(!mf||c.moderator_id===mf)&&(!s||c.name?.toLowerCase().includes(s)||c.phone?.includes(s)||c.code?.toLowerCase().includes(s)));}
@@ -858,15 +698,12 @@ function renderInq(){
     const dirOk=(c.refs||[]).filter(r=>isOk(r.status)).length;
     const subOk=(c.subs||[]).reduce((a,s)=>a+(s.refs||[]).filter(r=>isOk(r.status)).length,0);
     const ap=dirOk+subOk,nv=getNivel(ap),wa=waHref(c.phone),sm=calcSm(ap);
-    const paid=getTotalPaid(c.id);
-    const balance=sm-paid;
+    const paid=getTotalPaid(c.id);const balance=sm-paid;
     const sc=(c.subs||[]).length,tr=(c.refs||[]).length;
     const cd=document.createElement("div");cd.className="client-card";
-    const subHtml=sc>0?`<div class="sub-tree"><p class="sub-tree-title">👥 Indicados vinculados (${sc})</p>${(c.subs||[]).map(sub=>{const sA=(sub.refs||[]).filter(r=>isOk(r.status)).length,sT=(sub.refs||[]).length,sN=getNivel(sA),sW=waHref(sub.phone),sS=calcSm(sA);return`<div class="sub-card"><div class="sub-head" onclick="this.closest('.sub-card').classList.toggle('open')"><div class="sub-left"><div class="sub-av">${initials(sub.name)}</div><div><div class="sub-name">${sub.name||"—"} <span class="role-tag role-indicado" style="font-size:9px;">Indicado</span> <button class="btn-edit-indiquer" onclick="event.stopPropagation();openEditReferrer('${sub.id}')">✏️</button></div><div class="sub-meta">${sW?`<a class="wa-link" href="${sW}" target="_blank" onclick="event.stopPropagation()" style="font-size:11px;">📱 ${sub.phone}</a>`:sub.phone||"—"} · <strong>${sub.code||"—"}</strong></div></div></div><div style="display:flex;align-items:center;gap:6px;"><div class="sub-stats"><span class="nivel-tag ${sN.c}" style="font-size:9px;padding:1px 8px;">${sN.l}</span><span class="stat-pill" style="font-size:10px;">${sT} ind.</span><span class="stat-pill green" style="font-size:10px;">${sA} ok</span><span class="stat-pill" style="font-size:10px;color:#c084fc;">${fmt(sS)}</span></div><div class="sub-chevron">▼</div></div></div><div class="sub-body">${buildTable(sub.refs||[])}</div></div>`;}).join("")}</div>`:"";
-    const balancePill=balance<=0
-      ?`<span class="stat-pill" style="color:#4ade80;border-color:rgba(74,222,128,.4);background:rgba(74,222,128,.1);">✅ Quitado</span>`
-      :(paid>0?`<span class="stat-pill" style="color:#facc15;border-color:rgba(250,204,21,.3);">💰 Saldo ${fmt(balance)}</span>`:"");
-    cd.innerHTML=`<div class="client-header" onclick="this.closest('.client-card').classList.toggle('open')"><div class="client-left"><div class="client-avatar">${initials(c.name)}</div><div><div class="client-name">${c.name||"—"} <span class="role-tag role-indiquer">Indiquer</span> <button class="btn-edit-indiquer" onclick="event.stopPropagation();openEditReferrer('${c.id}')">✏️</button></div><div class="client-meta">${wa?`<a class="wa-link" href="${wa}" target="_blank" onclick="event.stopPropagation()">📱 ${c.phone}</a>`:c.phone||"—"} · <strong>${c.code||"—"}</strong>${mod?` · Mod: ${mod.name}`:""} · desde ${fmtDate(c.created_at)}</div></div></div><div style="display:flex;align-items:center;gap:8px;"><div class="client-stats"><span class="nivel-tag ${nv.c}">${nv.l}</span>${tr>0?`<span class="stat-pill">${tr} ind.</span>`:""}<span class="stat-pill green">${ap} aprov.</span><span class="stat-pill" style="color:#c084fc;">${sc} indicado${sc!==1?"s":""}</span><span class="stat-pill" style="color:#c084fc;">${fmt(sm)}</span>${balancePill}</div><div class="chevron">▼</div></div></div><div class="client-body">${buildPaySummary(c.id,sm)}<h4 style="font-size:12px;color:#60a5fa;font-weight:700;margin:14px 0 10px;text-transform:uppercase;letter-spacing:.5px;">📨 Indicações diretas (${tr})</h4>${buildTable(c.refs||[])}<button class="btn-add-ref" onclick="event.stopPropagation();openBulkExisting('${c.id}','${(c.name||"").replace(/'/g,"\\'")}','${c.code||""}','${c.phone||""}','${c.email||""}','${c.moderator_id||""}')">➕ Adicionar mais indicações</button>${subHtml}</div>`;
+    const subHtml=sc>0?`<div class="sub-tree"><p class="sub-tree-title">👥 Indicados vinculados (${sc})</p>${(c.subs||[]).map(sub=>{const sA=(sub.refs||[]).filter(r=>isOk(r.status)).length,sT=(sub.refs||[]).length,sN=getNivel(sA),sW=waHref(sub.phone),sS=calcSm(sA);return`<div class="sub-card"><div class="sub-head" onclick="this.closest('.sub-card').classList.toggle('open')"><div class="sub-left"><div class="sub-av">${initials(sub.name)}</div><div><div class="sub-name">${sub.name||"—"} <span class="role-tag role-indicado" style="font-size:9px;">Indicado</span> <button class="btn-edit-indiquer" onclick="event.stopPropagation();openEditReferrer('${sub.id}')">✏️</button><button class="btn-assign" style="font-size:9px;padding:2px 6px;" onclick="event.stopPropagation();openAssign('${sub.id}','indicado')">🔀</button></div><div class="sub-meta">${sW?`<a class="wa-link" href="${sW}" target="_blank" onclick="event.stopPropagation()" style="font-size:11px;">📱 ${sub.phone}</a>`:sub.phone||"—"} · <strong>${sub.code||"—"}</strong></div></div></div><div style="display:flex;align-items:center;gap:6px;"><div class="sub-stats"><span class="nivel-tag ${sN.c}" style="font-size:9px;padding:1px 8px;">${sN.l}</span><span class="stat-pill" style="font-size:10px;">${sT} ind.</span><span class="stat-pill green" style="font-size:10px;">${sA} ok</span><span class="stat-pill" style="font-size:10px;color:#c084fc;">${fmt(sS)}</span></div><div class="sub-chevron">▼</div></div></div><div class="sub-body">${buildTable(sub.refs||[])}</div></div>`;}).join("")}</div>`:"";
+    const balancePill=balance<=0?`<span class="stat-pill" style="color:#4ade80;border-color:rgba(74,222,128,.4);background:rgba(74,222,128,.1);">✅ Quitado</span>`:(paid>0?`<span class="stat-pill" style="color:#facc15;border-color:rgba(250,204,21,.3);">💰 Saldo ${fmt(balance)}</span>`:"");
+    cd.innerHTML=`<div class="client-header" onclick="this.closest('.client-card').classList.toggle('open')"><div class="client-left"><div class="client-avatar">${initials(c.name)}</div><div><div class="client-name">${c.name||"—"} <span class="role-tag role-indiquer">Indiquer</span> <button class="btn-edit-indiquer" onclick="event.stopPropagation();openEditReferrer('${c.id}')">✏️</button><button class="btn-assign" onclick="event.stopPropagation();openAssign('${c.id}','indiquer')">🔀 Atribuir</button></div><div class="client-meta">${wa?`<a class="wa-link" href="${wa}" target="_blank" onclick="event.stopPropagation()">📱 ${c.phone}</a>`:c.phone||"—"} · <strong>${c.code||"—"}</strong>${mod?` · Mod: ${mod.name}`:""} · desde ${fmtDate(c.created_at)}</div></div></div><div style="display:flex;align-items:center;gap:8px;"><div class="client-stats"><span class="nivel-tag ${nv.c}">${nv.l}</span>${tr>0?`<span class="stat-pill">${tr} ind.</span>`:""}<span class="stat-pill green">${ap} aprov.</span><span class="stat-pill" style="color:#c084fc;">${sc} indicado${sc!==1?"s":""}</span><span class="stat-pill" style="color:#c084fc;">${fmt(sm)}</span>${balancePill}</div><div class="chevron">▼</div></div></div><div class="client-body">${buildPaySummary(c.id,sm)}<h4 style="font-size:12px;color:#60a5fa;font-weight:700;margin:14px 0 10px;text-transform:uppercase;letter-spacing:.5px;">📨 Indicações diretas (${tr})</h4>${buildTable(c.refs||[])}<button class="btn-add-ref" onclick="event.stopPropagation();openBulkExisting('${c.id}','${(c.name||"").replace(/'/g,"\\'")}','${c.code||""}','${c.phone||""}','${c.email||""}','${c.moderator_id||""}')">➕ Adicionar mais indicações</button>${subHtml}</div>`;
     ct.appendChild(cd);
   });
 }
@@ -879,7 +716,7 @@ function renderInd(){
     const ap=(c.refs||[]).filter(r=>isOk(r.status)).length,nv=getNivel(ap),wa=waHref(c.phone),sm=calcSm(ap);
     const pi=allInq.find(i=>i.code===c.ref_origin),tr=(c.refs||[]).length;
     const cd=document.createElement("div");cd.className="client-card";
-    cd.innerHTML=`<div class="client-header" onclick="this.closest('.client-card').classList.toggle('open')"><div class="client-left"><div class="client-avatar" style="background:linear-gradient(135deg,rgba(168,85,247,.6),rgba(124,58,237,.5));">${initials(c.name)}</div><div><div class="client-name">${c.name||"—"} <span class="role-tag role-indicado">Indicado</span> <button class="btn-edit-indiquer" onclick="event.stopPropagation();openEditReferrer('${c.id}')">✏️</button></div><div class="client-meta">${wa?`<a class="wa-link" href="${wa}" target="_blank" onclick="event.stopPropagation()">📱 ${c.phone}</a>`:c.phone||"—"} · <strong>${c.code||"—"}</strong> · Indiquer: <strong>${pi?.name||"—"}</strong> · desde ${fmtDate(c.created_at)}</div></div></div><div style="display:flex;align-items:center;gap:8px;"><div class="client-stats"><span class="nivel-tag ${nv.c}">${nv.l}</span><span class="stat-pill">${tr} ind.</span><span class="stat-pill green">${ap} aprov.</span><span class="stat-pill" style="color:#c084fc;">${fmt(sm)}</span></div><div class="chevron">▼</div></div></div><div class="client-body"><h4 style="font-size:12px;color:#c084fc;font-weight:700;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;">📨 Indicações (${tr})</h4>${buildTable(c.refs||[])}</div>`;
+    cd.innerHTML=`<div class="client-header" onclick="this.closest('.client-card').classList.toggle('open')"><div class="client-left"><div class="client-avatar" style="background:linear-gradient(135deg,rgba(168,85,247,.6),rgba(124,58,237,.5));">${initials(c.name)}</div><div><div class="client-name">${c.name||"—"} <span class="role-tag role-indicado">Indicado</span> <button class="btn-edit-indiquer" onclick="event.stopPropagation();openEditReferrer('${c.id}')">✏️</button><button class="btn-assign" onclick="event.stopPropagation();openAssign('${c.id}','indicado')">🔀 Atribuir</button></div><div class="client-meta">${wa?`<a class="wa-link" href="${wa}" target="_blank" onclick="event.stopPropagation()">📱 ${c.phone}</a>`:c.phone||"—"} · <strong>${c.code||"—"}</strong> · Indiquer: <strong>${pi?.name||"—"}</strong> · desde ${fmtDate(c.created_at)}</div></div></div><div style="display:flex;align-items:center;gap:8px;"><div class="client-stats"><span class="nivel-tag ${nv.c}">${nv.l}</span><span class="stat-pill">${tr} ind.</span><span class="stat-pill green">${ap} aprov.</span><span class="stat-pill" style="color:#c084fc;">${fmt(sm)}</span></div><div class="chevron">▼</div></div></div><div class="client-body"><h4 style="font-size:12px;color:#c084fc;font-weight:700;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;">📨 Indicações (${tr})</h4>${buildTable(c.refs||[])}</div>`;
     ct.appendChild(cd);
   });
 }
@@ -963,7 +800,6 @@ function renderTree(){const mid=document.getElementById('tree-mod-sel')?.value||
 function _showNodeDetail(id,type){const det=document.getElementById('tree-node-detail');if(!det)return;if(_tSelId===id){_tSelId=null;det.style.display='none';document.querySelectorAll('.tk-card').forEach(c=>c.classList.remove('sel'));return;}_tSelId=id;document.querySelectorAll('.tk-card').forEach(c=>c.classList.remove('sel'));const el=document.getElementById('tkc-'+id);if(el)el.classList.add('sel');let html='';if(type==='mod'){const m=allMods.find(x=>x.id===id);if(!m)return;const mi=allInq.filter(x=>x.moderator_id===id);const mr=allRefs.filter(r=>mi.some(j=>j.id===r.referrer_id));const map=mr.filter(r=>isOk(r.status)).length;html=`<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;"><div class="tk-av" style="width:40px;height:40px;font-size:14px;background:linear-gradient(135deg,#7c3aed,#4f46e5);flex-shrink:0;">${initials(m.name)}</div><div><div style="font-size:15px;font-weight:700;">${m.name}</div><div style="font-size:11px;color:var(--muted);">Moderador · ${m.email}</div></div></div><div class="tk-det-stats"><span class="tk-det-pill">${mi.length} indiquer${mi.length!==1?'s':''}</span><span class="tk-det-pill">${mr.length} indicação${mr.length!==1?'ões':''}</span><span class="tk-det-pill" style="color:#4ade80;border-color:rgba(74,222,128,.3);">${map} aprovado${map!==1?'s':''}</span></div><div style="font-size:11px;color:var(--muted);">Código raiz: <strong style="color:#c084fc;">${m.code}</strong></div>`;}else if(type==='inq'){const r=allInq.find(x=>x.id===id);if(!r)return;const m=allMods.find(x=>x.id===r.moderator_id);const refs=r.refs||[];const ap=refs.filter(x=>isOk(x.status)).length;const sm=calcSm(ap);const nv=getNivel(ap);const paid=getTotalPaid(r.id);const balance=sm-paid;html=`<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;"><div class="tk-av" style="width:40px;height:40px;font-size:14px;background:linear-gradient(135deg,#059669,#10b981);flex-shrink:0;">${initials(r.name)}</div><div><div style="font-size:15px;font-weight:700;">${r.name||'—'} <span class="nivel-tag ${nv.c}" style="font-size:9px;padding:2px 7px;">${nv.l}</span></div><div style="font-size:11px;color:var(--muted);">Indiquer · via ${m?.name||'—'}</div></div></div><div class="tk-det-stats"><span class="tk-det-pill">${refs.length} indicação${refs.length!==1?'ões':''}</span><span class="tk-det-pill" style="color:#4ade80;border-color:rgba(74,222,128,.3);">${ap} aprovado${ap!==1?'s':''}</span><span class="tk-det-pill" style="color:#c084fc;border-color:rgba(168,85,247,.3);">${fmt(sm)}</span><span class="tk-det-pill" style="color:#facc15;border-color:rgba(250,204,21,.3);">Pago: ${fmt(paid)}</span><span class="tk-det-pill" style="color:${balance<=0?'#fb7185':'#4ade80'};border-color:${balance<=0?'rgba(251,113,133,.3)':'rgba(74,222,128,.3)'};">Saldo: ${fmt(balance)}</span></div><div style="font-size:11px;color:var(--muted);">Código: <strong style="color:#c084fc;">${r.code}</strong>${r.phone?` · 📱 ${r.phone}`:''}</div><div style="display:flex;gap:8px;margin-top:10px;"><button class="btn-edit-indiquer" onclick="openEditReferrer('${r.id}')">✏️ Editar</button><button class="btn-pay" style="margin-left:0;" onclick="openPayModal('${r.id}')">💰 Dar Baixa</button></div>`;}else{const ref=allRefs.find(x=>x.id===id);if(!ref)return;const cl=ref.indicated_clients||{};const inq=allInq.find(x=>x.id===ref.referrer_id);const mod=allMods.find(x=>x.id===inq?.moderator_id);const sLabel={em_analise:'⏳ Em análise',em_contato:'📞 Em contato',aprovado:'✅ Aprovado',reprovado:'❌ Reprovado'};const email=cl.observations?.startsWith('E-mail:')?cl.observations.replace('E-mail:','').trim():cl.observations||'';html=`<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;"><div class="tk-av" style="width:40px;height:40px;font-size:14px;background:linear-gradient(135deg,#9333ea,#7c3aed);flex-shrink:0;">${initials(cl.name||cl.phone)}</div><div><div style="font-size:15px;font-weight:700;">${cl.name||cl.phone||'—'}</div><div style="font-size:11px;color:var(--muted);">Indicado · via ${inq?.name||'—'}</div></div></div><div class="tk-det-stats"><span class="tk-det-pill">${sLabel[normS(ref.status)]||ref.status||'—'}</span>${ref.amount?`<span class="tk-det-pill" style="color:#c084fc;border-color:rgba(168,85,247,.3);">${fmt(ref.amount)}</span>`:''}${cl.profile_type?`<span class="tk-det-pill">${cl.profile_type}</span>`:''}${cl.phone?`<span class="tk-det-pill">📱 ${cl.phone}</span>`:''}</div><div style="font-size:11px;color:var(--muted);">${email?`E-mail: <strong>${email}</strong> · `:''}Cadeia: <strong>${mod?.code||'—'}</strong> → <strong>${inq?.code||'—'}</strong>${ref.admin_note||ref.mod_note?`<br><em style="color:rgba(255,255,255,.35);">Nota: ${ref.admin_note||ref.mod_note}</em>`:''}</div><button class="btn-edit-indiquer" style="margin-top:10px;" onclick="openEditIndicado('${ref.indicated_client_id||''}')">✏️ Editar indicado</button>`;}det.innerHTML=html;det.style.display='block';setTimeout(()=>det.scrollIntoView({behavior:'smooth',block:'nearest'}),50);}
 function _renderKanban(mods,inqs,refClients){const ct=document.getElementById('tree-kanban-wrap');if(!ct)return;const mkModCard=(m)=>{const mi=inqs.filter(i=>i.moderator_id===m.id).length;const mr=refClients.filter(c=>inqs.some(i=>i.id===c.referrerId&&i.moderator_id===m.id));const ap=mr.filter(c=>isOk(c.status)).length;return`<div class="tk-card" id="tkc-${m.id}" onclick="_showNodeDetail('${m.id}','mod')"><div class="tk-av" style="background:linear-gradient(135deg,#7c3aed,#4f46e5);">${initials(m.name)}</div><div class="tk-card-name">${m.name}</div><div class="tk-card-code">${m.code}</div><div class="tk-pills"><span class="tk-pill">${mi} inq.</span><span class="tk-pill">${mr.length} ind.</span>${ap?`<span class="tk-pill green">${ap} ok</span>`:''}</div><div class="tk-stripe" style="background:linear-gradient(#7c3aed,#4f46e5);"></div></div>`;};const mkInqCard=(i)=>{const m=allMods.find(x=>x.id===i.moderator_id);const refs=i.refs||[];const ap=refs.filter(r=>isOk(r.status)).length;const sm=calcSm(ap);const nv=getNivel(ap);const paid=getTotalPaid(i.id);const balance=sm-paid;return`<div class="tk-card" id="tkc-${i.id}" onclick="_showNodeDetail('${i.id}','inq')"><div class="tk-av" style="background:linear-gradient(135deg,#059669,#10b981);">${initials(i.name)}</div><div class="tk-card-name">${i.name||'—'}</div><div class="tk-card-code">${i.code||'—'}</div><div class="tk-card-via">via ${m?.name||'—'}</div><div class="tk-pills"><span class="tk-pill">${refs.length} ind.</span><span class="tk-pill green">${ap} ok</span>${sm>0?`<span class="tk-pill" style="color:#c084fc;">${fmt(sm)}</span>`:''}<span class="tk-pill" style="color:${balance<=0?'#4ade80':'#facc15'};">${balance<=0?'✅ Quitado':'💰 '+fmt(balance)}</span></div><div class="tk-stripe" style="background:linear-gradient(#059669,#10b981);"></div></div>`;};const mkIndCard=(c)=>{const sColor={em_analise:'#facc15',em_contato:'#60a5fa',aprovado:'#4ade80',reprovado:'#fb7185'};const sc=sColor[normS(c.status)]||'rgba(255,255,255,.3)';return`<div class="tk-card" id="tkc-${c._rid}" onclick="_showNodeDetail('${c._rid}','ind')"><div class="tk-av" style="background:linear-gradient(135deg,#9333ea,#7c3aed);">${initials(c.name)}</div><div class="tk-card-name">${c.name}</div><div class="tk-card-via">via ${c.referrerName}</div><div class="tk-pills"><span class="tk-pill" style="color:${sc};border-color:${sc}44;">${normS(c.status).replace('_',' ')}</span>${c.phone?`<span class="tk-pill">📱</span>`:''}</div><div class="tk-stripe" style="background:${sc};"></div></div>`;};const modCards=mods.length?mods.map(mkModCard).join(''):`<p class="tk-empty">—</p>`;const inqCards=inqs.length?inqs.map(mkInqCard).join(''):`<p class="tk-empty">Nenhum indiquer</p>`;const indCards=refClients.length?refClients.map(mkIndCard).join(''):`<p class="tk-empty">Nenhum indicado</p>`;ct.innerHTML=`<div class="tk-scroll"><div class="tk-board"><div class="tk-col"><div class="tk-col-head tkh-mod">🛡️ Moderadores <span style="background:rgba(124,58,237,.2);color:#c084fc;padding:1px 8px;border-radius:999px;font-size:10px;margin-left:4px;">${mods.length}</span></div><div class="tk-col-body tkb-mod">${modCards}</div></div><div class="tk-conn-svg"><svg width="40" height="80" viewBox="0 0 40 80" fill="none"><path d="M0 25 Q20 25 20 40 Q20 55 40 55" stroke="rgba(255,255,255,.1)" stroke-width="1.5" fill="none" stroke-dasharray="3,3"/></svg></div><div class="tk-col"><div class="tk-col-head tkh-inq">🤝 Indiquers <span style="background:rgba(16,185,129,.12);color:#34d399;padding:1px 8px;border-radius:999px;font-size:10px;margin-left:4px;">${inqs.length}</span></div><div class="tk-col-body tkb-inq">${inqCards}</div></div><div class="tk-conn-svg"><svg width="40" height="80" viewBox="0 0 40 80" fill="none"><path d="M0 25 Q20 25 20 40 Q20 55 40 55" stroke="rgba(255,255,255,.08)" stroke-width="1.5" fill="none" stroke-dasharray="3,3"/></svg></div><div class="tk-col" style="width:210px;"><div class="tk-col-head tkh-ind">👤 Indicados <span style="background:rgba(147,51,234,.12);color:#c084fc;padding:1px 8px;border-radius:999px;font-size:10px;margin-left:4px;">${refClients.length}</span></div><div class="tk-col-body tkb-ind">${indCards}</div></div></div></div>`;}
 function _renderGraph(mods,inqs,refClients){const ct=document.getElementById('tree-graph-wrap');if(!ct)return;if(!mods.length&&!inqs.length){ct.innerHTML='<p style="color:var(--muted);font-size:13px;padding:24px;text-align:center;">Aguarde os dados carregarem.</p>';return;}const NS=130,LY=[65,210,360];const pos={};const iw={};inqs.forEach(inq=>{iw[inq.id]=Math.max(1,refClients.filter(c=>c.referrerId===inq.id).length);});const mw={};mods.forEach(mod=>{const ch=inqs.filter(i=>i.moderator_id===mod.id);mw[mod.id]=ch.length===0?1:ch.reduce((s,i)=>s+(iw[i.id]||1),0);});const total=Math.max(1,mods.reduce((s,m)=>s+(mw[m.id]||1),0));const svgW=Math.max(700,total*NS+100);const svgH=refClients.length>0?440:inqs.length>0?280:160;let edges='';let mx=60;mods.forEach(mod=>{const mWpx=(mw[mod.id]||1)*NS;const mx0=mx+mWpx/2;pos[mod.id]={x:mx0,y:LY[0]};const mch=inqs.filter(i=>i.moderator_id===mod.id);let ix=mx;mch.forEach(inq=>{const iwpx=(iw[inq.id]||1)*NS;const ix0=ix+iwpx/2;pos[inq.id]={x:ix0,y:LY[1]};edges+=`<path d="M${mx0} ${LY[0]+28} C${mx0} ${(LY[0]+LY[1])/2},${ix0} ${(LY[0]+LY[1])/2},${ix0} ${LY[1]-22}" fill="none" stroke="rgba(124,58,237,.3)" stroke-width="1.5" stroke-dasharray="5,4"/>`;const ich=refClients.filter(c=>c.referrerId===inq.id);ich.forEach((cl,ii)=>{const cx=ix+ii*NS+NS/2;pos[cl._rid]={x:cx,y:LY[2]};const sc=isOk(cl.status)?'rgba(74,222,128,.4)':'rgba(147,51,234,.2)';edges+=`<path d="M${ix0} ${LY[1]+22} C${ix0} ${(LY[1]+LY[2])/2},${cx} ${(LY[1]+LY[2])/2},${cx} ${LY[2]-18}" fill="none" stroke="${sc}" stroke-width="1.5" stroke-dasharray="4,4"/>`;});ix+=iwpx;});mx+=mWpx;});const drawMod=(m)=>{const p=pos[m.id];if(!p)return'';return`<g class="tg-node" id="tgn-${m.id}" onclick="_showNodeDetail('${m.id}','mod')" data-name="${(m.name||'').replace(/"/g,'&quot;')}" data-code="${m.code||''}" data-type="mod"><circle cx="${p.x}" cy="${p.y}" r="28" fill="url(#tg-mg)" stroke="rgba(124,58,237,.7)" stroke-width="1.5" filter="url(#tg-glow)"/><text x="${p.x}" y="${p.y-3}" text-anchor="middle" dominant-baseline="middle" fill="white" font-size="11" font-weight="700" font-family="Poppins,sans-serif">${initials(m.name)}</text><text x="${p.x}" y="${p.y+11}" text-anchor="middle" dominant-baseline="middle" fill="rgba(255,255,255,.5)" font-size="8" font-family="monospace">${m.code}</text></g>`;};const drawInq=(i)=>{const p=pos[i.id];if(!p)return'';const refs=i.refs||[];const ap=refs.filter(x=>isOk(x.status)).length;const badge=ap>0?`<circle cx="${p.x+18}" cy="${p.y-16}" r="8" fill="#059669" stroke="#0a0a1a" stroke-width="1.5"/><text x="${p.x+18}" y="${p.y-12}" text-anchor="middle" fill="white" font-size="7" font-weight="700" font-family="Poppins,sans-serif">${ap}</text>`:'';return`<g class="tg-node" id="tgn-${i.id}" onclick="_showNodeDetail('${i.id}','inq')" data-name="${(i.name||'').replace(/"/g,'&quot;')}" data-code="${i.code||''}" data-type="inq"><circle cx="${p.x}" cy="${p.y}" r="22" fill="url(#tg-ig)" stroke="rgba(16,185,129,.6)" stroke-width="1.5"/><text x="${p.x}" y="${p.y-3}" text-anchor="middle" dominant-baseline="middle" fill="white" font-size="9" font-weight="700" font-family="Poppins,sans-serif">${initials(i.name)}</text><text x="${p.x}" y="${p.y+9}" text-anchor="middle" dominant-baseline="middle" fill="rgba(255,255,255,.5)" font-size="7.5" font-family="monospace">${(i.code||'').slice(0,6)}</text>${badge}</g>`;};const drawInd=(c)=>{const p=pos[c._rid];if(!p)return'';const approved=isOk(c.status);const sc=approved?'rgba(74,222,128,.6)':'rgba(147,51,234,.55)';const sf=approved?'url(#tg-ag)':'url(#tg-dg)';return`<g class="tg-node" id="tgn-${c._rid}" onclick="_showNodeDetail('${c._rid}','ind')" data-name="${(c.name||'').replace(/"/g,'&quot;')}" data-code="${normS(c.status)}" data-type="ind"><circle cx="${p.x}" cy="${p.y}" r="18" fill="${sf}" stroke="${sc}" stroke-width="1.5"/><text x="${p.x}" y="${p.y-3}" text-anchor="middle" dominant-baseline="middle" fill="white" font-size="8.5" font-weight="700" font-family="Poppins,sans-serif">${initials(c.name)}</text><text x="${p.x}" y="${p.y+9}" text-anchor="middle" dominant-baseline="middle" fill="rgba(255,255,255,.45)" font-size="6.5" font-family="monospace">${(c.name||'').slice(0,7)}</text></g>`;};let nodes='';mods.forEach(m=>nodes+=drawMod(m));inqs.forEach(i=>nodes+=drawInq(i));refClients.forEach(c=>nodes+=drawInd(c));ct.innerHTML=`<div class="tg-wrap"><svg viewBox="0 0 ${svgW} ${svgH}" width="${svgW}" height="${svgH}" style="min-width:${svgW}px;display:block;"><defs><linearGradient id="tg-mg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#7c3aed"/><stop offset="100%" stop-color="#4f46e5"/></linearGradient><linearGradient id="tg-ig" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#059669"/><stop offset="100%" stop-color="#10b981"/></linearGradient><linearGradient id="tg-dg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#9333ea"/><stop offset="100%" stop-color="#7c3aed"/></linearGradient><linearGradient id="tg-ag" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#059669"/><stop offset="100%" stop-color="#4ade80"/></linearGradient><filter id="tg-glow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><rect width="${svgW}" height="${svgH}" fill="rgba(255,255,255,.01)"/>${edges}${nodes}</svg><div class="tg-legend"><div class="tg-legend-item"><div class="tg-legend-dot" style="background:#7c3aed;"></div>Moderador</div><div class="tg-legend-item"><div class="tg-legend-dot" style="background:#10b981;"></div>Indiquer</div><div class="tg-legend-item"><div class="tg-legend-dot" style="background:#9333ea;"></div>Indicado pendente</div><div class="tg-legend-item"><div class="tg-legend-dot" style="background:#4ade80;"></div>Indicado aprovado</div><div style="margin-left:auto;font-size:11px;color:rgba(255,255,255,.2);">Clique em qualquer nó para ver detalhes</div></div><div class="tg-tooltip" id="tg-tt"></div></div>`;const sLabels={em_analise:'Em análise',em_contato:'Em contato',aprovado:'Aprovado',reprovado:'Reprovado'};ct.querySelectorAll('.tg-node').forEach(g=>{g.addEventListener('mouseenter',()=>{const tt=document.getElementById('tg-tt');if(!tt)return;const n=g.getAttribute('data-name'),c=g.getAttribute('data-code'),t=g.getAttribute('data-type');const roles={mod:'Moderador',inq:'Indiquer',ind:'Indicado'};const sub=t==='ind'?(sLabels[c]||c):(`Código: ${c}`);tt.innerHTML=`<strong style="display:block;margin-bottom:2px;">${n}</strong><span style="font-size:10px;color:rgba(255,255,255,.4);">${roles[t]||t} · ${sub}</span>`;tt.classList.add('show');});g.addEventListener('mousemove',e=>{const tt=document.getElementById('tg-tt');if(!tt)return;const box=ct.getBoundingClientRect();let x=e.clientX-box.left+14,y=e.clientY-box.top+14;if(x+170>box.width)x=e.clientX-box.left-170;tt.style.left=x+'px';tt.style.top=y+'px';});g.addEventListener('mouseleave',()=>{const tt=document.getElementById('tg-tt');if(tt)tt.classList.remove('show');});});}
-
 </script>
 </body>
 </html>
