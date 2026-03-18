@@ -165,7 +165,40 @@ async function saveAssign() {
         .eq('id', _assignId);
 
       if (error) throw error;
-      toast('✅ Indiquer reatribuído com sucesso!');
+
+      /* ── Cascata: move os indicados vinculados junto ─────────── */
+      // Busca o código do indiquer para encontrar os indicados pelo ref_origin
+      const allPeople = [
+        ...(typeof allInq !== 'undefined' ? allInq : []),
+        ...(typeof allInd !== 'undefined' ? allInd : [])
+      ];
+      let inqCode = allPeople.find(r => r.id === _assignId)?.code;
+
+      // Fallback: busca no banco se não encontrou na array
+      if (!inqCode) {
+        const { data: inqData } = await sb.from('referrers')
+          .select('code')
+          .eq('id', _assignId)
+          .single();
+        inqCode = inqData?.code;
+      }
+
+      if (inqCode) {
+        const { data: subInds } = await sb.from('referrers')
+          .select('id')
+          .eq('ref_origin', inqCode)
+          .eq('role', 'indicado');
+
+        if (subInds?.length) {
+          const { error: subErr } = await sb.from('referrers')
+            .update({ moderator_id: modId })
+            .in('id', subInds.map(i => i.id));
+
+          if (subErr) throw subErr;
+        }
+      }
+
+      toast('✅ Indiquer e indicados reatribuídos com sucesso!');
 
     } else {
       /* ── Reatribui indicado: precisa de um indiquer de destino ── */
