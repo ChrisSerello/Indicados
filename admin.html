@@ -613,6 +613,32 @@ window.onSC=function(sel){const id=sel.dataset.id,ns=sel.value,m=SOS.find(o=>o.v
 window.saveRow=async function(id,btn){const tr=btn.closest("tr");const sel=tr?.querySelector(".status-select");const vi=tr?.querySelector(".valor-input");const ns=sel?.value;const na=vi?(parseCurrency(vi.value)||null):null;if(!ns)return;btn.textContent="…";btn.disabled=true;const upd={status:ns};if(na!==null)upd.amount=na;const{error}=await sb.from("referrals").update(upd).eq("id",id);btn.textContent="Salvar";btn.disabled=false;if(error){toast("Erro: "+error.message,false);return;}allRefs.forEach(r=>{if(r.id===id){r.status=ns;if(na!==null)r.amount=na;}});toast("✅ Salvo!");updateKPIs();renderView();};
 function updateKPIs(){const ap=allRefs.filter(r=>isOk(r.status));document.getElementById("k-approved").textContent=ap.length;}
 
+window.saveSubRowDirect=async function(indiquerRefId,subId,btn){
+  const tr=btn.closest("tr");
+  const sel=tr?.querySelector(".status-select");
+  const vi=tr?.querySelector(".valor-input");
+  const ns=sel?.value||"em_analise";
+  const na=vi?(parseCurrency(vi.value)||null):null;
+  const sub=[...allInq,...allInd].find(x=>x.id===subId);
+  if(!sub){toast("Indicado não encontrado.",false);return;}
+  btn.textContent="…";btn.disabled=true;
+  const ph=(sub.phone||"").replace(/\D/g,"");
+  const{data:cl,error:ce}=await sb.from("indicated_clients").insert({
+    name:sub.name||"—",
+    cpf:(sub.cpf||"").replace(/\D/g,"")||null,
+    phone:ph||null,
+    observations:sub.email?`E-mail: ${sub.email}`:null
+  }).select("id").single();
+  if(ce){toast("Erro: "+ce.message,false);btn.textContent="Salvar";btn.disabled=false;return;}
+  const upd={referrer_id:indiquerRefId,indicated_client_id:cl.id,status:ns};
+  if(na!==null)upd.amount=na;
+  const{error:re}=await sb.from("referrals").insert(upd);
+  btn.textContent="Salvar";btn.disabled=false;
+  if(re){toast("Erro: "+re.message,false);return;}
+  toast("✅ Indicação vinculada e salva!");
+  loadData();
+};
+
 function buildTable(refs){
   if(!refs.length)return'<p class="empty-msg">Sem indicações ainda.</p>';
   return`<div class="ref-table-wrap"><table><thead><tr><th>Nome indicado</th><th>WhatsApp</th><th>Perfil/E-mail</th><th>Status</th><th>Valor (R$)</th><th>Nota</th><th>Data</th><th>Ações</th></tr></thead><tbody>${refs.map(ref=>{
@@ -702,11 +728,59 @@ function renderInq(){
     const paid=getTotalPaid(c.id);const balance=sm-paid;
     const sc=(c.subs||[]).length,tr=(c.refs||[]).length;
     const cd=document.createElement("div");cd.className="client-card";
-    const subHtml=sc>0?`<div class="sub-tree"><p class="sub-tree-title">👥 Indicados vinculados (${sc})</p>${(c.subs||[]).map(sub=>{const sA=(sub.refs||[]).filter(r=>isOk(r.status)).length,sT=(sub.refs||[]).length,sN=getNivel(sA),sW=waHref(sub.phone),sS=calcSm(sA);return`<div class="sub-card"><div class="sub-head" onclick="this.closest('.sub-card').classList.toggle('open')"><div class="sub-left"><div class="sub-av">${initials(sub.name)}</div><div><div class="sub-name">${sub.name||"—"} <span class="role-tag role-indicado" style="font-size:9px;">Indicado</span> <button class="btn-edit-indiquer" onclick="event.stopPropagation();openEditReferrer('${sub.id}')">✏️</button><button class="btn-assign" style="font-size:9px;padding:2px 6px;" onclick="event.stopPropagation();openAssign('${sub.id}','indicado')">🔀</button></div><div class="sub-meta">${sW?`<a class="wa-link" href="${sW}" target="_blank" onclick="event.stopPropagation()" style="font-size:11px;">📱 ${sub.phone}</a>`:sub.phone||"—"} · <strong>${sub.code||"—"}</strong></div></div></div><div style="display:flex;align-items:center;gap:6px;"><div class="sub-stats"><span class="nivel-tag ${sN.c}" style="font-size:9px;padding:1px 8px;">${sN.l}</span><span class="stat-pill" style="font-size:10px;">${sT} ind.</span><span class="stat-pill green" style="font-size:10px;">${sA} ok</span><span class="stat-pill" style="font-size:10px;color:#c084fc;">${fmt(sS)}</span></div><div class="sub-chevron">▼</div></div></div><div class="sub-body">${buildTable(sub.refs||[])}</div></div>`;}).join("")}</div>`:"";
-    const balancePill=balance<=0?`<span class="stat-pill" style="color:#4ade80;border-color:rgba(74,222,128,.4);background:rgba(74,222,128,.1);">✅ Quitado</span>`:(paid>0?`<span class="stat-pill" style="color:#facc15;border-color:rgba(250,204,21,.3);">💰 Saldo ${fmt(balance)}</span>`:"");
-    cd.innerHTML=`<div class="client-header" onclick="this.closest('.client-card').classList.toggle('open')"><div class="client-left"><div class="client-avatar">${initials(c.name)}</div><div><div class="client-name">${c.name||"—"} <span class="role-tag role-indiquer">Indiquer</span> <button class="btn-edit-indiquer" onclick="event.stopPropagation();openEditReferrer('${c.id}')">✏️</button><button class="btn-assign" onclick="event.stopPropagation();openAssign('${c.id}','indiquer')">🔀 Atribuir</button></div><div class="client-meta">${wa?`<a class="wa-link" href="${wa}" target="_blank" onclick="event.stopPropagation()">📱 ${c.phone}</a>`:c.phone||"—"} · <strong>${c.code||"—"}</strong>${mod?` · Mod: ${mod.name}`:""} · desde ${fmtDate(c.created_at)}</div></div></div><div style="display:flex;align-items:center;gap:8px;"><div class="client-stats"><span class="nivel-tag ${nv.c}">${nv.l}</span>${tr>0?`<span class="stat-pill">${tr} ind.</span>`:""}<span class="stat-pill green">${ap} aprov.</span><span class="stat-pill" style="color:#c084fc;">${sc} indicado${sc!==1?"s":""}</span><span class="stat-pill" style="color:#c084fc;">${fmt(sm)}</span>${balancePill}</div><div class="chevron">▼</div></div></div><div class="client-body">${buildPaySummary(c.id,sm)}<h4 style="font-size:12px;color:#60a5fa;font-weight:700;margin:14px 0 10px;text-transform:uppercase;letter-spacing:.5px;">📨 Indicações diretas (${tr})</h4>${buildTable(c.refs||[])}<button class="btn-add-ref" onclick="event.stopPropagation();openBulkExisting('${c.id}','${(c.name||"").replace(/'/g,"\\'")}','${c.code||""}','${c.phone||""}','${c.email||""}','${c.moderator_id||""}')">➕ Adicionar mais indicações</button>${subHtml}</div>`;
-    ct.appendChild(cd);
-  });
+    const subHtml=sc>0?`<div class="sub-tree"><p class="sub-tree-title">👥 Indicados vinculados (${sc})</p>${(c.subs||[]).map(sub=>{const sA=(sub.refs||[]).filter(r=>isOk(r.status)).length,sT=(sub.refs||[]).length,sN=getNivel(sA),sW=waHref(sub.phone),sS=calcSm(sA);return`<div class="sub-card"><div class="sub-head" onclick="this.closest('.sub-card').classList.toggle('open')"><div class="sub-left"><div class="sub-av">${initials(sub.name)}</div><div><div class="sub-name">${sub.name||"—"} <span class="role-tag role-indicado" style="font-size:9px;">Indicado</span> <button class="btn-edit-indiquer" onclick="event.stopPropagation();openEditReferrer('${sub.id}')">✏️</button><button class="btn-assign" style="font-size:9px;padding:2px 6px;" onclick="event.stopPropagation();openAssign('${sub.id}','indicado')">🔀</button></div><div class="sub-meta">${sW?`<a class="wa-link" href="${sW}" target="_blank" onclick="event.stopPropagation()" style="font-size:11px;">📱 ${sub.phone}</a>`:sub.phone||"—"} · <strong>${sub.code||"—"}</strong>${sub.email?` · 📧 ${sub.email}`:""} ${sub.cpf?` · 🪪 ${sub.cpf}`:""}</div></div></div><div style="display:flex;align-items:center;gap:6px;"><div class="sub-stats"><span class="nivel-tag ${sN.c}" style="font-size:9px;padding:1px 8px;">${sN.l}</span><span class="stat-pill" style="font-size:10px;">${sT} ind.</span><span class="stat-pill green" style="font-size:10px;">${sA} ok</span><span class="stat-pill" style="font-size:10px;color:#c084fc;">${fmt(sS)}</span></div><div class="sub-chevron">▼</div></div></div>
+      <div class="sub-body">
+        <div class="ref-table-wrap" style="margin-bottom:12px;">
+          <table>
+            <thead>
+              <tr>
+                <th>Nome indicado</th>
+                <th>WhatsApp</th>
+                <th>Perfil/E-mail</th>
+                <th>Status</th>
+                <th>Valor (R$)</th>
+                <th>Nota</th>
+                <th>Data</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                ${(()=>{
+                  const sW=waHref(sub.phone);
+                  const subRef=allRefs.find(r=>r.referrer_id===c.id&&r.indicated_clients&&((r.indicated_clients.phone||"")===(sub.phone||"").replace(/\D/g,"")||r.indicated_clients.name===sub.name));
+                  const cur=subRef?normS(subRef.status):"em_analise";
+                  const m=SOS.find(o=>o.v===cur)||SOS[0];
+                  return `
+                    <td><strong>${sub.name||"—"}</strong></td>
+                    <td>${sW?`<a class="wa-link" href="${sW}" target="_blank">📱 ${sub.phone}</a>`:(sub.phone||"—")}</td>
+                    <td style="color:var(--muted);font-size:12px;">${sub.email||sub.cpf||"—"}</td>
+                    <td>
+                      <select class="status-select ${m.c}" ${subRef?`data-id="${subRef.id}" onchange="onSC(this)"`:'data-direct="1"'}>
+                        ${SOS.map(o=>`<option value="${o.v}"${o.v===cur?" selected":""}>${o.l}</option>`).join("")}
+                      </select>
+                    </td>
+                    <td><input type="text" class="valor-input" value="${subRef&&subRef.amount?fmt(subRef.amount):""}" placeholder="R$ 0,00" oninput="fmtCurrencyInput(this)" onblur="fmtCurrencyBlur(this)"/></td>
+                    <td>${subRef?`<button class="note-btn${subRef.admin_note?" has-note":""}" onclick="openNote('${subRef.id}',this)">${subRef.admin_note?"📝 Ver":"+ Nota"}</button>`:"—"}</td>
+                    <td style="color:var(--muted);font-size:12px;">${fmtDate(sub.created_at)}</td>
+                    <td>
+                      <button class="btn-edit-row" onclick="openEditReferrer('${sub.id}')">✏️</button>
+                      ${subRef
+                        ?`<button class="btn-save-row" onclick="saveRow('${subRef.id}',this)">Salvar</button>`
+                        :`<button class="btn-save-row" onclick="saveSubRowDirect('${c.id}','${sub.id}',this)">Salvar</button>`}
+                    </td>
+                  `;
+                })()}
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        ${buildTable(sub.refs||[])}
+      </div></div>`;}).join("")}</div>`:"";
+      const balancePill=balance<=0?`<span class="stat-pill" style="color:#4ade80;border-color:rgba(74,222,128,.4);background:rgba(74,222,128,.1);">✅ Quitado</span>`:(paid>0?`<span class="stat-pill" style="color:#facc15;border-color:rgba(250,204,21,.3);">💰 Saldo ${fmt(balance)}</span>`:"");
+      cd.innerHTML=`<div class="client-header" onclick="this.closest('.client-card').classList.toggle('open')"><div class="client-left"><div class="client-avatar">${initials(c.name)}</div><div><div class="client-name">${c.name||"—"} <span class="role-tag role-indiquer">Indiquer</span> <button class="btn-edit-indiquer" onclick="event.stopPropagation();openEditReferrer('${c.id}')">✏️</button><button class="btn-assign" onclick="event.stopPropagation();openAssign('${c.id}','indiquer')">🔀 Atribuir</button></div><div class="client-meta">${wa?`<a class="wa-link" href="${wa}" target="_blank" onclick="event.stopPropagation()">📱 ${c.phone}</a>`:c.phone||"—"} · <strong>${c.code||"—"}</strong>${mod?` · Mod: ${mod.name}`:""} · desde ${fmtDate(c.created_at)}</div></div></div><div style="display:flex;align-items:center;gap:8px;"><div class="client-stats"><span class="nivel-tag ${nv.c}">${nv.l}</span>${tr>0?`<span class="stat-pill">${tr} ind.</span>`:""}<span class="stat-pill green">${ap} aprov.</span><span class="stat-pill" style="color:#c084fc;">${sc} indicado${sc!==1?"s":""}</span><span class="stat-pill" style="color:#c084fc;">${fmt(sm)}</span>${balancePill}</div><div class="chevron">▼</div></div></div><div class="client-body">${buildPaySummary(c.id,sm)}<h4 style="font-size:12px;color:#60a5fa;font-weight:700;margin:14px 0 10px;text-transform:uppercase;letter-spacing:.5px;">📨 Indicações diretas (${tr})</h4>${buildTable(c.refs||[])}<button class="btn-add-ref" onclick="event.stopPropagation();openBulkExisting('${c.id}','${(c.name||"").replace(/'/g,"\\'")}','${c.code||""}','${c.phone||""}','${c.email||""}','${c.moderator_id||""}')">➕ Adicionar mais indicações</button>${subHtml}</div>`;
+      ct.appendChild(cd);
+    });
 }
 
 function renderInd(){
