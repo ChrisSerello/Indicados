@@ -515,4 +515,106 @@
     inputEl.style.height = Math.min(inputEl.scrollHeight, 80) + 'px';
   });
 
+  // ══════════════════════════════════════════════════════════════
+  //  API PÚBLICA — showStellaContact
+  //  Chamada pelo index.html após cadastro bem-sucedido de INDICADO.
+  //
+  //  window.showStellaContact({ modName: "Maria", modPhone: "11999999999" })
+  //
+  //  - Abre o chat automaticamente
+  //  - Exibe mensagem de boas-vindas personalizada
+  //  - Se modPhone for fornecido, exibe botão WhatsApp do moderador
+  // ══════════════════════════════════════════════════════════════
+  window.showStellaContact = function ({ modName, modPhone } = {}) {
+    const name = modName || 'nosso consultor';
+
+    // Garante que o chat está aberto
+    if (!isOpen) openChat();
+
+    // Marca como já saudado para não mostrar o greeting genérico por cima
+    hasGreeted = true;
+
+    // Limpa mensagens anteriores (é um contexto novo — pós-cadastro)
+    msgArea.innerHTML = '';
+    qrArea.innerHTML  = '';
+    messages          = [];
+
+    // Monta URL do WhatsApp do MODERADOR (diferente do número fixo do suporte)
+    let modWppUrl = null;
+    if (modPhone) {
+      const digits = modPhone.replace(/\D/g, '');
+      const wa     = digits.startsWith('55') ? digits : '55' + digits;
+      const texto  = encodeURIComponent(
+        `Olá, ${name}! Acabei de me cadastrar no Indique & Ganhe 2.0 e gostaria de mais informações. 😊`
+      );
+      modWppUrl = `https://wa.me/${wa}?text=${texto}`;
+    }
+
+    // Mensagem 1 — imediata
+    setTimeout(() => {
+      appendMessage(
+        'stella',
+        `🎉 **Cadastro realizado com sucesso!**\n\nSeja bem-vindo(a) ao programa **Indique & Ganhe 2.0**! Estou muito feliz em te ver por aqui. 😊`
+      );
+    }, 350);
+
+    // Mensagem 2 — apresenta o moderador (com botão WA do mod, se houver número)
+    setTimeout(() => {
+      const modLine = modWppUrl
+        ? `\n\nSe quiser antecipar o contato, pode chamar **${name}** diretamente:`
+        : `\n\nEm breve **${name}** entrará em contato com você.`;
+
+      // Cria a mensagem manualmente para poder injetar o botão do moderador
+      const wrap = document.createElement('div');
+      wrap.className = 'stella-msg stella';
+
+      const av  = document.createElement('div');
+      av.className = 'stella-msg-av';
+      const img = document.createElement('img');
+      img.src = STELLA_IMG; img.alt = 'Stella';
+      av.appendChild(img);
+
+      const bub = document.createElement('div');
+      bub.className = 'stella-bubble-msg';
+
+      const msgText = `Seu consultor responsável é **${name}**. 🛡️${modLine}`;
+      bub.innerHTML = msgText
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\n/g, '<br>');
+
+      // Botão WhatsApp do MODERADOR (só se tiver número)
+      if (modWppUrl) {
+        bub.innerHTML += `
+          <br><a class="stella-wpp-inline"
+               href="${modWppUrl}"
+               target="_blank"
+               rel="noopener noreferrer">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+              <path d="M12 0C5.373 0 0 5.373 0 12c0 2.125.555 4.122 1.528 5.855L.057 23.882l6.198-1.424A11.955 11.955 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.891 0-3.659-.5-5.191-1.373l-.371-.22-3.679.845.879-3.569-.242-.388A9.955 9.955 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/>
+            </svg>
+            Chamar ${name} no WhatsApp
+          </a>`;
+      }
+
+      wrap.appendChild(av);
+      wrap.appendChild(bub);
+      msgArea.appendChild(wrap);
+
+      // Scrolla para o final
+      setTimeout(() => { msgArea.scrollTop = msgArea.scrollHeight; }, 50);
+
+    }, 1600);
+
+    // Quick replies pós-cadastro
+    setTimeout(() => {
+      setQuickReplies([
+        'Como acompanhar minha indicação?',
+        'Como funciona o Smashcard?',
+        'Quanto vou ganhar?',
+      ]);
+    }, 2800);
+  };
+
 })();

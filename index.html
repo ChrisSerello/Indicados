@@ -973,7 +973,21 @@
       const { data: loginData, error: loginErr } = await sb.auth.signInWithPassword({ email, password: pass });
       if (loginErr) throw loginErr;
 
-      await loadClientDashboard(loginData.user);
+      const isIndicado = paramRef && paramRef.length === 4;
+        if (isIndicado && typeof window.showStellaContact === 'function') {
+          closeLoginModal();
+          const modCode2 = paramRef.substring(0, 2);
+          const { data: modInfo } = await sb.from('moderators')
+            .select('name, phone')
+            .eq('code', modCode2)
+            .maybeSingle();
+          window.showStellaContact({
+            modName:  modInfo?.name  || null,
+            modPhone: modInfo?.phone || null
+          });
+        } else {
+          await loadClientDashboard(loginData.user);
+        }
 
     } catch (err) {
       console.error("Signup error:", err);
