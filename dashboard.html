@@ -253,18 +253,29 @@
         waLink.style.display="none";
       }
 
-      // Mostra o popup
+      // Mostra o popup apóis Stella
       const popup=document.getElementById("welcome-popup");
-      popup.style.display="flex";
+      const showPopup=()=>{
+        popup.style.display="flex";
+        localStorage.setItem(key,"1");
+      };
 
-      // Marca como visto
-      localStorage.setItem(key,"1");
+      const onbKey="ig2_onboarding_v4"; // mesma chave do onboarding.js
+      const onbDone=localStorage.getItem(onbKey);
+
+      if(onbDone) {
+        showPopup();
+      } else {
+        window.addEventListener("onboarding-done",function(){
+          setTimeout(showPopup, 600); // pequeno delay para suavizar
+        },{once:true});
+      }  
 
       // Fecha ao clicar fora
       popup.addEventListener("click",e=>{
         if(e.target===popup)popup.style.display="none";
       });
     })();
-</script>
+  </script>
 </body>
 </html>

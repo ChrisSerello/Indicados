@@ -322,6 +322,7 @@
       $ov.classList.remove("active");
       var tabs = document.querySelectorAll(".dash-nav-item");
       if (tabs[0]) tabs[0].click();
+      window.dispatchEvent(new CustomEvent("onboarding-done"))
     }, 400);
   }
 
