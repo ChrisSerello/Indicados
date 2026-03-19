@@ -186,5 +186,85 @@
   <script src="dashboard.js"></script>
 
   <script src="onboarding.js"></script>
+
+  <!-- POPUP BOAS-VINDAS INDICADO -->
+  <div id="welcome-popup" style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:20px;">
+    <div style="width:min(480px,100%);background:rgba(14,4,28,.98);border:1px solid rgba(168,85,247,.5);border-radius:22px;padding:32px 28px;box-shadow:0 24px 60px rgba(0,0,0,.85);text-align:center;animation:fadeDown .3s ease;">
+      <div style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#c084fc,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 16px;box-shadow:0 0 24px rgba(168,85,247,.5);">👋</div>
+      <h2 style="font-size:20px;font-weight:700;margin-bottom:8px;color:#f9fafb;">Bem-vindo(a), <span id="welcome-name">!</span></h2>
+      <p style="font-size:13px;color:rgba(255,255,255,.6);margin-bottom:6px;">Você foi indicado(a) por <strong id="welcome-indiquer" style="color:#c084fc;">—</strong>.</p>
+      <p style="font-size:13px;color:rgba(255,255,255,.55);margin-bottom:20px;line-height:1.7;">
+        Em breve o nosso moderador responsável entrará em contato com você para dar continuidade ao processo.<br/>
+        Se preferir, você pode entrar em contato diretamente pelo WhatsApp abaixo.
+      </p>
+      <a id="welcome-wa-link" href="#" target="_blank" style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:12px;background:rgba(37,211,102,.15);border:1px solid rgba(37,211,102,.4);color:#25d366;font-size:14px;font-weight:600;text-decoration:none;margin-bottom:16px;">
+        📱 Falar no WhatsApp
+      </a>
+      <br/>
+      <button onclick="document.getElementById('welcome-popup').style.display='none'" style="padding:10px 28px;border-radius:10px;border:1px solid rgba(255,255,255,.15);background:transparent;color:rgba(255,255,255,.5);font-size:13px;cursor:pointer;font-family:inherit;margin-top:4px;">
+        Entendido, vou aguardar 👍
+      </button>
+    </div>
+  </div>
+
+  <script>
+    (async()=>{
+      const sb=window.supabaseClient;
+      const{data:sess}=await sb.auth.getSession();
+      if(!sess?.session?.user)return;
+
+      const userId=sess.session.user.id;
+
+      // Busca o referrer logado
+      const{data:me}=await sb.from("referrers")
+        .select("id,name,role,ref_origin,code")
+        .eq("user_id",userId)
+        .maybeSingle();
+
+      if(!me||me.role!=="indicado")return;
+
+      // Checa se já viu o popup (localStorage para não mostrar toda vez)
+      const key=`welcome_seen_${me.id}`;
+      if(localStorage.getItem(key))return;
+
+      // Busca quem indicou (o indiquer)
+      let indiquerName="nosso time";
+      let waNumber="";
+      if(me.ref_origin){
+        const{data:indiquer}=await sb.from("referrers")
+          .select("name,phone")
+          .eq("code",me.ref_origin)
+          .maybeSingle();
+        if(indiquer){
+          indiquerName=indiquer.name||indiquerName;
+          waNumber=(indiquer.phone||"").replace(/\D/g,"");
+        }
+      }
+
+      // Preenche o popup
+      document.getElementById("welcome-name").textContent=me.name||"";
+      document.getElementById("welcome-indiquer").textContent=indiquerName;
+
+      const waLink=document.getElementById("welcome-wa-link");
+      if(waNumber){
+        const num=waNumber.startsWith("55")?waNumber:"55"+waNumber;
+        waLink.href=`https://wa.me/${num}?text=Olá! Fui indicado(a) pelo programa Indique & Ganhe e gostaria de mais informações.`;
+      }else{
+        waLink.style.display="none";
+      }
+
+      // Mostra o popup
+      const popup=document.getElementById("welcome-popup");
+      popup.style.display="flex";
+
+      // Marca como visto
+      localStorage.setItem(key,"1");
+
+      // Fecha ao clicar fora
+      popup.addEventListener("click",e=>{
+        if(e.target===popup)popup.style.display="none";
+      });
+    })();
+</script>
 </body>
 </html>

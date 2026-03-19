@@ -791,7 +791,74 @@ function renderInd(){
     const ap=(c.refs||[]).filter(r=>isOk(r.status)).length,nv=getNivel(ap),wa=waHref(c.phone),sm=calcSm(ap);
     const pi=allInq.find(i=>i.code===c.ref_origin),tr=(c.refs||[]).length;
     const cd=document.createElement("div");cd.className="client-card";
-    cd.innerHTML=`<div class="client-header" onclick="this.closest('.client-card').classList.toggle('open')"><div class="client-left"><div class="client-avatar" style="background:linear-gradient(135deg,rgba(168,85,247,.6),rgba(124,58,237,.5));">${initials(c.name)}</div><div><div class="client-name">${c.name||"—"} <span class="role-tag role-indicado">Indicado</span> <button class="btn-edit-indiquer" onclick="event.stopPropagation();openEditReferrer('${c.id}')">✏️</button><button class="btn-assign" onclick="event.stopPropagation();openAssign('${c.id}','indicado')">🔀 Atribuir</button></div><div class="client-meta">${wa?`<a class="wa-link" href="${wa}" target="_blank" onclick="event.stopPropagation()">📱 ${c.phone}</a>`:c.phone||"—"} · <strong>${c.code||"—"}</strong> · Indiquer: <strong>${pi?.name||"—"}</strong> · desde ${fmtDate(c.created_at)}</div></div></div><div style="display:flex;align-items:center;gap:8px;"><div class="client-stats"><span class="nivel-tag ${nv.c}">${nv.l}</span><span class="stat-pill">${tr} ind.</span><span class="stat-pill green">${ap} aprov.</span><span class="stat-pill" style="color:#c084fc;">${fmt(sm)}</span></div><div class="chevron">▼</div></div></div><div class="client-body"><h4 style="font-size:12px;color:#c084fc;font-weight:700;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;">📨 Indicações (${tr})</h4>${buildTable(c.refs||[])}</div>`;
+
+    // Sub-indicados: quem criou conta via link deste indicado
+    const subInd=allInd.filter(i=>i.ref_origin===c.code);
+    const subHtml=subInd.length>0?`<div class="sub-tree" style="margin-top:14px;">
+      <p class="sub-tree-title">👥 Sub-indicados vinculados (${subInd.length})</p>
+      ${subInd.map(sub=>{
+        const sW=waHref(sub.phone);
+        const subRef=allRefs.find(r=>r.referrer_id===c.id&&r.indicated_clients&&((r.indicated_clients.phone||"")===(sub.phone||"").replace(/\D/g,"")||r.indicated_clients.name===sub.name));
+        const cur=subRef?normS(subRef.status):"em_analise";
+        const mSub=SOS.find(o=>o.v===cur)||SOS[0];
+        const sA=(sub.refs||[]).filter(r=>isOk(r.status)).length,sN=getNivel(sA),sS=calcSm(sA),sT=(sub.refs||[]).length;
+        return`<div class="sub-card">
+          <div class="sub-head" onclick="this.closest('.sub-card').classList.toggle('open')">
+            <div class="sub-left">
+              <div class="sub-av">${initials(sub.name)}</div>
+              <div>
+                <div class="sub-name">${sub.name||"—"} <span class="role-tag role-indicado" style="font-size:9px;">Indicado</span> <button class="btn-edit-indiquer" onclick="event.stopPropagation();openEditReferrer('${sub.id}')">✏️</button></div>
+                <div class="sub-meta">${sW?`<a class="wa-link" href="${sW}" target="_blank" onclick="event.stopPropagation()" style="font-size:11px;">📱 ${sub.phone}</a>`:sub.phone||"—"} · <strong>${sub.code||"—"}</strong>${sub.email?` · 📧 ${sub.email}`:""}</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <div class="sub-stats">
+                <span class="nivel-tag ${sN.c}" style="font-size:9px;padding:1px 8px;">${sN.l}</span>
+                <span class="stat-pill" style="font-size:10px;">${sT} ind.</span>
+                <span class="stat-pill green" style="font-size:10px;">${sA} ok</span>
+                <span class="stat-pill" style="font-size:10px;color:#c084fc;">${fmt(sS)}</span>
+              </div>
+              <div class="sub-chevron">▼</div>
+            </div>
+          </div>
+          <div class="sub-body">
+            <div class="ref-table-wrap" style="margin-bottom:12px;">
+              <table><thead><tr>
+                <th>Nome indicado</th><th>WhatsApp</th><th>Perfil/E-mail</th>
+                <th>Status</th><th>Valor (R$)</th><th>Nota</th><th>Data</th><th>Ações</th>
+              </tr></thead>
+              <tbody><tr>
+                <td><strong>${sub.name||"—"}</strong></td>
+                <td>${sW?`<a class="wa-link" href="${sW}" target="_blank">📱 ${sub.phone}</a>`:(sub.phone||"—")}</td>
+                <td style="color:var(--muted);font-size:12px;">${sub.email||sub.cpf||"—"}</td>
+                <td>
+                  <select class="status-select ${mSub.c}" ${subRef?`data-id="${subRef.id}" onchange="onSC(this)"`:'data-direct="1"'}>
+                    ${SOS.map(o=>`<option value="${o.v}"${o.v===cur?" selected":""}>${o.l}</option>`).join("")}
+                  </select>
+                </td>
+                <td><input type="text" class="valor-input" value="${subRef&&subRef.amount?fmt(subRef.amount):""}" placeholder="R$ 0,00" oninput="fmtCurrencyInput(this)" onblur="fmtCurrencyBlur(this)"/></td>
+                <td>${subRef?`<button class="note-btn${subRef.admin_note?" has-note":""}" onclick="openNote('${subRef.id}',this)">${subRef.admin_note?"📝 Ver":"+ Nota"}</button>`:"—"}</td>
+                <td style="color:var(--muted);font-size:12px;">${fmtDate(sub.created_at)}</td>
+                <td>
+                  <button class="btn-edit-row" onclick="openEditReferrer('${sub.id}')">✏️</button>
+                  ${subRef
+                    ?`<button class="btn-save-row" onclick="saveRow('${subRef.id}',this)">Salvar</button>`
+                    :`<button class="btn-save-row" onclick="saveSubRowDirect('${c.id}','${sub.id}',this)">Salvar</button>`}
+                </td>
+              </tr></tbody></table>
+            </div>
+            ${buildTable(sub.refs||[])}
+          </div>
+        </div>`;
+      }).join("")}
+    </div>`:"";
+
+    cd.innerHTML=`<div class="client-header" onclick="this.closest('.client-card').classList.toggle('open')"><div class="client-left"><div class="client-avatar" style="background:linear-gradient(135deg,rgba(168,85,247,.6),rgba(124,58,237,.5));">${initials(c.name)}</div><div><div class="client-name">${c.name||"—"} <span class="role-tag role-indicado">Indicado</span> <button class="btn-edit-indiquer" onclick="event.stopPropagation();openEditReferrer('${c.id}')">✏️</button><button class="btn-assign" onclick="event.stopPropagation();openAssign('${c.id}','indicado')">🔀 Atribuir</button></div><div class="client-meta">${wa?`<a class="wa-link" href="${wa}" target="_blank" onclick="event.stopPropagation()">📱 ${c.phone}</a>`:c.phone||"—"} · <strong>${c.code||"—"}</strong> · Indiquer: <strong>${pi?.name||"—"}</strong> · desde ${fmtDate(c.created_at)}</div></div></div><div style="display:flex;align-items:center;gap:8px;"><div class="client-stats"><span class="nivel-tag ${nv.c}">${nv.l}</span><span class="stat-pill">${tr} ind.</span><span class="stat-pill green">${ap} aprov.</span><span class="stat-pill" style="color:#c084fc;">${fmt(sm)}</span></div><div class="chevron">▼</div></div></div>
+    <div class="client-body">
+      <h4 style="font-size:12px;color:#c084fc;font-weight:700;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;">📨 Indicações (${tr})</h4>
+      ${buildTable(c.refs||[])}
+      ${subHtml}
+    </div>`;
     ct.appendChild(cd);
   });
 }
