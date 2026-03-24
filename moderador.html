@@ -106,6 +106,20 @@
     .btn-assign:hover{background:rgba(250,204,21,.22);}
     @media(max-width:900px){.kpi-row{grid-template-columns:repeat(2,1fr);}}
     @media(max-width:600px){.kpi-row{grid-template-columns:1fr;}.mod-content{padding:16px;}.client-stats,.sub-stats{display:none;}.bf2{grid-template-columns:1fr;}.minputs{grid-template-columns:1fr 1fr;}.minputs .bmadd{grid-column:1/-1;}}
+
+    /* ESTILO PARA ANALISAR IMAGEM */
+    #ocr-popup{display:none;}
+    #ocr-box{background:rgba(4,26,14,.98);border:1px solid rgba(16,185,129,.4);}
+    #ocr-dropzone{border:2px dashed rgba(16,185,129,.35);background:transparent;transition:all .2s;}
+    #ocr-dropzone:hover{border-color:rgba(52,211,153,.7);background:rgba(16,185,129,.04);}
+    #ocr-btn-analyze{background:var(--accent-g);color:#fff;box-shadow:0 0 20px rgba(16,185,129,.4);transition:filter .2s;}
+    #ocr-btn-analyze:hover{filter:brightness(1.1);}
+    #ocr-btn-analyze:disabled{opacity:.6;cursor:not-allowed;}
+    #ocr-result-text{background:rgba(4,16,10,.9);border:1px solid rgba(16,185,129,.3);color:var(--text);}
+    #btn-copy-text{background:var(--accent-g);color:#000;border:none;}
+    #btn-copy-csv{background:rgba(96,165,250,.15);color:#60a5fa;border:1px solid rgba(96,165,250,.35);}
+    .ocr-progress-bar{height:6px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden;margin-top:8px;}
+    .ocr-progress-fill{height:100%;background:linear-gradient(90deg,#34d399,#059669);border-radius:3px;transition:width .3s;width:0%;}
   </style>
   <link rel="stylesheet" href="onboarding.css" />
 </head>
@@ -195,6 +209,7 @@
       <button class="btn-new-inq" onclick="openBulk()">➕ Cadastrar Indiquer</button>
       <button class="btn-export" onclick="exportData('excel')">📥 Excel</button>
       <button class="btn-export" style="border-color:rgba(96,165,250,.4);background:rgba(96,165,250,.1);color:#60a5fa;" onclick="exportData('csv')">📄 CSV</button>
+      <button class="btn-export" style="border-color:rgba(16,185,129,.4);background:rgba(16,185,129,.1);color:#34d399;" onclick="openOCR()">🖼️ Digitalizar Imagem</button>
     </div>
     <div id="content-area"><p style="color:var(--muted);font-size:13px;">Carregando…</p></div>
   </div>
@@ -224,6 +239,10 @@
       <div class="bf2">
         <div class="bf"><label>Celular *</label><input id="b-phone" type="text" placeholder="(11) 99999-9999" maxlength="15"/></div>
         <div class="bf"><label>E-mail *</label><input id="b-email" type="email" placeholder="email@exemplo.com"/></div>
+      </div>
+      <div class="bf">
+          <label>Prefeitura</label>
+          <input id="b-prefeitura" type="text" placeholder="Ex: Prefeitura de Barueri"/>
       </div>
       <div class="bf2">
         <div class="bf"><label>Senha de acesso *</label><input id="b-pass" type="password" placeholder="Mínimo 6 caracteres"/></div>
@@ -256,11 +275,12 @@
         <button class="btpl" onclick="downloadBulkTpl()">📥 Baixar template</button>
       </div>
       <div class="or-line">ou adicionar manualmente</div>
-      <div class="minputs">
-        <input id="m-name" type="text" placeholder="Nome *"/>
-        <input id="m-cpf" type="text" placeholder="CPF" maxlength="14"/>
-        <input id="m-phone" type="text" placeholder="Celular" maxlength="15"/>
-        <input id="m-email" type="email" placeholder="E-mail"/>
+      <div class="minputs" style="grid-template-columns:2fr 1.1fr 1.3fr 1.6fr 1.4fr auto;">
+        <input id="m-name"       type="text"  placeholder="Nome *"/>
+        <input id="m-cpf"        type="text"  placeholder="CPF" maxlength="14"/>
+        <input id="m-phone"      type="text"  placeholder="Celular" maxlength="15"/>
+        <input id="m-email"      type="email" placeholder="E-mail"/>
+        <input id="m-prefeitura" type="text"  placeholder="Prefeitura"/>
         <button class="bmadd" onclick="bulkAddRow()">+ Add</button>
       </div>
       <p style="font-size:12px;color:var(--muted);margin:6px 0 2px;"><span id="bcnt">0</span> indicação(ões) na lista</p>
@@ -368,7 +388,69 @@
   </div>
 </div>
 
-<script src="assign.js"></script>
+<!-- OCR MODAL -->
+<div id="ocr-popup" style="display:none;position:fixed;inset:0;z-index:400;background:rgba(0,0,0,.8);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:16px;">
+  <div id="ocr-box" style="width:min(580px,100%);max-height:92vh;overflow-y:auto;border-radius:22px;padding:28px 30px;box-shadow:0 24px 80px rgba(0,0,0,.9);">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;">
+      <div>
+        <h2 style="font-size:18px;font-weight:700;margin-bottom:4px;">🖼️ Digitalizar Imagem</h2>
+        <p style="font-size:12px;color:var(--muted);">Envie um print ou foto com dados de indicados. O sistema extrai e formata para copiar.</p>
+      </div>
+      <button onclick="closeOCR()" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:2px 6px;">✕</button>
+    </div>
+
+    <!-- Zona de upload -->
+    <div id="ocr-dropzone" onclick="document.getElementById('ocr-img-input').click()" style="border-radius:12px;padding:28px;text-align:center;cursor:pointer;margin-bottom:12px;">
+      <div style="font-size:32px;margin-bottom:8px;">📷</div>
+      <p style="font-size:13px;font-weight:600;margin-bottom:4px;">Clique ou arraste uma imagem aqui</p>
+      <p style="font-size:11px;color:var(--muted);">JPG, PNG, WEBP — prints de tela e fotos nítidas funcionam melhor</p>
+    </div>
+    <input type="file" id="ocr-img-input" accept="image/*" style="display:none;" onchange="ocrLoadImage(event)"/>
+
+    <!-- Preview -->
+    <div id="ocr-preview-wrap" style="display:none;margin-bottom:12px;text-align:center;">
+      <img id="ocr-preview-img" style="max-width:100%;max-height:180px;border-radius:10px;border:1px solid var(--border);"/>
+      <p id="ocr-img-name" style="font-size:11px;color:var(--muted);margin-top:5px;"></p>
+    </div>
+
+    <!-- Botão analisar -->
+    <button id="ocr-btn-analyze" onclick="ocrAnalyze()" style="display:none;width:100%;padding:11px;border-radius:10px;border:none;cursor:pointer;font-family:inherit;font-weight:600;font-size:14px;margin-bottom:10px;">
+      🔍 Extrair dados da imagem
+    </button>
+
+    <!-- Barra de progresso -->
+    <div id="ocr-prog-wrap" style="display:none;margin-bottom:10px;">
+      <div class="ocr-progress-bar"><div class="ocr-progress-fill" id="ocr-prog-fill"></div></div>
+      <p id="ocr-prog-label" style="font-size:11px;color:var(--muted);margin-top:4px;text-align:center;"></p>
+    </div>
+
+    <!-- Status -->
+    <div id="ocr-status" style="font-size:12px;min-height:16px;margin-bottom:10px;text-align:center;"></div>
+
+    <!-- Resultado -->
+    <div id="ocr-result-wrap" style="display:none;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:6px;">
+        <label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);">✅ Dados extraídos</label>
+        <div style="display:flex;gap:6px;">
+          <button onclick="ocrCopy('text')" id="btn-copy-text" style="padding:5px 12px;border-radius:7px;cursor:pointer;font-family:inherit;font-size:11px;font-weight:600;">📋 Copiar texto</button>
+          <button onclick="ocrCopy('csv')" id="btn-copy-csv" style="padding:5px 12px;border-radius:7px;cursor:pointer;font-family:inherit;font-size:11px;font-weight:600;">📊 Copiar CSV</button>
+        </div>
+      </div>
+      <textarea id="ocr-result-text" readonly style="width:100%;min-height:200px;padding:12px;border-radius:10px;font-family:monospace;font-size:12px;resize:vertical;outline:none;line-height:1.7;"></textarea>
+      <div style="display:flex;align-items:flex-start;gap:8px;margin-top:10px;padding:10px 12px;background:rgba(250,204,21,.06);border:1px solid rgba(250,204,21,.2);border-radius:9px;">
+        <span style="font-size:14px;flex-shrink:0;">💡</span>
+        <p style="font-size:11px;color:rgba(255,255,255,.55);line-height:1.6;">Cole o CSV direto na planilha de importação do bulk, ou o texto no campo manual. Verifique sempre os dados antes de salvar — imagens de baixa qualidade podem gerar erros.</p>
+      </div>
+    </div>
+
+    <!-- Nova imagem -->
+    <div id="ocr-reset-wrap" style="display:none;margin-top:14px;text-align:center;">
+      <button onclick="ocrReset()" style="padding:8px 20px;border-radius:9px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:12px;cursor:pointer;font-family:inherit;">🔄 Analisar outra imagem</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
@@ -388,7 +470,7 @@ function toast(msg,ok=true){const t=document.getElementById("toast");t.textConte
 window.onSC=function(sel){const id=sel.dataset.id,ns=sel.value,m=SOS.find(o=>o.v===ns);sel.className="status-select"+(m?" "+m.c:"");allRefs.forEach(r=>{if(r.id===id)r.status=ns;});updateKPIs();};
 window.saveRow=async function(id,btn){const tr=btn.closest("tr");const sel=tr?.querySelector(".status-select");const vi=tr?.querySelector(".valor-input");const ns=sel?.value;const na=vi?(parseFloat(vi.value.replace(/[^\d,.-]/g,"").replace(",","."))||null):null;if(!ns)return;btn.textContent="…";btn.disabled=true;const upd={status:ns};if(na!==null)upd.amount=na;const{error}=await sb.from("referrals").update(upd).eq("id",id);btn.textContent="Salvar";btn.disabled=false;if(error){toast("Erro: "+error.message,false);return;}allRefs.forEach(r=>{if(r.id===id){r.status=ns;if(na!==null)r.amount=na;}});toast("✅ Salvo!");updateKPIs();renderView();};
 function updateKPIs(){const ap=allRefs.filter(r=>isOk(r.status));let ts=0;[...allInq,...allInd].forEach(c=>{const a=(c.refs||[]).filter(r=>isOk(r.status)).length;ts+=calcSm(a);});document.getElementById("k-approved").textContent=ap.length;document.getElementById("k-smashcard").textContent=fmt(ts);}
-function buildTable(refs){if(!refs.length)return'<p class="empty-msg">Sem indicações ainda.</p>';const rows=refs.map(ref=>{const cl=ref.indicated_clients||{};const w=waHref(cl.phone);const cur=normS(ref.status);const m=SOS.find(o=>o.v===cur)||SOS[0];return`<tr><td><strong>${cl.name||"—"}</strong></td><td>${w?`<a class="wa-link" href="${w}" target="_blank">📱 ${cl.phone}</a>`:(cl.phone||"—")}</td><td style="color:var(--muted);font-size:12px;">${cl.profile_type||(cl.observations?.startsWith("E-mail:")?cl.observations.replace("E-mail:","").trim():cl.observations)||"—"}</td><td><select class="status-select ${m.c}" data-id="${ref.id}" onchange="onSC(this)">${SOS.map(o=>`<option value="${o.v}"${o.v===cur?" selected":""}>${o.l}</option>`).join("")}</select></td><td><input type="text" class="valor-input" value="${ref.amount?fmt(ref.amount):""}" placeholder="R$ 0,00" style="width:100px;"/></td><td><button class="note-btn${ref.mod_note?" has-note":""}" onclick="openNote('${ref.id}',this)">${ref.mod_note?"📝 Ver":"+ Nota"}</button></td><td style="color:var(--muted);font-size:12px;">${fmtDate(ref.created_at)}</td><td><button class="btn-edit-row" onclick="openEditIndicado('${ref.indicated_client_id}')">✏️</button><button class="btn-save-row" onclick="saveRow('${ref.id}',this)">Salvar</button></td></tr>`;}).join("");return`<div class="ref-table-wrap"><table><thead><tr><th>Nome indicado</th><th>WhatsApp</th><th>Perfil/E-mail</th><th>Status</th><th>Valor (R$)</th><th>Nota</th><th>Data</th><th>Ações</th></tr></thead><tbody>${rows}</tbody></table></div>`;}
+function buildTable(refs){if(!refs.length)return'<p class="empty-msg">Sem indicações ainda.</p>';const rows=refs.map(ref=>{const cl=ref.indicated_clients||{};const w=waHref(cl.phone);const cur=normS(ref.status);const m=SOS.find(o=>o.v===cur)||SOS[0];return`<tr><td><strong>${cl.name||"—"}</strong></td><td>${w?`<a class="wa-link" href="${w}" target="_blank">📱 ${cl.phone}</a>`:(cl.phone||"—")}</td><td style="color:var(--muted);font-size:12px;">${cl.profile_type||(cl.observations?.startsWith("E-mail:")?cl.observations.replace("E-mail:","").trim():cl.observations)||"—"}</td><td style="color:var(--muted);font-size:12px;">${cl.prefeitura||"—"}</td><td><select class="status-select ${m.c}" data-id="${ref.id}" onchange="onSC(this)">${SOS.map(o=>`<option value="${o.v}"${o.v===cur?" selected":""}>${o.l}</option>`).join("")}</select></td><td><input type="text" class="valor-input" value="${ref.amount?fmt(ref.amount):""}" placeholder="R$ 0,00" style="width:100px;"/></td><td><button class="note-btn${ref.mod_note?" has-note":""}" onclick="openNote('${ref.id}',this)">${ref.mod_note?"📝 Ver":"+ Nota"}</button></td><td style="color:var(--muted);font-size:12px;">${fmtDate(ref.created_at)}</td><td><button class="btn-edit-row" onclick="openEditIndicado('${ref.indicated_client_id}')">✏️</button><button class="btn-save-row" onclick="saveRow('${ref.id}',this)">Salvar</button></td></tr>`;}).join("");return`<div class="ref-table-wrap"><table><thead><tr><th>Nome indicado</th><th>WhatsApp</th><th>Perfil/E-mail</th><th>Prefeitura</th><th>Status</th><th>Valor (R$)</th><th>Nota</th><th>Data</th><th>Ações</th></tr></thead><tbody>${rows}</tbody></table></div>`;}
 function switchTab(t){document.querySelectorAll(".auth-tab").forEach(b=>b.classList.toggle("active",b.getAttribute("onclick").includes(`'${t}'`)));document.getElementById("panel-login").classList.toggle("active",t==="login");document.getElementById("panel-signup").classList.toggle("active",t==="signup");const ri=document.getElementById("reset-inline");if(ri)ri.style.display="none";}
 document.getElementById("btn-show-reset")?.addEventListener("click",()=>{const b=document.getElementById("reset-inline"),v=b.style.display!=="none";b.style.display=v?"none":"block";document.getElementById("btn-show-reset").textContent=v?"Esqueci minha senha":"↑ Fechar";});
 let currentMod=null,allInq=[],allInd=[],allRefs=[],curView="indiquers";
@@ -562,7 +644,7 @@ function exportData(type){
 }
 const BCHR="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 let _bId=null,_bRows=[];
-function openBulk(){_bId=null;_bRows=[];["b-name","b-cpf","b-phone","b-email","b-pass","b-pass2"].forEach(id=>{const el=document.getElementById(id);if(el)el.value="";});document.getElementById("bfb1").textContent="";document.getElementById("bulk-box-title").textContent="➕ Cadastrar Indiquer + Indicações";document.getElementById("bulk-box-sub").textContent="Cadastre o indiquer, defina o acesso e suba as indicações em massa.";document.getElementById("bs1").style.display="block";document.getElementById("bs2").style.display="none";document.getElementById("bsi1").className="bsi active";document.getElementById("bsi2").className="bsi";_bRender();document.getElementById("bulk-ov").style.display="flex";}
+function openBulk(){_bId=null;_bRows=[];["b-name","b-cpf","b-phone","b-email","b-pass","b-pass2", "b-prefeitura"].forEach(id=>{const el=document.getElementById(id);if(el)el.value="";});document.getElementById("bfb1").textContent="";document.getElementById("bulk-box-title").textContent="➕ Cadastrar Indiquer + Indicações";document.getElementById("bulk-box-sub").textContent="Cadastre o indiquer, defina o acesso e suba as indicações em massa.";document.getElementById("bs1").style.display="block";document.getElementById("bs2").style.display="none";document.getElementById("bsi1").className="bsi active";document.getElementById("bsi2").className="bsi";_bRender();document.getElementById("bulk-ov").style.display="flex";}
 function closeBulk(){document.getElementById("bulk-ov").style.display="none";}
 async function _genCode(mc){for(let i=0;i<20;i++){let s="";for(let j=0;j<2;j++)s+=BCHR[Math.floor(Math.random()*BCHR.length)];const code=mc+s;const{data}=await sb.from("referrers").select("id").eq("code",code).maybeSingle();if(!data)return code;}throw new Error("Código único não encontrado.");}
 const maskCPF=e=>{let v=e.target.value.replace(/\D/g,"");v=v.replace(/(\d{3})(\d)/,"$1.$2").replace(/(\d{3})(\d)/,"$1.$2").replace(/(\d{3})(\d{1,2})/,"$1-$2").replace(/(-\d{2})\d+$/,"$1");e.target.value=v;};
@@ -582,6 +664,7 @@ async function bulkStep1(){
   const email=document.getElementById("b-email").value.trim().toLowerCase();
   const pass=document.getElementById("b-pass").value;
   const pass2=document.getElementById("b-pass2").value;
+  const prefeitura=document.getElementById("b-prefeitura").value.trim();
   const fb=document.getElementById("bfb1");fb.textContent="";fb.style.color="#fb7185";
   if(!name||!phone||!email||!pass){fb.textContent="Nome, celular, e-mail e senha são obrigatórios.";return;}
   if(pass.length<6){fb.textContent="Senha mínima: 6 caracteres.";return;}
@@ -593,7 +676,7 @@ async function bulkStep1(){
     if(ae&&!ae.message.toLowerCase().includes("already"))throw ae;
     if(ms)await sb.auth.setSession({access_token:ms.access_token,refresh_token:ms.refresh_token});
     const code=await _genCode(currentMod.code);
-    const{data:nr,error:re}=await sb.from("referrers").insert({name,cpf:cpf||null,phone:phone||null,email,code,role:"indiquer",moderator_id:currentMod.id,ref_origin:currentMod.code,user_id:au?.user?.id||null}).select("id,code").single();
+    const{data:nr,error:re}=await sb.from("referrers").insert({name,cpf:cpf||null,phone:phone||null,email,code,role:"indiquer",moderator_id:currentMod.id,ref_origin:currentMod.code,user_id:au?.user?.id||null, prefeitura:prefeitura||null}).select("id,code").single();
     if(re)throw re;
     _bId=nr.id;
     const pf=phone?"("+phone.replace(/(\d{2})(\d{5})(\d{4})/,"$1) $2-$3"):"";
@@ -609,12 +692,12 @@ async function bulkStep1(){
   finally{btn.textContent="Continuar →";btn.disabled=false;}
 }
 function bulkBack(){document.getElementById("bs2").style.display="none";document.getElementById("bs1").style.display="block";document.getElementById("bsi1").className="bsi active";document.getElementById("bsi2").className="bsi";}
-function downloadBulkTpl(){const ws=XLSX.utils.aoa_to_sheet([["Nome","CPF","Celular","E-mail"],["João da Silva","123.456.789-00","(11) 99999-9999","joao@email.com"],["Maria Souza","987.654.321-00","(21) 88888-8888","maria@email.com"]]);ws["!cols"]=[{wch:26},{wch:16},{wch:16},{wch:28}];const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"Indicados");XLSX.writeFile(wb,"template_indicados.xlsx");}
-async function bulkFileLoad(e){const file=e.target.files?.[0];if(!file)return;try{const data=await new Promise((res,rej)=>{const r=new FileReader();r.onload=ev=>{const wb=XLSX.read(ev.target.result,{type:"array"});res(XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:""}));};r.onerror=rej;r.readAsArrayBuffer(file);});const imp=data.map(row=>({name:String(row.Nome||row.nome||"").trim(),cpf:String(row.CPF||row.cpf||"").trim(),phone:String(row.Celular||row.celular||row.Telefone||row.telefone||row.WhatsApp||row.whatsapp||"").trim(),email:String(row["E-mail"]||row.email||row.Email||"").trim()})).filter(r=>r.name||r.phone);_bRows=[..._bRows,...imp];_bRender();e.target.value="";toast(imp.length+" linha"+(imp.length===1?"":"s")+" importada"+(imp.length===1?"":"s")+"!");}catch(err){toast("Erro ao ler planilha: "+err.message,false);}}
-function bulkAddRow(){const name=document.getElementById("m-name").value.trim();const cpf=document.getElementById("m-cpf").value.trim();const phone=document.getElementById("m-phone").value.trim();const email=document.getElementById("m-email").value.trim();if(!name&&!phone){toast("Informe ao menos o celular ou o nome.",false);return;}_bRows.push({name,cpf,phone,email});_bRender();["m-name","m-cpf","m-phone","m-email"].forEach(id=>{const el=document.getElementById(id);if(el)el.value="";});}
+function downloadBulkTpl(){const ws=XLSX.utils.aoa_to_sheet([["Nome","CPF","Celular","E-mail"],["João da Silva","123.456.789-00","(11) 99999-9999","joao@email.com", "Prefeitura de SP"],["Maria Souza","987.654.321-00","(21) 88888-8888","maria@email.com", "Prefeitura de RJ"]]);ws["!cols"]=[{wch:26},{wch:16},{wch:16},{wch:28},{wch:22}];const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"Indicados");XLSX.writeFile(wb,"template_indicados.xlsx");}
+async function bulkFileLoad(e){const file=e.target.files?.[0];if(!file)return;try{const data=await new Promise((res,rej)=>{const r=new FileReader();r.onload=ev=>{const wb=XLSX.read(ev.target.result,{type:"array"});res(XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:""}));};r.onerror=rej;r.readAsArrayBuffer(file);});const imp=data.map(row=>({name:String(row.Nome||row.nome||"").trim(),cpf:String(row.CPF||row.cpf||"").trim(),phone:String(row.Celular||row.celular||row.Telefone||row.telefone||row.WhatsApp||row.whatsapp||"").trim(),email:String(row["E-mail"]||row.email||row.Email||"").trim(),prefeitura:String(row.Prefeitura||row.prefeitura||row.PREFEITURA||row["Pref."]||"").trem()})).filter(r=>r.name||r.phone);_bRows=[..._bRows,...imp];_bRender();e.target.value="";toast(imp.length+" linha"+(imp.length===1?"":"s")+" importada"+(imp.length===1?"":"s")+"!");}catch(err){toast("Erro ao ler planilha: "+err.message,false);}}
+function bulkAddRow(){const name=document.getElementById("m-name").value.trim();const cpf=document.getElementById("m-cpf").value.trim();const phone=document.getElementById("m-phone").value.trim();const email=document.getElementById("m-email").value.trim();const prefeitura=document.getElementById("m-prefeitura").value.trim();if(!name&&!phone){toast("Informe ao menos o celular ou o nome.",false);return;}_bRows.push({name,cpf,phone,email,prefeitura});_bRender();["m-name","m-cpf","m-phone","m-email", "m-prefeitura"].forEach(id=>{const el=document.getElementById(id);if(el)el.value="";});}
 function bulkRemRow(i){_bRows.splice(i,1);_bRender();}
 function _bRender(){const c=document.getElementById("bprev"),cnt=document.getElementById("bcnt"),btn=document.getElementById("btn-bconfirm");if(cnt)cnt.textContent=_bRows.length;if(btn)btn.disabled=_bRows.length===0;if(!c)return;if(!_bRows.length){c.innerHTML='<p style="text-align:center;color:var(--muted);font-size:12px;padding:14px 0;">Nenhuma indicação adicionada ainda.</p>';return;}c.innerHTML='<div class="bprev-wrap"><table><thead><tr><th>#</th><th>Nome</th><th>CPF</th><th>Celular</th><th>E-mail</th><th></th></tr></thead><tbody>'+_bRows.map((r,i)=>`<tr><td style="color:var(--muted);">${i+1}</td><td><strong>${r.name}</strong></td><td style="color:var(--muted);font-size:11px;">${r.cpf||"—"}</td><td style="color:var(--muted);font-size:11px;">${r.phone||"—"}</td><td style="color:var(--muted);font-size:11px;">${r.email||"—"}</td><td><button class="bxrow" onclick="bulkRemRow(${i})">✕</button></td></tr>`).join("")+'</tbody></table></div>';}
-async function bulkConfirm(){if(!_bId||!_bRows.length)return;const btn=document.getElementById("btn-bconfirm"),fb=document.getElementById("bfb2");btn.textContent="Cadastrando…";btn.disabled=true;fb.textContent="";let ok=0,fail=0,lastErr="";for(const row of _bRows){try{const nm=row.name?.trim()||null;const ph=row.phone?.replace(/\D/g,"")||null;const obs=[row.email?`E-mail: ${row.email}`:null].filter(Boolean).join(" | ")||null;const{data:cl,error:ce}=await sb.from("indicated_clients").insert({name:nm||(ph?`Contato ${ph}`:"Desconhecido"),cpf:row.cpf?.replace(/\D/g,"")||null,phone:ph,observations:obs}).select("id").single();if(ce){lastErr=ce.message;fail++;continue;}const{error:re}=await sb.from("referrals").insert({referrer_id:_bId,indicated_client_id:cl.id,status:"em_analise"});if(re){lastErr=re.message;fail++;}else ok++;}catch(e){lastErr=e?.message||"Erro desconhecido";fail++;}}if(fail>0){fb.innerHTML=`✅ ${ok} cadastrada${ok!==1?"s":""}. ⚠️ ${fail} com erro.${lastErr?`<br><span style="font-size:11px;opacity:.7;">${lastErr}</span>`:""}`;fb.style.color="#facc15";btn.textContent="✅ Cadastrar indicações";btn.disabled=false;}else{fb.textContent=`✅ ${ok} indicaç${ok===1?"ão":"ões"} cadastrada${ok!==1?"s":""}!`;fb.style.color="#4ade80";toast(`${ok} indicaç${ok===1?"ão":"ões"} cadastrada${ok!==1?"s":""}!`);setTimeout(()=>{closeBulk();loadData();},1600);}}
+async function bulkConfirm(){if(!_bId||!_bRows.length)return;const btn=document.getElementById("btn-bconfirm"),fb=document.getElementById("bfb2");btn.textContent="Cadastrando…";btn.disabled=true;fb.textContent="";let ok=0,fail=0,lastErr="";for(const row of _bRows){try{const nm=row.name?.trim()||null;const ph=row.phone?.replace(/\D/g,"")||null;const obs=[row.email?`E-mail: ${row.email}`:null].filter(Boolean).join(" | ")||null;const{data:cl,error:ce}=await sb.from("indicated_clients").insert({name:nm||(ph?`Contato ${ph}`:"Desconhecido"),cpf:row.cpf?.replace(/\D/g,"")||null,phone:ph,observations:obs,prefeitura:row.prefeitura||null}).select("id").single();if(ce){lastErr=ce.message;fail++;continue;}const{error:re}=await sb.from("referrals").insert({referrer_id:_bId,indicated_client_id:cl.id,status:"em_analise"});if(re){lastErr=re.message;fail++;}else ok++;}catch(e){lastErr=e?.message||"Erro desconhecido";fail++;}}if(fail>0){fb.innerHTML=`✅ ${ok} cadastrada${ok!==1?"s":""}. ⚠️ ${fail} com erro.${lastErr?`<br><span style="font-size:11px;opacity:.7;">${lastErr}</span>`:""}`;fb.style.color="#facc15";btn.textContent="✅ Cadastrar indicações";btn.disabled=false;}else{fb.textContent=`✅ ${ok} indicaç${ok===1?"ão":"ões"} cadastrada${ok!==1?"s":""}!`;fb.style.color="#4ade80";toast(`${ok} indicaç${ok===1?"ão":"ões"} cadastrada${ok!==1?"s":""}!`);setTimeout(()=>{closeBulk();loadData();},1600);}}
 
 // NOTE
 let _nId=null,_nBtn=null;
@@ -622,6 +705,243 @@ function openNote(id,btn){_nId=id;_nBtn=btn;let n="";allRefs.forEach(r=>{if(r.id
 function closeNote(){document.getElementById("note-popup").style.display="none";_nId=null;_nBtn=null;}
 async function saveNote(){const n=document.getElementById("note-ta").value.trim();if(!_nId)return;const{error}=await sb.from("referrals").update({mod_note:n||null}).eq("id",_nId);if(error){alert("Erro: "+error.message);return;}allRefs.forEach(r=>{if(r.id===_nId)r.mod_note=n||null;});if(_nBtn){_nBtn.textContent=n?"📝 Ver":"+ Nota";_nBtn.classList.toggle("has-note",!!n);}closeNote();toast("Nota salva!");}
 document.getElementById("note-popup")?.addEventListener("click",e=>{if(e.target===document.getElementById("note-popup"))closeNote();});
+
+// ══════════════════════════════════════════════════
+//  OCR — DIGITALIZAR IMAGEM (Tesseract.js — gratuito)
+// ══════════════════════════════════════════════════
+let _ocrBase64=null,_ocrMime=null,_ocrRawJson=null,_ocrFile=null;
+
+function openOCR(){
+  document.getElementById("ocr-popup").style.display="flex";
+}
+function closeOCR(){
+  document.getElementById("ocr-popup").style.display="none";
+}
+document.getElementById("ocr-popup")?.addEventListener("click",e=>{
+  if(e.target===document.getElementById("ocr-popup"))closeOCR();
+});
+
+// Drag and drop
+document.getElementById("ocr-dropzone")?.addEventListener("dragover",e=>{
+  e.preventDefault();
+  document.getElementById("ocr-dropzone").style.borderColor="rgba(52,211,153,.8)";
+});
+document.getElementById("ocr-dropzone")?.addEventListener("dragleave",()=>{
+  document.getElementById("ocr-dropzone").style.borderColor="rgba(16,185,129,.35)";
+});
+document.getElementById("ocr-dropzone")?.addEventListener("drop",e=>{
+  e.preventDefault();
+  document.getElementById("ocr-dropzone").style.borderColor="rgba(16,185,129,.35)";
+  const file=e.dataTransfer.files?.[0];
+  if(!file||!file.type.startsWith("image/"))return;
+  ocrLoadImage({target:{files:[file],value:""}});
+});
+
+function ocrLoadImage(e){
+  const file=e.target.files?.[0];
+  if(!file)return;
+  _ocrFile=file;
+  _ocrMime=file.type||"image/jpeg";
+  document.getElementById("ocr-img-name").textContent=file.name;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    _ocrBase64=ev.target.result;
+    document.getElementById("ocr-preview-img").src=ev.target.result;
+    document.getElementById("ocr-preview-wrap").style.display="block";
+    document.getElementById("ocr-btn-analyze").style.display="block";
+    document.getElementById("ocr-result-wrap").style.display="none";
+    document.getElementById("ocr-reset-wrap").style.display="none";
+    document.getElementById("ocr-status").textContent="";
+    document.getElementById("ocr-prog-wrap").style.display="none";
+    _ocrRawJson=null;
+  };
+  reader.readAsDataURL(file);
+  if(e.target.value!==undefined)e.target.value="";
+}
+
+async function ocrAnalyze(){
+  if(!_ocrFile){
+    const st=document.getElementById("ocr-status");
+    st.textContent="❌ Selecione uma imagem primeiro.";
+    st.style.color="var(--red)";
+    return;
+  }
+  const btn=document.getElementById("ocr-btn-analyze");
+  const st=document.getElementById("ocr-status");
+  const progWrap=document.getElementById("ocr-prog-wrap");
+  const progFill=document.getElementById("ocr-prog-fill");
+  const progLabel=document.getElementById("ocr-prog-label");
+
+  btn.disabled=true;
+  btn.textContent="⏳ Processando...";
+  progWrap.style.display="block";
+  st.textContent="";
+
+  try{
+    const result=await Tesseract.recognize(_ocrFile,"por+eng",{
+      logger:m=>{
+        if(m.status==="recognizing text"){
+          const pct=Math.round((m.progress||0)*100);
+          progFill.style.width=pct+"%";
+          progLabel.textContent=`Lendo imagem… ${pct}%`;
+        } else if(m.status==="loading language traineddata"){
+          progLabel.textContent="Carregando idioma...";
+        } else if(m.status==="initializing api"){
+          progLabel.textContent="Inicializando...";
+        }
+      }
+    });
+
+    const rawText=result.data.text||"";
+    progWrap.style.display="none";
+
+    if(!rawText.trim()){
+      st.style.color="var(--yellow)";
+      st.textContent="⚠️ Nenhum texto encontrado. Tente uma imagem mais nítida.";
+      btn.disabled=false;
+      btn.textContent="🔍 Extrair dados da imagem";
+      return;
+    }
+
+    const parsed=ocrParseText(rawText);
+    _ocrRawJson=parsed;
+
+    if(!parsed.length){
+      // Mostra o texto bruto para o usuário copiar manualmente
+      document.getElementById("ocr-result-text").value="— Texto extraído da imagem —\n\n"+rawText;
+      document.getElementById("ocr-result-wrap").style.display="block";
+      document.getElementById("ocr-reset-wrap").style.display="block";
+      st.style.color="var(--yellow)";
+      st.textContent="⚠️ Não foi possível identificar campos automaticamente. Texto bruto exibido — copie e organize manualmente.";
+      btn.style.display="none";
+      return;
+    }
+
+    const lines=parsed.map((p,i)=>{
+      const parts=[
+        `#${i+1}`,
+        p.name       ? `Nome: ${p.name}`            : null,
+        p.cpf        ? `CPF: ${p.cpf}`               : null,
+        p.phone      ? `Celular: ${p.phone}`          : null,
+        p.email      ? `E-mail: ${p.email}`           : null,
+        p.prefeitura ? `Prefeitura: ${p.prefeitura}`  : null,
+      ].filter(Boolean);
+      return parts.join("\n");
+    }).join("\n\n");
+
+    document.getElementById("ocr-result-text").value=lines;
+    document.getElementById("ocr-result-wrap").style.display="block";
+    document.getElementById("ocr-reset-wrap").style.display="block";
+    st.style.color="var(--green)";
+    st.textContent=`✅ ${parsed.length} pessoa(s) identificada(s)!`;
+    btn.style.display="none";
+
+  }catch(err){
+    progWrap.style.display="none";
+    st.style.color="var(--red)";
+    st.textContent="❌ Erro ao processar: "+(err.message||"Tente novamente.");
+    btn.disabled=false;
+    btn.textContent="🔍 Extrair dados da imagem";
+  }
+}
+
+function ocrParseText(text){
+  const lines=text.split("\n").map(l=>l.trim()).filter(l=>l.length>1);
+  const cpfRE   =/\b\d{3}[\s.]?\d{3}[\s.]?\d{3}[-\s]?\d{2}\b/g;
+  const phoneRE =/(\(?\d{2}\)?[\s\-]?)(\d{4,5}[\s\-]?\d{4})/g;
+  const emailRE =/[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/g;
+  const prefRE  =/prefeitura[\s\w]*/gi;
+
+  // Extrai todos os campos encontrados com seus índices de linha
+  const fields=[];
+  lines.forEach((line,i)=>{
+    const cpfs=[...line.matchAll(cpfRE)];
+    cpfs.forEach(m=>fields.push({type:"cpf",value:m[0].replace(/\s/g,""),line:i}));
+    const phones=[...line.matchAll(phoneRE)];
+    phones.forEach(m=>fields.push({type:"phone",value:m[0].replace(/\s/g,""),line:i}));
+    const emails=[...line.matchAll(emailRE)];
+    emails.forEach(m=>fields.push({type:"email",value:m[0],line:i}));
+    const prefs=[...line.matchAll(prefRE)];
+    prefs.forEach(m=>fields.push({type:"prefeitura",value:m[0].trim(),line:i}));
+  });
+
+  // Tenta agrupar por âncoras (CPF ou telefone)
+  const anchors=fields.filter(f=>f.type==="cpf"||f.type==="phone");
+  if(!anchors.length){
+    // Sem âncoras — retorna 1 objeto com tudo que achou
+    const single={name:"",cpf:"",phone:"",email:"",prefeitura:""};
+    fields.forEach(f=>{if(!single[f.type])single[f.type]=f.value;});
+    return(single.cpf||single.phone||single.email)?[single]:[];
+  }
+
+  // Agrupa os campos ao redor de cada âncora (janela de 3 linhas)
+  const pessoas=[];
+  const usedLines=new Set();
+  anchors.forEach(anchor=>{
+    if(usedLines.has(anchor.line))return;
+    const p={name:"",cpf:"",phone:"",email:"",prefeitura:""};
+    p[anchor.type]=anchor.value;
+    usedLines.add(anchor.line);
+
+    // Janela: 3 linhas antes e 3 depois
+    const window=3;
+    fields.forEach(f=>{
+      if(f.line===anchor.line||Math.abs(f.line-anchor.line)>window)return;
+      if(!p[f.type])p[f.type]=f.value;
+    });
+
+    // Busca nome: linha próxima que não seja campo estruturado
+    for(let offset=-3;offset<=3;offset++){
+      const idx=anchor.line+offset;
+      if(idx<0||idx>=lines.length||usedLines.has(idx))continue;
+      const l=lines[idx];
+      if(cpfRE.test(l)||phoneRE.test(l)||emailRE.test(l))continue;
+      if(l.length>4&&/[A-Za-zÀ-ú]/.test(l)&&l.split(" ").length>=2){
+        if(!p.name){p.name=l;usedLines.add(idx);}
+      }
+    }
+    pessoas.push(p);
+  });
+  return pessoas;
+}
+
+function ocrCopy(mode){
+  let text="";
+  if(mode==="text"){
+    text=document.getElementById("ocr-result-text").value;
+  }else if(mode==="csv"&&_ocrRawJson&&_ocrRawJson.length){
+    const header="Nome;CPF;Celular;E-mail;Prefeitura";
+    const rows=_ocrRawJson.map(p=>
+      [p.name,p.cpf,p.phone,p.email,p.prefeitura]
+        .map(v=>`"${(v||"").replace(/"/g,'""')}"`)
+        .join(";")
+    );
+    text=[header,...rows].join("\n");
+  } else {
+    text=document.getElementById("ocr-result-text").value;
+  }
+  if(!text)return;
+  navigator.clipboard.writeText(text).then(()=>{
+    const btnId=mode==="text"?"btn-copy-text":"btn-copy-csv";
+    const btn=document.getElementById(btnId);
+    const orig=btn.textContent;
+    btn.textContent="✅ Copiado!";
+    setTimeout(()=>btn.textContent=orig,2000);
+  });
+}
+
+function ocrReset(){
+  _ocrBase64=null;_ocrMime=null;_ocrRawJson=null;_ocrFile=null;
+  document.getElementById("ocr-preview-wrap").style.display="none";
+  document.getElementById("ocr-btn-analyze").style.display="none";
+  document.getElementById("ocr-result-wrap").style.display="none";
+  document.getElementById("ocr-reset-wrap").style.display="none";
+  document.getElementById("ocr-prog-wrap").style.display="none";
+  document.getElementById("ocr-status").textContent="";
+  document.getElementById("ocr-img-input").value="";
+  document.getElementById("ocr-btn-analyze").disabled=false;
+  document.getElementById("ocr-btn-analyze").textContent="🔍 Extrair dados da imagem";
+}
 </script>
 <script src="onboarding-mod.js"></script>
 </body>

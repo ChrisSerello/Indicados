@@ -244,6 +244,20 @@
     /* ── Botão Atribuir 🔀 ─────────────────────────────── */
     .btn-assign{padding:3px 9px;border-radius:7px;border:1px solid rgba(81, 11, 244, 0.079);background:rgba(26, 11, 241, 0.145);color:#ffffff;font-size:10px;font-weight:600;cursor:pointer;font-family:inherit;margin-left:6px;white-space:nowrap;transition:background .2s;}
     .btn-assign:hover{background:rgba(225, 223, 216, 0.22);}
+
+    /* ESTILO PARA ANEXAR IMAGEM */
+    #ocr-popup{display:none;}
+    #ocr-box{background:rgba(14,4,28,.98);border:1px solid rgba(168,85,247,.4);}
+    #ocr-dropzone{border:2px dashed rgba(168,85,247,.35);background:transparent;transition:all .2s;}
+    #ocr-dropzone:hover{border-color:rgba(192,132,252,.7);background:rgba(168,85,247,.04);}
+    #ocr-btn-analyze{background:var(--accent-g);color:#fff;box-shadow:0 0 20px rgba(168,85,247,.4);transition:filter .2s;}
+    #ocr-btn-analyze:hover{filter:brightness(1.1);}
+    #ocr-btn-analyze:disabled{opacity:.6;cursor:not-allowed;}
+    #ocr-result-text{background:rgba(10,2,20,.9);border:1px solid rgba(168,85,247,.3);color:var(--text);}
+    #btn-copy-text{background:var(--accent-g);color:#fff;border:none;}
+    #btn-copy-csv{background:rgba(96,165,250,.15);color:#60a5fa;border:1px solid rgba(96,165,250,.35);}
+    .ocr-progress-bar{height:6px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden;margin-top:8px;}
+    .ocr-progress-fill{height:100%;background:linear-gradient(90deg,#c084fc,#7c3aed);border-radius:3px;transition:width .3s;width:0%;}
   </style>
 </head>
 
@@ -318,6 +332,7 @@
       <button class="btn-new-inq" onclick="openBulk()">➕ Cadastrar Indiquer</button>
       <button class="btn-export" onclick="exportData('excel')">📥 Excel</button>
       <button class="btn-export" style="border-color:rgba(96,165,250,.4);background:rgba(96,165,250,.1);color:#60a5fa;" onclick="exportData('csv')">📄 CSV</button>
+      <button class="btn-export" style="border-color:rgba(168,85,247,.4);background:rgba(168,85,247,.1);color:#c084fc;" onclick="openOCR()">🖼️ Digitalizar Imagem</button>
     </div>
     <div id="content-area"><p style="color:var(--muted);font-size:13px;">Carregando…</p></div>
     </div>
@@ -459,6 +474,10 @@
           <div class="bf"><label>Celular *</label><input id="b-phone" type="text" placeholder="(11) 99999-9999" maxlength="15"/></div>
           <div class="bf"><label>E-mail *</label><input id="b-email" type="email" placeholder="email@exemplo.com"/></div>
         </div>
+        <div class="bf">
+          <label>Prefeitura</label>
+          <input id="b-prefeitura" type="text" placeholder="Ex: Prefeitura de São Paulo"/>
+        </div>
         <div class="bf2">
           <div class="bf"><label>Senha de acesso *</label><input id="b-pass" type="password" placeholder="Mínimo 6 caracteres"/></div>
           <div class="bf"><label>Confirmar senha *</label><input id="b-pass2" type="password" placeholder="Repita a senha"/></div>
@@ -490,11 +509,12 @@
         <button class="btpl" onclick="downloadBulkTpl()">📥 Baixar template</button>
       </div>
       <div class="or-line">ou adicionar manualmente</div>
-      <div class="minputs">
-        <input id="m-name" type="text" placeholder="Nome *"/>
-        <input id="m-cpf" type="text" placeholder="CPF" maxlength="14"/>
-        <input id="m-phone" type="text" placeholder="Celular" maxlength="15"/>
-        <input id="m-email" type="email" placeholder="E-mail"/>
+      <div class="minputs" style="grid-template-columns:2fr 1.1fr 1.3fr 1.6fr 1.4fr auto;">
+        <input id="m-name"       type="text"  placeholder="Nome *"/>
+        <input id="m-cpf"        type="text"  placeholder="CPF" maxlength="14"/>
+        <input id="m-phone"      type="text"  placeholder="Celular" maxlength="15"/>
+        <input id="m-email"      type="email" placeholder="E-mail"/>
+        <input id="m-prefeitura" type="text"  placeholder="Prefeitura"/>
         <button class="bmadd" onclick="bulkAddRow()">+ Add</button>
       </div>
       <p style="font-size:12px;color:var(--muted);margin:6px 0 2px;"><span id="bcnt">0</span> indicação(ões) na lista</p>
@@ -589,6 +609,69 @@
   </div>
 </div>
 
+<!-- OCR MODAL -->
+<div id="ocr-popup" style="display:none;position:fixed;inset:0;z-index:400;background:rgba(0,0,0,.8);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:16px;">
+  <div id="ocr-box" style="width:min(580px,100%);max-height:92vh;overflow-y:auto;border-radius:22px;padding:28px 30px;box-shadow:0 24px 80px rgba(0,0,0,.9);">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;">
+      <div>
+        <h2 style="font-size:18px;font-weight:700;margin-bottom:4px;">🖼️ Digitalizar Imagem</h2>
+        <p style="font-size:12px;color:var(--muted);">Envie um print ou foto com dados de indicados. O sistema extrai e formata para copiar.</p>
+      </div>
+      <button onclick="closeOCR()" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:2px 6px;">✕</button>
+    </div>
+
+    <!-- Zona de upload -->
+    <div id="ocr-dropzone" onclick="document.getElementById('ocr-img-input').click()" style="border-radius:12px;padding:28px;text-align:center;cursor:pointer;margin-bottom:12px;">
+      <div style="font-size:32px;margin-bottom:8px;">📷</div>
+      <p style="font-size:13px;font-weight:600;margin-bottom:4px;">Clique ou arraste uma imagem aqui</p>
+      <p style="font-size:11px;color:var(--muted);">JPG, PNG, WEBP — prints de tela e fotos nítidas funcionam melhor</p>
+    </div>
+    <input type="file" id="ocr-img-input" accept="image/*" style="display:none;" onchange="ocrLoadImage(event)"/>
+
+    <!-- Preview -->
+    <div id="ocr-preview-wrap" style="display:none;margin-bottom:12px;text-align:center;">
+      <img id="ocr-preview-img" style="max-width:100%;max-height:180px;border-radius:10px;border:1px solid var(--border);"/>
+      <p id="ocr-img-name" style="font-size:11px;color:var(--muted);margin-top:5px;"></p>
+    </div>
+
+    <!-- Botão analisar -->
+    <button id="ocr-btn-analyze" onclick="ocrAnalyze()" style="display:none;width:100%;padding:11px;border-radius:10px;border:none;cursor:pointer;font-family:inherit;font-weight:600;font-size:14px;margin-bottom:10px;">
+      🔍 Extrair dados da imagem
+    </button>
+
+    <!-- Barra de progresso -->
+    <div id="ocr-prog-wrap" style="display:none;margin-bottom:10px;">
+      <div class="ocr-progress-bar"><div class="ocr-progress-fill" id="ocr-prog-fill"></div></div>
+      <p id="ocr-prog-label" style="font-size:11px;color:var(--muted);margin-top:4px;text-align:center;"></p>
+    </div>
+
+    <!-- Status -->
+    <div id="ocr-status" style="font-size:12px;min-height:16px;margin-bottom:10px;text-align:center;"></div>
+
+    <!-- Resultado -->
+    <div id="ocr-result-wrap" style="display:none;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:6px;">
+        <label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);">✅ Dados extraídos</label>
+        <div style="display:flex;gap:6px;">
+          <button onclick="ocrCopy('text')" id="btn-copy-text" style="padding:5px 12px;border-radius:7px;cursor:pointer;font-family:inherit;font-size:11px;font-weight:600;">📋 Copiar texto</button>
+          <button onclick="ocrCopy('csv')" id="btn-copy-csv" style="padding:5px 12px;border-radius:7px;cursor:pointer;font-family:inherit;font-size:11px;font-weight:600;">📊 Copiar CSV</button>
+        </div>
+      </div>
+      <textarea id="ocr-result-text" readonly style="width:100%;min-height:200px;padding:12px;border-radius:10px;font-family:monospace;font-size:12px;resize:vertical;outline:none;line-height:1.7;"></textarea>
+      <div style="display:flex;align-items:flex-start;gap:8px;margin-top:10px;padding:10px 12px;background:rgba(250,204,21,.06);border:1px solid rgba(250,204,21,.2);border-radius:9px;">
+        <span style="font-size:14px;flex-shrink:0;">💡</span>
+        <p style="font-size:11px;color:rgba(255,255,255,.55);line-height:1.6;">Cole o CSV direto na planilha de importação do bulk, ou o texto no campo manual. Verifique sempre os dados antes de salvar — imagens de baixa qualidade podem gerar erros.</p>
+      </div>
+    </div>
+
+    <!-- Nova imagem -->
+    <div id="ocr-reset-wrap" style="display:none;margin-top:14px;text-align:center;">
+      <button onclick="ocrReset()" style="padding:8px 20px;border-radius:9px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:12px;cursor:pointer;font-family:inherit;">🔄 Analisar outra imagem</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="assign.js"></script>
@@ -641,7 +724,7 @@ window.saveSubRowDirect=async function(indiquerRefId,subId,btn){
 
 function buildTable(refs){
   if(!refs.length)return'<p class="empty-msg">Sem indicações ainda.</p>';
-  return`<div class="ref-table-wrap"><table><thead><tr><th>Nome indicado</th><th>WhatsApp</th><th>Perfil/E-mail</th><th>Status</th><th>Valor (R$)</th><th>Nota</th><th>Data</th><th>Ações</th></tr></thead><tbody>${refs.map(ref=>{
+  return`<div class="ref-table-wrap"><table><thead><tr><th>Nome indicado</th><th>WhatsApp</th><th>Perfil/E-mail</th><th>Prefeitura</th><th>Status</th><th>Valor (R$)</th><th>Nota</th><th>Data</th><th>Ações</th></tr></thead><tbody>${refs.map(ref=>{
     const cl=ref.indicated_clients||{};
     const w=waHref(cl.phone);
     const cur=normS(ref.status);
@@ -650,6 +733,7 @@ function buildTable(refs){
       <td><strong>${cl.name||"—"}</strong></td>
       <td>${w?`<a class="wa-link" href="${w}" target="_blank">📱 ${cl.phone}</a>`:(cl.phone||"—")}</td>
       <td style="color:var(--muted);font-size:12px;">${cl.profile_type||(cl.observations?.startsWith("E-mail:")?cl.observations.replace("E-mail:","").trim():cl.observations)||"—"}</td>
+      <td style="color:var(--muted);font-size:12px;">${cl.prefeitura||"—"}</td>
       <td><select class="status-select ${m.c}" data-id="${ref.id}" onchange="onSC(this)">${SOS.map(o=>`<option value="${o.v}"${o.v===cur?" selected":""}>${o.l}</option>`).join("")}</select></td>
       <td><input type="text" class="valor-input" value="${ref.amount?fmt(ref.amount):""}" placeholder="R$ 0,00" oninput="fmtCurrencyInput(this)" onblur="fmtCurrencyBlur(this)"/></td>
       <td><button class="note-btn${ref.admin_note?" has-note":""}" onclick="openNote('${ref.id}',this)">${ref.admin_note?"📝 Ver":"+ Nota"}</button></td>
@@ -778,7 +862,7 @@ function renderInq(){
         ${buildTable(sub.refs||[])}
       </div></div>`;}).join("")}</div>`:"";
       const balancePill=balance<=0?`<span class="stat-pill" style="color:#4ade80;border-color:rgba(74,222,128,.4);background:rgba(74,222,128,.1);">✅ Quitado</span>`:(paid>0?`<span class="stat-pill" style="color:#facc15;border-color:rgba(250,204,21,.3);">💰 Saldo ${fmt(balance)}</span>`:"");
-      cd.innerHTML=`<div class="client-header" onclick="this.closest('.client-card').classList.toggle('open')"><div class="client-left"><div class="client-avatar">${initials(c.name)}</div><div><div class="client-name">${c.name||"—"} <span class="role-tag role-indiquer">Indiquer</span> <button class="btn-edit-indiquer" onclick="event.stopPropagation();openEditReferrer('${c.id}')">✏️</button><button class="btn-assign" onclick="event.stopPropagation();openAssign('${c.id}','indiquer')">🔀 Atribuir</button></div><div class="client-meta">${wa?`<a class="wa-link" href="${wa}" target="_blank" onclick="event.stopPropagation()">📱 ${c.phone}</a>`:c.phone||"—"} · <strong>${c.code||"—"}</strong>${mod?` · Mod: ${mod.name}`:""} · desde ${fmtDate(c.created_at)}</div></div></div><div style="display:flex;align-items:center;gap:8px;"><div class="client-stats"><span class="nivel-tag ${nv.c}">${nv.l}</span>${tr>0?`<span class="stat-pill">${tr} ind.</span>`:""}<span class="stat-pill green">${ap} aprov.</span><span class="stat-pill" style="color:#c084fc;">${sc} indicado${sc!==1?"s":""}</span><span class="stat-pill" style="color:#c084fc;">${fmt(sm)}</span>${balancePill}</div><div class="chevron">▼</div></div></div><div class="client-body">${buildPaySummary(c.id,sm)}<h4 style="font-size:12px;color:#60a5fa;font-weight:700;margin:14px 0 10px;text-transform:uppercase;letter-spacing:.5px;">📨 Indicações diretas (${tr})</h4>${buildTable(c.refs||[])}<button class="btn-add-ref" onclick="event.stopPropagation();openBulkExisting('${c.id}','${(c.name||"").replace(/'/g,"\\'")}','${c.code||""}','${c.phone||""}','${c.email||""}','${c.moderator_id||""}')">➕ Adicionar mais indicações</button>${subHtml}</div>`;
+      cd.innerHTML=`<div class="client-header" onclick="this.closest('.client-card').classList.toggle('open')"><div class="client-left"><div class="client-avatar">${initials(c.name)}</div><div><div class="client-name">${c.name||"—"} <span class="role-tag role-indiquer">Indiquer</span> <button class="btn-edit-indiquer" onclick="event.stopPropagation();openEditReferrer('${c.id}')">✏️</button><button class="btn-assign" onclick="event.stopPropagation();openAssign('${c.id}','indiquer')">🔀 Atribuir</button></div><div class="client-meta">${wa?`<a class="wa-link" href="${wa}" target="_blank" onclick="event.stopPropagation()">📱 ${c.phone}</a>`:c.phone||"—"} · <strong>${c.code||"—"}</strong>${mod?` · Mod: ${mod.name}`:""} ${c.prefeitura?` · 🏛️ ${c.prefeitura}`:""} · desde ${fmtDate(c.created_at)}</div></div></div><div style="display:flex;align-items:center;gap:8px;"><div class="client-stats"><span class="nivel-tag ${nv.c}">${nv.l}</span>${tr>0?`<span class="stat-pill">${tr} ind.</span>`:""}<span class="stat-pill green">${ap} aprov.</span><span class="stat-pill" style="color:#c084fc;">${sc} indicado${sc!==1?"s":""}</span><span class="stat-pill" style="color:#c084fc;">${fmt(sm)}</span>${balancePill}</div><div class="chevron">▼</div></div></div><div class="client-body">${buildPaySummary(c.id,sm)}<h4 style="font-size:12px;color:#60a5fa;font-weight:700;margin:14px 0 10px;text-transform:uppercase;letter-spacing:.5px;">📨 Indicações diretas (${tr})</h4>${buildTable(c.refs||[])}<button class="btn-add-ref" onclick="event.stopPropagation();openBulkExisting('${c.id}','${(c.name||"").replace(/'/g,"\\'")}','${c.code||""}','${c.phone||""}','${c.email||""}','${c.moderator_id||""}')">➕ Adicionar mais indicações</button>${subHtml}</div>`;
       ct.appendChild(cd);
     });
 }
@@ -907,9 +991,9 @@ async function deleteMod(id,name){if(!confirm(`Remover o moderador "${name}"?\n\
 
 const BCHR="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 let _bId=null,_bRows=[];
-function openBulk(){_bId=null;_bRows=[];["b-name","b-cpf","b-phone","b-email","b-pass","b-pass2"].forEach(id=>{const el=document.getElementById(id);if(el)el.value="";});document.getElementById("b-mod").value="";document.getElementById("bfb1").textContent="";document.getElementById("b-mode-wrap").style.display="none";document.getElementById("b-existing-wrap").style.display="none";document.getElementById("b-new-wrap").style.display="block";document.getElementById("bmode-new").classList.add("active");document.getElementById("bmode-ex").classList.remove("active");document.getElementById("bs1").style.display="block";document.getElementById("bs2").style.display="none";document.getElementById("bsi1").className="bsi active";document.getElementById("bsi2").className="bsi";_bRender();document.getElementById("bulk-ov").style.display="flex";}
+function openBulk(){_bId=null;_bRows=[];["b-name","b-cpf","b-phone","b-email","b-pass","b-pass2", "b-prefeitura"].forEach(id=>{const el=document.getElementById(id);if(el)el.value="";});document.getElementById("b-mod").value="";document.getElementById("bfb1").textContent="";document.getElementById("b-mode-wrap").style.display="none";document.getElementById("b-existing-wrap").style.display="none";document.getElementById("b-new-wrap").style.display="block";document.getElementById("bmode-new").classList.add("active");document.getElementById("bmode-ex").classList.remove("active");document.getElementById("bs1").style.display="block";document.getElementById("bs2").style.display="none";document.getElementById("bsi1").className="bsi active";document.getElementById("bsi2").className="bsi";_bRender();document.getElementById("bulk-ov").style.display="flex";}
 function openBulkExisting(id,name,code,phone,email,modId){_bId=id;_bRows=[];const pf=phone?(phone.length===11?"("+phone.slice(0,2)+") "+phone.slice(2,7)+"-"+phone.slice(7):"("+phone.slice(0,2)+") "+phone.slice(2)):phone||"";const modName=allMods.find(m=>m.id===modId)?.name||"";document.getElementById("bsav").textContent=initials(name);document.getElementById("bsname").textContent=name;document.getElementById("bsmeta").textContent=[pf,email,modName?`Mod: ${modName}`:""].filter(Boolean).join(" · ");document.getElementById("bscode").textContent="Código: "+code;document.getElementById("bs1").style.display="none";document.getElementById("bs2").style.display="block";document.getElementById("bsi1").className="bsi done";document.getElementById("bsi2").className="bsi active";_bRender();document.getElementById("bulk-ov").style.display="flex";}
-function exportData(type){const rows=[];[...allInq,...allInd].forEach(c=>{const mod=allMods.find(m=>m.id===c.moderator_id);const paid=getTotalPaid(c.id);const sm=calcSm((c.refs||[]).filter(r=>isOk(r.status)).length);(c.refs||[]).forEach(ref=>{const cl=ref.indicated_clients||{};const email=cl.observations?.startsWith("E-mail:")?cl.observations.replace("E-mail:","").trim():"";const sL={em_analise:"Em análise",em_contato:"Em contato",aprovado:"Aprovado",reprovado:"Reprovado"};rows.push({"Moderador":mod?.name||"—","Indicador":c.name||"—","Código indicador":c.code||"—","Papel":c.role||"—","Smashcard Total":fmt(sm),"Total Pago":fmt(paid),"Saldo":fmt(sm-paid),"Nome indicado":cl.name||"—","Celular":cl.phone||"—","E-mail":email,"Perfil":cl.profile_type||"—","Status":sL[ref.status]||ref.status||"—","Valor (R$)":ref.amount||"","Nota":ref.admin_note||ref.mod_note||"","Data":fmtDate(ref.created_at)});});});if(!rows.length){toast("Nenhum dado para exportar.",false);return;}const today=new Date().toLocaleDateString("pt-BR").replace(/\//g,"-");const fn=`indicacoes_${today}`;if(type==="csv"){const h=Object.keys(rows[0]);const csv=[h.join(";"),...rows.map(r=>h.map(k=>`"${String(r[k]||"").replace(/"/g,'""')}"`).join(";"))].join("\n");const b=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8;"});const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=fn+".csv";a.click();toast("CSV exportado!");}else{const ws=XLSX.utils.json_to_sheet(rows);ws["!cols"]=[{wch:18},{wch:22},{wch:10},{wch:10},{wch:14},{wch:14},{wch:14},{wch:22},{wch:16},{wch:26},{wch:14},{wch:14},{wch:10},{wch:30},{wch:12}];const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"Indicações");XLSX.writeFile(wb,fn+".xlsx");toast("Excel exportado!");}}
+function exportData(type){const rows=[];[...allInq,...allInd].forEach(c=>{const mod=allMods.find(m=>m.id===c.moderator_id);const paid=getTotalPaid(c.id);const sm=calcSm((c.refs||[]).filter(r=>isOk(r.status)).length);(c.refs||[]).forEach(ref=>{const cl=ref.indicated_clients||{};const email=cl.observations?.startsWith("E-mail:")?cl.observations.replace("E-mail:","").trim():"";const sL={em_analise:"Em análise",em_contato:"Em contato",aprovado:"Aprovado",reprovado:"Reprovado"};rows.push({"Moderador":mod?.name||"—","Indicador":c.name||"—","Código indicador":c.code||"—","Papel":c.role||"—","Prefeitura indicador":c.prefeitura||"—","Prefeitura indicado":cl.prefeitura||"—","Smashcard Total":fmt(sm),"Total Pago":fmt(paid),"Saldo":fmt(sm-paid),"Nome indicado":cl.name||"—","Celular":cl.phone||"—","E-mail":email,"Perfil":cl.profile_type||"—","Status":sL[ref.status]||ref.status||"—","Valor (R$)":ref.amount||"","Nota":ref.admin_note||ref.mod_note||"","Data":fmtDate(ref.created_at)});});});if(!rows.length){toast("Nenhum dado para exportar.",false);return;}const today=new Date().toLocaleDateString("pt-BR").replace(/\//g,"-");const fn=`indicacoes_${today}`;if(type==="csv"){const h=Object.keys(rows[0]);const csv=[h.join(";"),...rows.map(r=>h.map(k=>`"${String(r[k]||"").replace(/"/g,'""')}"`).join(";"))].join("\n");const b=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8;"});const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=fn+".csv";a.click();toast("CSV exportado!");}else{const ws=XLSX.utils.json_to_sheet(rows);ws["!cols"]=[{wch:18},{wch:22},{wch:10},{wch:10},{wch:14},{wch:14},{wch:14},{wch:22},{wch:16},{wch:26},{wch:14},{wch:14},{wch:10},{wch:30},{wch:12}];const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"Indicações");XLSX.writeFile(wb,fn+".xlsx");toast("Excel exportado!");}}
 function closeBulk(){document.getElementById("bulk-ov").style.display="none";}
 async function _genCode(mc){for(let i=0;i<20;i++){let s="";for(let j=0;j<2;j++)s+=BCHR[Math.floor(Math.random()*BCHR.length)];const code=mc+s;const{data}=await sb.from("referrers").select("id").eq("code",code).maybeSingle();if(!data)return code;}throw new Error("Código único não encontrado.");}
 const maskCPF=e=>{let v=e.target.value.replace(/\D/g,"");v=v.replace(/(\d{3})(\d)/,"$1.$2").replace(/(\d{3})(\d)/,"$1.$2").replace(/(\d{3})(\d{1,2})/,"$1-$2").replace(/(-\d{2})\d+$/,"$1");e.target.value=v;};
@@ -920,14 +1004,14 @@ document.getElementById("m-cpf")?.addEventListener("input",maskCPF);
 document.getElementById("m-phone")?.addEventListener("input",maskPhone);
 function onModChange(){const modId=document.getElementById("b-mod").value;const wrap=document.getElementById("b-mode-wrap");if(!modId){wrap.style.display="none";return;}wrap.style.display="block";const sel=document.getElementById("b-existing-inq");const modInq=allInq.filter(i=>i.moderator_id===modId);sel.innerHTML='<option value="">— Selecione o indiquer —</option>'+modInq.map(i=>`<option value="${i.id}" data-name="${(i.name||"").replace(/"/g,"&quot;")}" data-code="${i.code||""}" data-phone="${i.phone||""}" data-email="${i.email||""}">${i.name||"—"} [${i.code}]</option>`).join("");}
 function setBMode(mode){document.getElementById("bmode-new").classList.toggle("active",mode==="new");document.getElementById("bmode-ex").classList.toggle("active",mode==="existing");document.getElementById("b-existing-wrap").style.display=mode==="existing"?"block":"none";document.getElementById("b-new-wrap").style.display=mode==="new"?"block":"none";}
-async function bulkStep1(){const modSel=document.getElementById("b-mod");const modId=modSel.value;const modOpt=modSel.options[modSel.selectedIndex];const modCode=modOpt?.dataset.code||"";const fb=document.getElementById("bfb1");fb.textContent="";fb.style.color="#fb7185";if(!modId){fb.textContent="Selecione o moderador responsável.";return;}const isExisting=document.getElementById("bmode-ex")?.classList.contains("active");const btn=document.getElementById("btn-bnext");btn.textContent="…";btn.disabled=true;try{if(isExisting){const exSel=document.getElementById("b-existing-inq");const exId=exSel.value;if(!exId)throw new Error("Selecione o indiquer existente.");const opt=exSel.options[exSel.selectedIndex];const name=opt.dataset.name||"—",code=opt.dataset.code||"",phone=opt.dataset.phone||"",email=opt.dataset.email||"";_bId=exId;const pf=phone.replace(/(\d{2})(\d{4,5})(\d{4})/,"($1) $2-$3");document.getElementById("bsav").textContent=initials(name);document.getElementById("bsname").textContent=name;document.getElementById("bsmeta").textContent=[pf,email,allMods.find(m=>m.id===modId)?.name?`Mod: ${allMods.find(m=>m.id===modId).name}`:""].filter(Boolean).join(" · ");document.getElementById("bscode").textContent="Código: "+code;}else{const name=document.getElementById("b-name").value.trim();const cpf=document.getElementById("b-cpf").value.replace(/\D/g,"");const phone=document.getElementById("b-phone").value.replace(/\D/g,"");const email=document.getElementById("b-email").value.trim().toLowerCase();const pass=document.getElementById("b-pass").value;const pass2=document.getElementById("b-pass2").value;if(!name||!phone||!email||!pass)throw new Error("Nome, celular, e-mail e senha são obrigatórios.");if(pass.length<6)throw new Error("Senha mínima: 6 caracteres.");if(pass!==pass2)throw new Error("As senhas não coincidem.");const{data:{session:ms}}=await sb.auth.getSession();const{data:au,error:ae}=await sb.auth.signUp({email,password:pass});if(ae&&!ae.message.toLowerCase().includes("already"))throw ae;if(ms)await sb.auth.setSession({access_token:ms.access_token,refresh_token:ms.refresh_token});const code=await _genCode(modCode);const{data:nr,error:re}=await sb.from("referrers").insert({name,cpf:cpf||null,phone:phone||null,email,code,role:"indiquer",moderator_id:modId,ref_origin:modCode,user_id:au?.user?.id||null}).select("id,code").single();if(re)throw re;_bId=nr.id;const pf=phone?"("+phone.replace(/(\d{2})(\d{5})(\d{4})/,"$1) $2-$3"):"";const modName=allMods.find(m=>m.id===modId)?.name||"";document.getElementById("bsav").textContent=initials(name);document.getElementById("bsname").textContent=name;document.getElementById("bsmeta").textContent=[pf,email,modName?`Mod: ${modName}`:""].filter(Boolean).join(" · ");document.getElementById("bscode").textContent="Código: "+nr.code;}document.getElementById("bs1").style.display="none";document.getElementById("bs2").style.display="block";document.getElementById("bsi1").className="bsi done";document.getElementById("bsi2").className="bsi active";}catch(err){fb.textContent="Erro: "+(err.message||"Tente novamente.");}finally{btn.textContent="Continuar →";btn.disabled=false;}}
+async function bulkStep1(){const modSel=document.getElementById("b-mod");const modId=modSel.value;const modOpt=modSel.options[modSel.selectedIndex];const modCode=modOpt?.dataset.code||"";const fb=document.getElementById("bfb1");fb.textContent="";fb.style.color="#fb7185";if(!modId){fb.textContent="Selecione o moderador responsável.";return;}const isExisting=document.getElementById("bmode-ex")?.classList.contains("active");const btn=document.getElementById("btn-bnext");btn.textContent="…";btn.disabled=true;try{if(isExisting){const exSel=document.getElementById("b-existing-inq");const exId=exSel.value;if(!exId)throw new Error("Selecione o indiquer existente.");const opt=exSel.options[exSel.selectedIndex];const name=opt.dataset.name||"—",code=opt.dataset.code||"",phone=opt.dataset.phone||"",email=opt.dataset.email||"";_bId=exId;const pf=phone.replace(/(\d{2})(\d{4,5})(\d{4})/,"($1) $2-$3");document.getElementById("bsav").textContent=initials(name);document.getElementById("bsname").textContent=name;document.getElementById("bsmeta").textContent=[pf,email,allMods.find(m=>m.id===modId)?.name?`Mod: ${allMods.find(m=>m.id===modId).name}`:""].filter(Boolean).join(" · ");document.getElementById("bscode").textContent="Código: "+code;}else{const name=document.getElementById("b-name").value.trim();const cpf=document.getElementById("b-cpf").value.replace(/\D/g,"");const phone=document.getElementById("b-phone").value.replace(/\D/g,"");const email=document.getElementById("b-email").value.trim().toLowerCase();const pass=document.getElementById("b-pass").value;const pass2=document.getElementById("b-pass2").value;if(!name||!phone||!email||!pass)throw new Error("Nome, celular, e-mail e senha são obrigatórios.");if(pass.length<6)throw new Error("Senha mínima: 6 caracteres.");if(pass!==pass2)throw new Error("As senhas não coincidem.");const{data:{session:ms}}=await sb.auth.getSession();const{data:au,error:ae}=await sb.auth.signUp({email,password:pass});if(ae&&!ae.message.toLowerCase().includes("already"))throw ae;if(ms)await sb.auth.setSession({access_token:ms.access_token,refresh_token:ms.refresh_token});const code=await _genCode(modCode);const{data:nr,error:re}=await sb.from("referrers").insert({name,cpf:cpf||null,phone:phone||null,email,code,role:"indiquer",moderator_id:modId,ref_origin:modCode,user_id:au?.user?.id||null,prefeitura:document.getElementById("b-prefeitura").value.trim()||null}).select("id,code").single();if(re)throw re;_bId=nr.id;const pf=phone?"("+phone.replace(/(\d{2})(\d{5})(\d{4})/,"$1) $2-$3"):"";const modName=allMods.find(m=>m.id===modId)?.name||"";document.getElementById("bsav").textContent=initials(name);document.getElementById("bsname").textContent=name;document.getElementById("bsmeta").textContent=[pf,email,modName?`Mod: ${modName}`:""].filter(Boolean).join(" · ");document.getElementById("bscode").textContent="Código: "+nr.code;}document.getElementById("bs1").style.display="none";document.getElementById("bs2").style.display="block";document.getElementById("bsi1").className="bsi done";document.getElementById("bsi2").className="bsi active";}catch(err){fb.textContent="Erro: "+(err.message||"Tente novamente.");}finally{btn.textContent="Continuar →";btn.disabled=false;}}
 function bulkBack(){document.getElementById("bs2").style.display="none";document.getElementById("bs1").style.display="block";document.getElementById("bsi1").className="bsi active";document.getElementById("bsi2").className="bsi";}
-function downloadBulkTpl(){const ws=XLSX.utils.aoa_to_sheet([["Nome","CPF","Celular","E-mail"],["João da Silva","123.456.789-00","(11) 99999-9999","joao@email.com"],["Maria Souza","987.654.321-00","(21) 88888-8888","maria@email.com"]]);ws["!cols"]=[{wch:26},{wch:16},{wch:16},{wch:28}];const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"Indicados");XLSX.writeFile(wb,"template_indicados.xlsx");}
-async function bulkFileLoad(e){const file=e.target.files?.[0];if(!file)return;try{const data=await new Promise((res,rej)=>{const r=new FileReader();r.onload=ev=>{const wb=XLSX.read(ev.target.result,{type:"array"});res(XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:""}));};r.onerror=rej;r.readAsArrayBuffer(file);});const imp=data.map(row=>({name:String(row.Nome||row.nome||"").trim(),cpf:String(row.CPF||row.cpf||"").trim(),phone:String(row.Celular||row.celular||row.Telefone||"").trim(),email:String(row["E-mail"]||row.email||row.Email||"").trim()})).filter(r=>r.name);_bRows=[..._bRows,...imp];_bRender();e.target.value="";toast(imp.length+" linha"+(imp.length===1?"":"s")+" importada"+(imp.length===1?"":"s")+"!");}catch(err){toast("Erro ao ler planilha: "+err.message,false);}}
-function bulkAddRow(){const name=document.getElementById("m-name").value.trim();const cpf=document.getElementById("m-cpf").value.trim();const phone=document.getElementById("m-phone").value.trim();const email=document.getElementById("m-email").value.trim();if(!name){toast("Nome é obrigatório.",false);return;}_bRows.push({name,cpf,phone,email});_bRender();["m-name","m-cpf","m-phone","m-email"].forEach(id=>{const el=document.getElementById(id);if(el)el.value="";});}
+function downloadBulkTpl(){const ws=XLSX.utils.aoa_to_sheet([["Nome","CPF","Celular","E-mail"],["João da Silva","123.456.789-00","(11) 99999-9999","joao@email.com", "Prefeitura de SP"],["Maria Souza","987.654.321-00","(21) 88888-8888","maria@email.com", "Prefeitura de SP"]]);ws["!cols"]=[{wch:26},{wch:16},{wch:16},{wch:28},{wch:22}];const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"Indicados");XLSX.writeFile(wb,"template_indicados.xlsx");}
+async function bulkFileLoad(e){const file=e.target.files?.[0];if(!file)return;try{const data=await new Promise((res,rej)=>{const r=new FileReader();r.onload=ev=>{const wb=XLSX.read(ev.target.result,{type:"array"});res(XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:""}));};r.onerror=rej;r.readAsArrayBuffer(file);});const imp=data.map(row=>({name:String(row.Nome||row.nome||"").trim(),cpf:String(row.CPF||row.cpf||"").trim(),phone:String(row.Celular||row.celular||row.Telefone||"").trim(),email:String(row["E-mail"]||row.email||row.Email||"").trim(),prefeitura:String(row.Prefeitura||row.prefeitura||row.PREFEITURA||row["Pref."]||"").trim()})).filter(r=>r.name);_bRows=[..._bRows,...imp];_bRender();e.target.value="";toast(imp.length+" linha"+(imp.length===1?"":"s")+" importada"+(imp.length===1?"":"s")+"!");}catch(err){toast("Erro ao ler planilha: "+err.message,false);}}
+function bulkAddRow(){const name=document.getElementById("m-name").value.trim();const cpf=document.getElementById("m-cpf").value.trim();const phone=document.getElementById("m-phone").value.trim();const prefeitura=document.getElementById("m-prefeitura").value.trim();if(!name){toast("Nome é obrigatório.",false);return;}_bRows.push({name,cpf,phone,email});_bRender();["m-name","m-cpf","m-phone","m-email","m-prefeitura"].forEach(id=>{const el=document.getElementById(id);if(el)el.value="";});}
 function bulkRemRow(i){_bRows.splice(i,1);_bRender();}
 function _bRender(){const c=document.getElementById("bprev"),cnt=document.getElementById("bcnt"),btn=document.getElementById("btn-bconfirm");if(cnt)cnt.textContent=_bRows.length;if(btn)btn.disabled=_bRows.length===0;if(!c)return;if(!_bRows.length){c.innerHTML='<p style="text-align:center;color:var(--muted);font-size:12px;padding:14px 0;">Nenhuma indicação adicionada ainda.</p>';return;}c.innerHTML='<div class="bprev-wrap"><table><thead><tr><th>#</th><th>Nome</th><th>CPF</th><th>Celular</th><th>E-mail</th><th></th></tr></thead><tbody>'+_bRows.map((r,i)=>`<tr><td style="color:var(--muted);">${i+1}</td><td><strong>${r.name}</strong></td><td style="color:var(--muted);font-size:11px;">${r.cpf||"—"}</td><td style="color:var(--muted);font-size:11px;">${r.phone||"—"}</td><td style="color:var(--muted);font-size:11px;">${r.email||"—"}</td><td><button class="bxrow" onclick="bulkRemRow(${i})">✕</button></td></tr>`).join("")+'</tbody></table></div>';}
-async function bulkConfirm(){if(!_bId||!_bRows.length)return;const btn=document.getElementById("btn-bconfirm"),fb=document.getElementById("bfb2");btn.textContent="Cadastrando…";btn.disabled=true;fb.textContent="";let ok=0,fail=0,lastErr="";for(const row of _bRows){try{const nm=row.name?.trim()||null;const ph=row.phone?.replace(/\D/g,"")||null;const obs=[row.email?`E-mail: ${row.email}`:null].filter(Boolean).join(" | ")||null;const{data:cl,error:ce}=await sb.from("indicated_clients").insert({name:nm||(ph?`Contato ${ph}`:"Desconhecido"),cpf:row.cpf?.replace(/\D/g,"")||null,phone:ph,observations:obs}).select("id").single();if(ce){lastErr=ce.message;fail++;continue;}const{error:re}=await sb.from("referrals").insert({referrer_id:_bId,indicated_client_id:cl.id,status:"em_analise"});if(re){lastErr=re.message;fail++;}else ok++;}catch(e){lastErr=e?.message||"Erro desconhecido";fail++;}}if(fail>0){fb.innerHTML=`✅ ${ok} cadastrada${ok!==1?"s":""}. ⚠️ ${fail} com erro.${lastErr?`<br><span style="font-size:11px;opacity:.7;">${lastErr}</span>`:""}`;fb.style.color="#facc15";btn.textContent="✅ Cadastrar indicações";btn.disabled=false;}else{fb.textContent=`✅ ${ok} indicaç${ok===1?"ão":"ões"} cadastrada${ok!==1?"s":""}!`;fb.style.color="#c084fc";toast(`${ok} indicaç${ok===1?"ão":"ões"} cadastrada${ok!==1?"s":""}!`);setTimeout(()=>{closeBulk();loadData();},1600);}}
+async function bulkConfirm(){if(!_bId||!_bRows.length)return;const btn=document.getElementById("btn-bconfirm"),fb=document.getElementById("bfb2");btn.textContent="Cadastrando…";btn.disabled=true;fb.textContent="";let ok=0,fail=0,lastErr="";for(const row of _bRows){try{const nm=row.name?.trim()||null;const ph=row.phone?.replace(/\D/g,"")||null;const obs=[row.email?`E-mail: ${row.email}`:null].filter(Boolean).join(" | ")||null;const{data:cl,error:ce}=await sb.from("indicated_clients").insert({name:nm||(ph?`Contato ${ph}`:"Desconhecido"),cpf:row.cpf?.replace(/\D/g,"")||null,phone:ph,observations:obs,prefeitura:row.prefeitura||null}).select("id").single();if(ce){lastErr=ce.message;fail++;continue;}const{error:re}=await sb.from("referrals").insert({referrer_id:_bId,indicated_client_id:cl.id,status:"em_analise"});if(re){lastErr=re.message;fail++;}else ok++;}catch(e){lastErr=e?.message||"Erro desconhecido";fail++;}}if(fail>0){fb.innerHTML=`✅ ${ok} cadastrada${ok!==1?"s":""}. ⚠️ ${fail} com erro.${lastErr?`<br><span style="font-size:11px;opacity:.7;">${lastErr}</span>`:""}`;fb.style.color="#facc15";btn.textContent="✅ Cadastrar indicações";btn.disabled=false;}else{fb.textContent=`✅ ${ok} indicaç${ok===1?"ão":"ões"} cadastrada${ok!==1?"s":""}!`;fb.style.color="#c084fc";toast(`${ok} indicaç${ok===1?"ão":"ões"} cadastrada${ok!==1?"s":""}!`);setTimeout(()=>{closeBulk();loadData();},1600);}}
 
 let _nId=null,_nBtn=null;
 function openNote(id,btn){_nId=id;_nBtn=btn;let n="";allRefs.forEach(r=>{if(r.id===id)n=r.admin_note||"";});document.getElementById("note-ta").value=n;const nm=btn.closest("tr")?.querySelector("td:first-child strong")?.textContent||"";document.getElementById("note-subtitle").textContent=nm?`Sobre: ${nm}`:"Observação interna.";document.getElementById("note-popup").style.display="flex";setTimeout(()=>document.getElementById("note-ta").focus(),50);}
@@ -976,6 +1060,234 @@ function _renderKanban(mods,inqs,refClients){const ct=document.getElementById('t
   const subIndCards=refNivel2.length?refNivel2.map(mkIndCard).join(''):`<p class="tk-empty">Nenhum sub-indicado</p>`;
   ct.innerHTML=`<div class="tk-scroll"><div class="tk-board"><div class="tk-col"><div class="tk-col-head tkh-mod">🛡️ Moderadores <span style="background:rgba(124,58,237,.2);color:#c084fc;padding:1px 8px;border-radius:999px;font-size:10px;margin-left:4px;">${mods.length}</span></div><div class="tk-col-body tkb-mod">${modCards}</div></div><div class="tk-conn-svg"><svg width="40" height="80" viewBox="0 0 40 80" fill="none"><path d="M0 25 Q20 25 20 40 Q20 55 40 55" stroke="rgba(255,255,255,.1)" stroke-width="1.5" fill="none" stroke-dasharray="3,3"/></svg></div><div class="tk-col"><div class="tk-col-head tkh-inq">🤝 Indiquers <span style="background:rgba(16,185,129,.12);color:#34d399;padding:1px 8px;border-radius:999px;font-size:10px;margin-left:4px;">${inqs.length}</span></div><div class="tk-col-body tkb-inq">${inqCards}</div></div><div class="tk-conn-svg"><svg width="40" height="80" viewBox="0 0 40 80" fill="none"><path d="M0 25 Q20 25 20 40 Q20 55 40 55" stroke="rgba(255,255,255,.08)" stroke-width="1.5" fill="none" stroke-dasharray="3,3"/></svg></div><div class="tk-col" style="width:210px;"><div class="tk-col-head tkh-ind">👤 Indicados <span style="background:rgba(147,51,234,.12);color:#c084fc;padding:1px 8px;border-radius:999px;font-size:10px;margin-left:4px;">${refNivel1.length}</span></div><div class="tk-col-body tkb-ind">${indCards}</div></div><div class="tk-conn-svg"><svg width="40" height="80" viewBox="0 0 40 80" fill="none"><path d="M0 25 Q20 25 20 40 Q20 55 40 55" stroke="rgba(255,255,255,.06)" stroke-width="1.5" fill="none" stroke-dasharray="3,3"/></svg></div><div class="tk-col" style="width:210px;"><div class="tk-col-head" style="background:rgba(96,165,250,.08);border-color:rgba(96,165,250,.22);color:#60a5fa;padding:10px 14px;border-radius:12px 12px 0 0;border:1px solid rgba(96,165,250,.22);border-bottom:none;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;">🔗 Sub-indicados <span style="background:rgba(96,165,250,.12);color:#60a5fa;padding:1px 8px;border-radius:999px;font-size:10px;margin-left:4px;">${refNivel2.length}</span></div><div class="tk-col-body" style="border-color:rgba(96,165,250,.16);">${subIndCards}</div></div></div></div>`;}
 function _renderGraph(mods,inqs,refClients){const ct=document.getElementById('tree-graph-wrap');if(!ct)return;if(!mods.length&&!inqs.length){ct.innerHTML='<p style="color:var(--muted);font-size:13px;padding:24px;text-align:center;">Aguarde os dados carregarem.</p>';return;}const NS=130,LY=[65,210,360, 510];const pos={};const iw={};inqs.forEach(inq=>{iw[inq.id]=Math.max(1,refClients.filter(c=>c.referrerId===inq.id).length);});const mw={};mods.forEach(mod=>{const ch=inqs.filter(i=>i.moderator_id===mod.id);mw[mod.id]=ch.length===0?1:ch.reduce((s,i)=>s+(iw[i.id]||1),0);});const total=Math.max(1,mods.reduce((s,m)=>s+(mw[m.id]||1),0));const svgW=Math.max(700,total*NS+100);const refNivel2=refClients.filter(c=>c.isIndLevel);const svgH=refNivel2.length>0?620:refClients.length>0?440:inqs.length>0?280:160;let edges='';let mx=60;mods.forEach(mod=>{const mWpx=(mw[mod.id]||1)*NS;const mx0=mx+mWpx/2;pos[mod.id]={x:mx0,y:LY[0]};const mch=inqs.filter(i=>i.moderator_id===mod.id);let ix=mx;mch.forEach(inq=>{const iwpx=(iw[inq.id]||1)*NS;const ix0=ix+iwpx/2;pos[inq.id]={x:ix0,y:LY[1]};edges+=`<path d="M${mx0} ${LY[0]+28} C${mx0} ${(LY[0]+LY[1])/2},${ix0} ${(LY[0]+LY[1])/2},${ix0} ${LY[1]-22}" fill="none" stroke="rgba(124,58,237,.3)" stroke-width="1.5" stroke-dasharray="5,4"/>`;const ich=refClients.filter(c=>c.referrerId===inq.id&&!c.isIndLevel);let icx=ix;ich.forEach((cl,ii)=>{const cx=icx+ii*NS+NS/2;pos[cl._rid]={x:cx,y:LY[2]};const sc=isOk(cl.status)?'rgba(74,222,128,.4)':'rgba(147,51,234,.2)';edges+=`<path d="M${ix0} ${LY[1]+22} C${ix0} ${(LY[1]+LY[2])/2},${cx} ${(LY[1]+LY[2])/2},${cx} ${LY[2]-18}" fill="none" stroke="${sc}" stroke-width="1.5" stroke-dasharray="4,4"/>`;const matchingInd=allInd.find(i=>(i.phone||"").replace(/\D/g,"")===(cl.phone||"").replace(/\D/g,"")||i.name===cl.name);const subIch=matchingInd?refClients.filter(s=>s.isIndLevel&&s.referrerId===matchingInd.id):[];subIch.forEach((sub,si)=>{const scx=cx+(si-Math.floor(subIch.length/2))*NS;pos[sub._rid]={x:scx,y:LY[3]};const ssc=isOk(sub.status)?'rgba(96,165,250,.4)':'rgba(96,165,250,.2)';edges+=`<path d="M${cx} ${LY[2]+18} C${cx} ${(LY[2]+LY[3])/2},${scx} ${(LY[2]+LY[3])/2},${scx} ${LY[3]-18}" fill="none" stroke="${ssc}" stroke-width="1.5" stroke-dasharray="3,3"/>`;});});ix+=iwpx;});mx+=mWpx;});const drawMod=(m)=>{const p=pos[m.id];if(!p)return'';return`<g class="tg-node" id="tgn-${m.id}" onclick="_showNodeDetail('${m.id}','mod')" data-name="${(m.name||'').replace(/"/g,'&quot;')}" data-code="${m.code||''}" data-type="mod"><circle cx="${p.x}" cy="${p.y}" r="28" fill="url(#tg-mg)" stroke="rgba(124,58,237,.7)" stroke-width="1.5" filter="url(#tg-glow)"/><text x="${p.x}" y="${p.y-3}" text-anchor="middle" dominant-baseline="middle" fill="white" font-size="11" font-weight="700" font-family="Poppins,sans-serif">${initials(m.name)}</text><text x="${p.x}" y="${p.y+11}" text-anchor="middle" dominant-baseline="middle" fill="rgba(255,255,255,.5)" font-size="8" font-family="monospace">${m.code}</text></g>`;};const drawInq=(i)=>{const p=pos[i.id];if(!p)return'';const refs=i.refs||[];const ap=refs.filter(x=>isOk(x.status)).length;const badge=ap>0?`<circle cx="${p.x+18}" cy="${p.y-16}" r="8" fill="#059669" stroke="#0a0a1a" stroke-width="1.5"/><text x="${p.x+18}" y="${p.y-12}" text-anchor="middle" fill="white" font-size="7" font-weight="700" font-family="Poppins,sans-serif">${ap}</text>`:'';return`<g class="tg-node" id="tgn-${i.id}" onclick="_showNodeDetail('${i.id}','inq')" data-name="${(i.name||'').replace(/"/g,'&quot;')}" data-code="${i.code||''}" data-type="inq"><circle cx="${p.x}" cy="${p.y}" r="22" fill="url(#tg-ig)" stroke="rgba(16,185,129,.6)" stroke-width="1.5"/><text x="${p.x}" y="${p.y-3}" text-anchor="middle" dominant-baseline="middle" fill="white" font-size="9" font-weight="700" font-family="Poppins,sans-serif">${initials(i.name)}</text><text x="${p.x}" y="${p.y+9}" text-anchor="middle" dominant-baseline="middle" fill="rgba(255,255,255,.5)" font-size="7.5" font-family="monospace">${(i.code||'').slice(0,6)}</text>${badge}</g>`;};const drawInd=(c)=>{const p=pos[c._rid];if(!p)return'';const approved=isOk(c.status);const sc=approved?'rgba(74,222,128,.6)':'rgba(147,51,234,.55)';const sf=approved?'url(#tg-ag)':'url(#tg-dg)';return`<g class="tg-node" id="tgn-${c._rid}" onclick="_showNodeDetail('${c._rid}','ind')" data-name="${(c.name||'').replace(/"/g,'&quot;')}" data-code="${normS(c.status)}" data-type="ind"><circle cx="${p.x}" cy="${p.y}" r="18" fill="${sf}" stroke="${sc}" stroke-width="1.5"/><text x="${p.x}" y="${p.y-3}" text-anchor="middle" dominant-baseline="middle" fill="white" font-size="8.5" font-weight="700" font-family="Poppins,sans-serif">${initials(c.name)}</text><text x="${p.x}" y="${p.y+9}" text-anchor="middle" dominant-baseline="middle" fill="rgba(255,255,255,.45)" font-size="6.5" font-family="monospace">${(c.name||'').slice(0,7)}</text></g>`;};let nodes='';mods.forEach(m=>nodes+=drawMod(m));inqs.forEach(i=>nodes+=drawInq(i));refClients.forEach(c=>{if(pos[c._rid])nodes+=drawInd(c);});ct.innerHTML=`<div class="tg-wrap"><svg viewBox="0 0 ${svgW} ${svgH}" width="${svgW}" height="${svgH}" style="min-width:${svgW}px;display:block;"><defs><linearGradient id="tg-mg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#7c3aed"/><stop offset="100%" stop-color="#4f46e5"/></linearGradient><linearGradient id="tg-ig" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#059669"/><stop offset="100%" stop-color="#10b981"/></linearGradient><linearGradient id="tg-dg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#9333ea"/><stop offset="100%" stop-color="#7c3aed"/></linearGradient><linearGradient id="tg-ag" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#059669"/><stop offset="100%" stop-color="#4ade80"/></linearGradient><filter id="tg-glow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><rect width="${svgW}" height="${svgH}" fill="rgba(255,255,255,.01)"/>${edges}${nodes}</svg><div class="tg-legend"><div class="tg-legend-item"><div class="tg-legend-dot" style="background:#7c3aed;"></div>Moderador</div><div class="tg-legend-item"><div class="tg-legend-dot" style="background:#10b981;"></div>Indiquer</div><div class="tg-legend-item"><div class="tg-legend-dot" style="background:#9333ea;"></div>Indicado pendente</div><div class="tg-legend-item"><div class="tg-legend-dot" style="background:#4ade80;"></div>Indicado aprovado</div><div style="margin-left:auto;font-size:11px;color:rgba(255,255,255,.2);">Clique em qualquer nó para ver detalhes</div></div><div class="tg-tooltip" id="tg-tt"></div></div>`;const sLabels={em_analise:'Em análise',em_contato:'Em contato',aprovado:'Aprovado',reprovado:'Reprovado'};ct.querySelectorAll('.tg-node').forEach(g=>{g.addEventListener('mouseenter',()=>{const tt=document.getElementById('tg-tt');if(!tt)return;const n=g.getAttribute('data-name'),c=g.getAttribute('data-code'),t=g.getAttribute('data-type');const roles={mod:'Moderador',inq:'Indiquer',ind:'Indicado'};const sub=t==='ind'?(sLabels[c]||c):(`Código: ${c}`);tt.innerHTML=`<strong style="display:block;margin-bottom:2px;">${n}</strong><span style="font-size:10px;color:rgba(255,255,255,.4);">${roles[t]||t} · ${sub}</span>`;tt.classList.add('show');});g.addEventListener('mousemove',e=>{const tt=document.getElementById('tg-tt');if(!tt)return;const box=ct.getBoundingClientRect();let x=e.clientX-box.left+14,y=e.clientY-box.top+14;if(x+170>box.width)x=e.clientX-box.left-170;tt.style.left=x+'px';tt.style.top=y+'px';});g.addEventListener('mouseleave',()=>{const tt=document.getElementById('tg-tt');if(tt)tt.classList.remove('show');});});}
+
+// ══════════════════════════════════════════════════
+//  OCR — DIGITALIZAR IMAGEM (Tesseract.js — gratuito)
+// ══════════════════════════════════════════════════
+let _ocrBase64=null,_ocrMime=null,_ocrRawJson=null,_ocrFile=null;
+
+function openOCR(){
+  document.getElementById("ocr-popup").style.display="flex";
+}
+function closeOCR(){
+  document.getElementById("ocr-popup").style.display="none";
+}
+document.getElementById("ocr-popup")?.addEventListener("click",e=>{
+  if(e.target===document.getElementById("ocr-popup"))closeOCR();
+});
+
+// Drag and drop
+document.getElementById("ocr-dropzone")?.addEventListener("dragover",e=>{
+  e.preventDefault();
+  document.getElementById("ocr-dropzone").style.borderColor="rgba(192,132,252,.8)";
+});
+document.getElementById("ocr-dropzone")?.addEventListener("dragleave",()=>{
+  document.getElementById("ocr-dropzone").style.borderColor="rgba(168,85,247,.35)";
+});
+document.getElementById("ocr-dropzone")?.addEventListener("drop",e=>{
+  e.preventDefault();
+  document.getElementById("ocr-dropzone").style.borderColor="rgba(168,85,247,.35)";
+  const file=e.dataTransfer.files?.[0];
+  if(!file||!file.type.startsWith("image/"))return;
+  ocrLoadImage({target:{files:[file],value:""}});
+});
+
+function ocrLoadImage(e){
+  const file=e.target.files?.[0];
+  if(!file)return;
+  _ocrFile=file;
+  _ocrMime=file.type||"image/jpeg";
+  document.getElementById("ocr-img-name").textContent=file.name;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    _ocrBase64=ev.target.result;
+    document.getElementById("ocr-preview-img").src=ev.target.result;
+    document.getElementById("ocr-preview-wrap").style.display="block";
+    document.getElementById("ocr-btn-analyze").style.display="block";
+    document.getElementById("ocr-result-wrap").style.display="none";
+    document.getElementById("ocr-reset-wrap").style.display="none";
+    document.getElementById("ocr-status").textContent="";
+    document.getElementById("ocr-prog-wrap").style.display="none";
+    _ocrRawJson=null;
+  };
+  reader.readAsDataURL(file);
+  if(e.target.value!==undefined)e.target.value="";
+}
+
+async function ocrAnalyze(){
+  if(!_ocrFile){
+    const st=document.getElementById("ocr-status");
+    st.textContent="❌ Selecione uma imagem primeiro.";
+    st.style.color="var(--red)";
+    return;
+  }
+  const btn=document.getElementById("ocr-btn-analyze");
+  const st=document.getElementById("ocr-status");
+  const progWrap=document.getElementById("ocr-prog-wrap");
+  const progFill=document.getElementById("ocr-prog-fill");
+  const progLabel=document.getElementById("ocr-prog-label");
+
+  btn.disabled=true;
+  btn.textContent="⏳ Processando...";
+  progWrap.style.display="block";
+  st.textContent="";
+
+  try{
+    const result=await Tesseract.recognize(_ocrFile,"por+eng",{
+      logger:m=>{
+        if(m.status==="recognizing text"){
+          const pct=Math.round((m.progress||0)*100);
+          progFill.style.width=pct+"%";
+          progLabel.textContent=`Lendo imagem… ${pct}%`;
+        } else if(m.status==="loading language traineddata"){
+          progLabel.textContent="Carregando idioma...";
+        } else if(m.status==="initializing api"){
+          progLabel.textContent="Inicializando...";
+        }
+      }
+    });
+
+    const rawText=result.data.text||"";
+    progWrap.style.display="none";
+
+    if(!rawText.trim()){
+      st.style.color="var(--yellow)";
+      st.textContent="⚠️ Nenhum texto encontrado. Tente uma imagem mais nítida.";
+      btn.disabled=false;
+      btn.textContent="🔍 Extrair dados da imagem";
+      return;
+    }
+
+    const parsed=ocrParseText(rawText);
+    _ocrRawJson=parsed;
+
+    if(!parsed.length){
+      document.getElementById("ocr-result-text").value="— Texto extraído da imagem —\n\n"+rawText;
+      document.getElementById("ocr-result-wrap").style.display="block";
+      document.getElementById("ocr-reset-wrap").style.display="block";
+      st.style.color="var(--yellow)";
+      st.textContent="⚠️ Não foi possível identificar campos automaticamente. Texto bruto exibido — copie e organize manualmente.";
+      btn.style.display="none";
+      return;
+    }
+
+    const lines=parsed.map((p,i)=>{
+      const parts=[
+        `#${i+1}`,
+        p.name       ? `Nome: ${p.name}`            : null,
+        p.cpf        ? `CPF: ${p.cpf}`               : null,
+        p.phone      ? `Celular: ${p.phone}`          : null,
+        p.email      ? `E-mail: ${p.email}`           : null,
+        p.prefeitura ? `Prefeitura: ${p.prefeitura}`  : null,
+      ].filter(Boolean);
+      return parts.join("\n");
+    }).join("\n\n");
+
+    document.getElementById("ocr-result-text").value=lines;
+    document.getElementById("ocr-result-wrap").style.display="block";
+    document.getElementById("ocr-reset-wrap").style.display="block";
+    st.style.color="var(--green)";
+    st.textContent=`✅ ${parsed.length} pessoa(s) identificada(s)!`;
+    btn.style.display="none";
+
+  }catch(err){
+    progWrap.style.display="none";
+    st.style.color="var(--red)";
+    st.textContent="❌ Erro ao processar: "+(err.message||"Tente novamente.");
+    btn.disabled=false;
+    btn.textContent="🔍 Extrair dados da imagem";
+  }
+}
+
+function ocrParseText(text){
+  const lines=text.split("\n").map(l=>l.trim()).filter(l=>l.length>1);
+  const cpfRE   =/\b\d{3}[\s.]?\d{3}[\s.]?\d{3}[-\s]?\d{2}\b/g;
+  const phoneRE =/(\(?\d{2}\)?[\s\-]?)(\d{4,5}[\s\-]?\d{4})/g;
+  const emailRE =/[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/g;
+  const prefRE  =/prefeitura[\s\w]*/gi;
+
+  const fields=[];
+  lines.forEach((line,i)=>{
+    const cpfs=[...line.matchAll(cpfRE)];
+    cpfs.forEach(m=>fields.push({type:"cpf",value:m[0].replace(/\s/g,""),line:i}));
+    const phones=[...line.matchAll(phoneRE)];
+    phones.forEach(m=>fields.push({type:"phone",value:m[0].replace(/\s/g,""),line:i}));
+    const emails=[...line.matchAll(emailRE)];
+    emails.forEach(m=>fields.push({type:"email",value:m[0],line:i}));
+    const prefs=[...line.matchAll(prefRE)];
+    prefs.forEach(m=>fields.push({type:"prefeitura",value:m[0].trim(),line:i}));
+  });
+
+  const anchors=fields.filter(f=>f.type==="cpf"||f.type==="phone");
+  if(!anchors.length){
+    const single={name:"",cpf:"",phone:"",email:"",prefeitura:""};
+    fields.forEach(f=>{if(!single[f.type])single[f.type]=f.value;});
+    return(single.cpf||single.phone||single.email)?[single]:[];
+  }
+
+  const pessoas=[];
+  const usedLines=new Set();
+  anchors.forEach(anchor=>{
+    if(usedLines.has(anchor.line))return;
+    const p={name:"",cpf:"",phone:"",email:"",prefeitura:""};
+    p[anchor.type]=anchor.value;
+    usedLines.add(anchor.line);
+    const window=3;
+    fields.forEach(f=>{
+      if(f.line===anchor.line||Math.abs(f.line-anchor.line)>window)return;
+      if(!p[f.type])p[f.type]=f.value;
+    });
+    for(let offset=-3;offset<=3;offset++){
+      const idx=anchor.line+offset;
+      if(idx<0||idx>=lines.length||usedLines.has(idx))continue;
+      const l=lines[idx];
+      if(cpfRE.test(l)||phoneRE.test(l)||emailRE.test(l))continue;
+      if(l.length>4&&/[A-Za-zÀ-ú]/.test(l)&&l.split(" ").length>=2){
+        if(!p.name){p.name=l;usedLines.add(idx);}
+      }
+    }
+    pessoas.push(p);
+  });
+  return pessoas;
+}
+
+function ocrCopy(mode){
+  let text="";
+  if(mode==="text"){
+    text=document.getElementById("ocr-result-text").value;
+  }else if(mode==="csv"&&_ocrRawJson&&_ocrRawJson.length){
+    const header="Nome;CPF;Celular;E-mail;Prefeitura";
+    const rows=_ocrRawJson.map(p=>
+      [p.name,p.cpf,p.phone,p.email,p.prefeitura]
+        .map(v=>`"${(v||"").replace(/"/g,'""')}"`)
+        .join(";")
+    );
+    text=[header,...rows].join("\n");
+  }else{
+    text=document.getElementById("ocr-result-text").value;
+  }
+  if(!text)return;
+  navigator.clipboard.writeText(text).then(()=>{
+    const btnId=mode==="text"?"btn-copy-text":"btn-copy-csv";
+    const btn=document.getElementById(btnId);
+    const orig=btn.textContent;
+    btn.textContent="✅ Copiado!";
+    setTimeout(()=>btn.textContent=orig,2000);
+  });
+}
+
+function ocrReset(){
+  _ocrBase64=null;_ocrMime=null;_ocrRawJson=null;_ocrFile=null;
+  document.getElementById("ocr-preview-wrap").style.display="none";
+  document.getElementById("ocr-btn-analyze").style.display="none";
+  document.getElementById("ocr-result-wrap").style.display="none";
+  document.getElementById("ocr-reset-wrap").style.display="none";
+  document.getElementById("ocr-prog-wrap").style.display="none";
+  document.getElementById("ocr-status").textContent="";
+  document.getElementById("ocr-img-input").value="";
+  document.getElementById("ocr-btn-analyze").disabled=false;
+  document.getElementById("ocr-btn-analyze").textContent="🔍 Extrair dados da imagem";
+}
 </script>
 </body>
 </html>
