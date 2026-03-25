@@ -258,6 +258,14 @@
     #btn-copy-csv{background:rgba(96,165,250,.15);color:#60a5fa;border:1px solid rgba(96,165,250,.35);}
     .ocr-progress-bar{height:6px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden;margin-top:8px;}
     .ocr-progress-fill{height:100%;background:linear-gradient(90deg,#c084fc,#7c3aed);border-radius:3px;transition:width .3s;width:0%;}
+
+    /* ── Skeleton loading */
+    .card-skeleton{padding:8px 0;}
+    .sk-line{height:12px;border-radius:6px;background:linear-gradient(90deg,
+      rgba(255,255,255,.05) 0%,rgba(255,255,255,.1) 50%,rgba(255,255,255,.05) 100%);
+      background-size:200% 100%;animation:sk-shimmer 1.4s infinite;}
+    @keyframes sk-shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+    .pagination-info{font-size:11px;color:var(--muted);text-align:center;margin-top:6px;padding-bottom:4px;}
   </style>
 </head>
 
@@ -301,7 +309,7 @@
       <span class="adm-badge">Indique &amp; Ganhe 2.0</span>
     </div>
     <div style="display:flex;align-items:center;gap:10px;">
-      <button class="btn-refresh-adm" id="btn-refresh">↻ Atualizar</button>
+      <button class="btn-refresh-adm" id="btn-refresh" onclick="loadPage(true)">↻ Atualizar</button>
       <button class="btn-logout-adm" id="btn-logout">Sair</button>
     </div>
   </header>
@@ -372,6 +380,15 @@
         <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
           <select id="tree-mod-sel" onchange="renderTree()">
             <option value="">Todos os moderadores</option>
+          </select>
+          <select id="tree-status-sel" onchange="renderTree()"
+            style="padding:8px 12px;border-radius:9px;border:1px solid rgba(168,85,247,.35);
+                  background:rgba(10,2,20,.9);color:var(--text);font-family:inherit;font-size:13px;outline:none;">
+            <option value="">Todos os status</option>
+            <option value="em_analise">⏳ Em análise</option>
+            <option value="em_contato">📞 Em contato</option>
+            <option value="aprovado">✅ Aprovado</option>
+            <option value="reprovado">❌ Reprovado</option>
           </select>
           <div id="tree-stats" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
         </div>
@@ -760,208 +777,442 @@ async function savePayment(){if(!_payRefId)return;const amtRaw=document.getEleme
 async function deletePayment(payId,referrerId){if(!confirm("Excluir este pagamento?"))return;const{error}=await sb.from("payments").delete().eq("id",payId);if(error){toast("Erro: "+error.message,false);return;}toast("Pagamento removido.");loadData();}
 
 let allMods=[],allInq=[],allInd=[],allRefs=[],allPayments=[],curView="indiquers";
+
+// ── Paginação 
+const PAGE_SIZE_LIST = 30;
+const PAGE_SIZE_REFS = 50;
+let _pageInq=0,_pageInd=0,_hasMoreInq=false,_hasMoreInd=false;
+let _searchTerm="",_modFilter="",_loading=false;
+let _allRefsPage=0,_allRefsHasMore=false,_allRefsData=[];
+
+// ── Cache de cards 
+const _refCache={};
+const _loadingCard={};
+
 const ADMIN_WHITELIST=new Set(["christian.serello@starbank.tec.br","brunno@starbank.tec.br","mariasantos.starbank@gmail.com","ana.silva@starbank.tec.br","anasilva.starbank@gmail.com"]);
 function switchMode(mode){document.getElementById("lm-login").style.display=mode==="login"?"block":"none";document.getElementById("lm-register").style.display=mode==="register"?"block":"none";document.getElementById("login-box-sub").textContent=mode==="login"?"Acesso restrito a administradores.":"Crie sua conta de administrador.";document.getElementById("adm-login-error").textContent="";document.getElementById("adm-register-error").textContent="";}
 document.getElementById("btn-adm-login")?.addEventListener("click",async()=>{const e=document.getElementById("adm-email").value.trim().toLowerCase();const p=document.getElementById("adm-pass").value;const err=document.getElementById("adm-login-error");err.textContent="";if(!ADMIN_WHITELIST.has(e)){err.textContent="Este e-mail não tem acesso ao painel de admin.";return;}const btn=document.getElementById("btn-adm-login");btn.textContent="Entrando…";btn.disabled=true;try{const{data,error}=await sb.auth.signInWithPassword({email:e,password:p});if(error)throw error;await mountAdmin(data.user);}catch{err.textContent="Credenciais inválidas.";}finally{btn.textContent="Entrar";btn.disabled=false;}});
 document.getElementById("btn-adm-register")?.addEventListener("click",async()=>{const e=document.getElementById("reg-email").value.trim().toLowerCase();const p=document.getElementById("reg-pass").value;const p2=document.getElementById("reg-pass2").value;const err=document.getElementById("adm-register-error");err.textContent="";err.style.color="#fb7185";if(!e||!p){err.textContent="Preencha e-mail e senha.";return;}if(!ADMIN_WHITELIST.has(e)){err.textContent="Este e-mail não está autorizado a criar conta de admin.";return;}if(p.length<6){err.textContent="Senha mínima: 6 caracteres.";return;}if(p!==p2){err.textContent="As senhas não coincidem.";return;}const btn=document.getElementById("btn-adm-register");btn.textContent="Criando…";btn.disabled=true;try{const{data,error}=await sb.auth.signUp({email:e,password:p});if(error&&!error.message.toLowerCase().includes("already"))throw error;if(error?.message.toLowerCase().includes("already")){err.style.color="#facc15";err.textContent="Conta já existe. Tente fazer login.";return;}err.style.color="#4ade80";err.textContent="✅ Conta criada! Fazendo login…";setTimeout(async()=>{const{data:sd,error:se}=await sb.auth.signInWithPassword({email:e,password:p});if(se||!sd.user){err.style.color="#fb7185";err.textContent="Conta criada, mas login falhou.";return;}await mountAdmin(sd.user);},1200);}catch(ex){err.textContent="Erro: "+(ex.message||"Tente novamente.");}finally{btn.textContent="Criar minha conta";btn.disabled=false;}});
 async function mountAdmin(user){if(!ADMIN_WHITELIST.has(user.email?.toLowerCase())){await sb.auth.signOut();document.getElementById("adm-login-error").textContent="Acesso negado.";return;}document.getElementById("login-gate").style.display="none";document.getElementById("adm-app").classList.add("active");loadData();}
 async function loadData(){
-  document.getElementById("content-area").innerHTML="<p style='color:var(--muted);font-size:13px;'>Carregando…</p>";
-  const{data:mods}=await sb.from("moderators").select("id,name,email,code,user_id,created_at").order("name");
-  allMods=mods||[];
-  document.getElementById("k-mods").textContent=allMods.length;
-  const fmod=document.getElementById("filter-mod");const curFm=fmod.value;
-  fmod.innerHTML='<option value="">Todos os moderadores</option>'+allMods.map(m=>`<option value="${m.id}"${m.id===curFm?" selected":""}>${m.name} [${m.code}]</option>`).join("");
-  const bmod=document.getElementById("b-mod");
-  bmod.innerHTML='<option value="">— Selecione o moderador —</option>'+allMods.map(m=>`<option value="${m.id}" data-code="${m.code}">${m.name} [${m.code}]</option>`).join("");
-  const{data:rrs}=await sb.from("referrers").select("id,name,phone,email,cpf,code,role,ref_origin,moderator_id,created_at").order("created_at",{ascending:false});
-  const ar=rrs||[];
-  allInq=ar.filter(r=>r.role==="indiquer");
-  allInd=ar.filter(r=>r.role==="indicado");
-  allRefs=[];
-  if(ar.length){
-    const{data:refs}=await sb.from("referrals").select("*,amount,mod_note,admin_note,indicated_client_id,indicated_clients(id,name,phone,cpf,profile_type,observations)").in("referrer_id",ar.map(r=>r.id)).order("created_at",{ascending:false});
-    allRefs=refs||[];
-    const{data:pays}=await sb.from("payments").select("*").in("referrer_id",ar.map(r=>r.id)).order("created_at",{ascending:false});
-    allPayments=pays||[];
-  }else{allPayments=[];}
-  const rm={};allRefs.forEach(r=>{(rm[r.referrer_id]||(rm[r.referrer_id]=[])).push(r);});
-  ar.forEach(r=>r.refs=rm[r.id]||[]);
-  allInq.forEach(r=>r.subs=allInd.filter(i=>i.ref_origin===r.code));
-  const ap=allRefs.filter(r=>isOk(r.status));
-  document.getElementById("k-inq").textContent=allInq.length;
-  document.getElementById("k-ind").textContent=allInd.length;
-  document.getElementById("k-total").textContent=allRefs.length;
-  document.getElementById("k-approved").textContent=ap.length;
-  renderView();renderModSection();
+  _pageInq=0;_pageInd=0;
+  Object.keys(_refCache).forEach(k=>delete _refCache[k]);
+  await loadMods();
+  await updateKPIs();
+  await loadPage(true);
 }
-document.querySelectorAll(".view-tab").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".view-tab").forEach(x=>x.classList.remove("active"));b.classList.add("active");curView=b.dataset.view;renderView();}));
+
+async function loadMods(){
+  const{data:mods}=await sb.from("moderators")
+    .select("id,name,email,code,user_id,created_at").order("name");
+  allMods=mods||[];
+  const el=document.getElementById("k-mods");
+  if(el)el.textContent=allMods.length;
+  const fmod=document.getElementById("filter-mod");
+  if(fmod){
+    const cur=fmod.value;
+    fmod.innerHTML='<option value="">Todos os moderadores</option>'
+      +allMods.map(m=>`<option value="${m.id}"${m.id===cur?" selected":""}>${m.name} [${m.code}]</option>`).join("");
+  }
+  const bmod=document.getElementById("b-mod");
+  if(bmod){
+    bmod.innerHTML='<option value="">— Selecione o moderador —</option>'
+      +allMods.map(m=>`<option value="${m.id}" data-code="${m.code}">${m.name} [${m.code}]</option>`).join("");
+  }
+  const tsel=document.getElementById("tree-mod-sel");
+  if(tsel){
+    const cur=tsel.value;
+    tsel.innerHTML='<option value="">Todos os moderadores</option>'
+      +allMods.map(m=>`<option value="${m.id}"${m.id===cur?" selected":""}>${m.name} [${m.code}]</option>`).join("");
+  }
+}
+
+async function updateKPIs(){
+  const[rInq,rInd,rTotal,rAp]=await Promise.all([
+    sb.from("referrers").select("id",{count:"exact",head:true}).eq("role","indiquer"),
+    sb.from("referrers").select("id",{count:"exact",head:true}).eq("role","indicado"),
+    sb.from("referrals").select("id",{count:"exact",head:true}),
+    sb.from("referrals").select("id",{count:"exact",head:true}).eq("status","aprovado")
+  ]);
+  const s=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v??0;};
+  s("k-inq",rInq.count);s("k-ind",rInd.count);
+  s("k-total",rTotal.count);s("k-approved",rAp.count);
+}
+
+async function loadPage(reset=false){
+  if(_loading)return;
+  _loading=true;
+  const ct=document.getElementById("content-area");
+  if(reset){
+    _pageInq=0;_pageInd=0;allInq=[];allInd=[];
+    if(ct)ct.innerHTML='<p style="color:var(--muted);font-size:13px;">Carregando…</p>';
+  }
+  const s=_searchTerm.trim();
+  const mf=_modFilter;
+  const isInd=curView==="indicados";
+  const page=isInd?_pageInd:_pageInq;
+  const from=page*PAGE_SIZE_LIST;
+  const to=from+PAGE_SIZE_LIST-1;
+  const role=isInd?"indicado":"indiquer";
+  let q=sb.from("referrers")
+    .select("id,name,phone,email,cpf,code,role,ref_origin,moderator_id,prefeitura,created_at")
+    .eq("role",role).order("created_at",{ascending:false}).range(from,to);
+  if(s)q=q.or(`name.ilike.%${s}%,phone.ilike.%${s}%,code.ilike.%${s}%,prefeitura.ilike.%${s}%`);
+  if(mf)q=q.eq("moderator_id",mf);
+  const{data:rows,error}=await q;
+  _loading=false;
+  if(error){if(ct)ct.innerHTML=`<p style="color:var(--red);font-size:13px;">Erro: ${error.message}</p>`;return;}
+  const batch=rows||[];
+  const hasMore=batch.length===PAGE_SIZE_LIST;
+  if(isInd){if(reset)allInd=batch;else allInd=[...allInd,...batch];_hasMoreInd=hasMore;_pageInd++;}
+  else{if(reset)allInq=batch;else allInq=[...allInq,...batch];_hasMoreInq=hasMore;_pageInq++;}
+  renderView();
+}
+
+window.loadMoreInq=function(){loadPage(false);};
+
+async function loadCardData(id){
+  if(_refCache[id]?.loaded||_loadingCard[id])return;
+  _loadingCard[id]=true;
+  const[{data:refs},{data:pays},{count}]=await Promise.all([
+    sb.from("referrals")
+      .select("*,amount,mod_note,admin_note,indicated_client_id,indicated_clients(id,name,phone,cpf,profile_type,observations,prefeitura)")
+      .eq("referrer_id",id).order("created_at",{ascending:false}).range(0,PAGE_SIZE_REFS-1),
+    sb.from("payments").select("*").eq("referrer_id",id).order("created_at",{ascending:false}),
+    sb.from("referrals").select("id",{count:"exact",head:true}).eq("referrer_id",id)
+  ]);
+  _refCache[id]={refs:refs||[],payments:pays||[],loaded:true,pageRefs:1,
+    totalRefs:count||0,hasMoreRefs:(refs||[]).length===PAGE_SIZE_REFS};
+  delete _loadingCard[id];
+  allPayments=[...allPayments.filter(p=>p.referrer_id!==id),...(pays||[])];
+  const bodyEl=document.getElementById(`card-body-${id}`);
+  if(bodyEl)renderCardBody(id,bodyEl);
+}
+
+window.loadMoreRefs=async function(id){
+  if(!_refCache[id])return;
+  const cache=_refCache[id];
+  const from=cache.pageRefs*PAGE_SIZE_REFS;
+  const to=from+PAGE_SIZE_REFS-1;
+  const btn=document.getElementById(`btn-more-refs-${id}`);
+  if(btn){btn.textContent="Carregando…";btn.disabled=true;}
+  const{data:refs}=await sb.from("referrals")
+    .select("*,amount,mod_note,admin_note,indicated_client_id,indicated_clients(id,name,phone,cpf,profile_type,observations,prefeitura)")
+    .eq("referrer_id",id).order("created_at",{ascending:false}).range(from,to);
+  cache.refs=[...cache.refs,...(refs||[])];
+  cache.pageRefs++;
+  cache.hasMoreRefs=(refs||[]).length===PAGE_SIZE_REFS;
+  const bodyEl=document.getElementById(`card-body-${id}`);
+  if(bodyEl)renderCardBody(id,bodyEl);
+};
+
+window.toggleCard=async function(id,role){
+  const card=document.getElementById(`card-${id}`);
+  if(!card)return;
+  const isOpen=card.classList.contains("open");
+  card.classList.toggle("open");
+  if(!isOpen){
+    const bodyEl=document.getElementById(`card-body-${id}`);
+    if(!_refCache[id]?.loaded){
+      if(bodyEl)bodyEl.innerHTML=`<div class="card-skeleton">
+        <div class="sk-line" style="width:60%;margin-bottom:8px;"></div>
+        <div class="sk-line" style="width:100%;margin-bottom:6px;"></div>
+        <div class="sk-line" style="width:80%;"></div></div>`;
+      await loadCardData(id);
+    } else {renderCardBody(id,bodyEl);}
+  }
+};
+
+function renderCardBody(id,bodyEl){
+  if(!bodyEl)return;
+  const cache=_refCache[id];
+  if(!cache){bodyEl.innerHTML="";return;}
+  const ref=[...allInq,...allInd].find(r=>r.id===id);
+  if(!ref){bodyEl.innerHTML="";return;}
+  ref.refs=cache.refs;
+  const ap=cache.refs.filter(r=>isOk(r.status)).length;
+  const sm=calcSm(ap);
+  const isIndiquer=ref.role==="indiquer";
+
+  // Atualiza pills do header com dados reais
+  const statsEl=document.querySelector(`#card-${id} .client-stats`);
+  if(statsEl){
+    const nv=getNivel(ap);
+    const paid=getTotalPaid(id);
+    const balance=sm-paid;
+    statsEl.innerHTML=`
+      <span class="nivel-tag ${nv.c}">${nv.l}</span>
+      <span class="stat-pill">${cache.totalRefs} ind.</span>
+      <span class="stat-pill green">${ap} aprov.</span>
+      <span class="stat-pill" style="color:#c084fc;">${fmt(sm)}</span>
+      ${balance<=0&&sm>0?`<span class="stat-pill" style="color:#4ade80;border-color:rgba(74,222,128,.4);">✅ Quitado</span>`:""}
+    `;
+  }
+
+  const moreBtn=cache.hasMoreRefs
+    ?`<div style="text-align:center;margin-top:12px;">
+        <button id="btn-more-refs-${id}" onclick="loadMoreRefs('${id}')"
+          style="padding:8px 20px;border-radius:9px;border:1px solid var(--border);
+          background:transparent;color:var(--muted);font-size:12px;cursor:pointer;font-family:inherit;">
+          Carregar mais (${cache.totalRefs-cache.refs.length} restantes)
+        </button></div>`
+    :"";
+
+  bodyEl.innerHTML=`
+    ${isIndiquer?buildPaySummary(id,sm):""}
+    <h4 style="font-size:12px;color:#60a5fa;font-weight:700;margin:14px 0 10px;
+      text-transform:uppercase;letter-spacing:.5px;">
+      📨 Indicações (${cache.totalRefs})
+    </h4>
+    ${buildTable(cache.refs)}
+    ${moreBtn}
+    ${isIndiquer?`<button class="btn-add-ref" onclick="event.stopPropagation();
+      openBulkExisting('${id}','${(ref.name||"").replace(/'/g,"\\'")}',
+      '${ref.code||""}','${ref.phone||""}','${ref.email||""}',
+      '${ref.moderator_id||""}')">➕ Adicionar mais indicações</button>`:""}
+  `;
+}
+
+let _searchTimer=null;
+function searchDebounced(){
+  clearTimeout(_searchTimer);
+  _searchTimer=setTimeout(()=>{
+    _searchTerm=document.getElementById("search-input")?.value||"";
+    loadPage(true);
+  },400);
+}
+document.querySelectorAll(".view-tab").forEach(b=>b.addEventListener("click",()=>{
+  document.querySelectorAll(".view-tab").forEach(x=>x.classList.remove("active"));
+  b.classList.add("active");
+  curView=b.dataset.view;
+  const ct=document.getElementById("content-area");
+  if(ct)ct.innerHTML='';
+  loadPage(true);
+}));
 function getFilteredInq(){const s=(document.getElementById("search-input").value||"").toLowerCase();const mf=document.getElementById("filter-mod").value;return allInq.filter(c=>(!mf||c.moderator_id===mf)&&(!s||c.name?.toLowerCase().includes(s)||c.phone?.includes(s)||c.code?.toLowerCase().includes(s)));}
 function getFilteredInd(){const s=(document.getElementById("search-input").value||"").toLowerCase();const mf=document.getElementById("filter-mod").value;return allInd.filter(c=>{if(mf){const pi=allInq.find(i=>i.code===c.ref_origin);if(pi?.moderator_id!==mf)return false;}return!s||c.name?.toLowerCase().includes(s)||c.phone?.includes(s)||c.code?.toLowerCase().includes(s);});}
 function renderView(){if(curView==="indiquers")renderInq();else if(curView==="indicados")renderInd();else renderAll();}
 
 function renderInq(){
-  const ct=document.getElementById("content-area");ct.innerHTML="";
-  const fl=getFilteredInq();
-  if(!fl.length){ct.innerHTML=`<p class='empty-msg'>Nenhum indiquer encontrado${allInq.length===0?" ainda.":"."}</p>`;return;}
-  fl.forEach(c=>{
+  const ct=document.getElementById("content-area");
+  if(!ct)return;
+  if(!allInq.length){
+    ct.innerHTML=`<p class='empty-msg'>Nenhum indiquer encontrado${_searchTerm?" para esta busca.":"."}</p>`;
+    renderLoadMore();return;
+  }
+  const existing=new Set([...ct.querySelectorAll(".client-card")].map(el=>el.id));
+  const fragment=document.createDocumentFragment();
+  allInq.forEach(c=>{
+    const cardId=`card-${c.id}`;
+    if(existing.has(cardId))return;
     const mod=allMods.find(m=>m.id===c.moderator_id);
-    const dirOk=(c.refs||[]).filter(r=>isOk(r.status)).length;
-    const subOk=(c.subs||[]).reduce((a,s)=>a+(s.refs||[]).filter(r=>isOk(r.status)).length,0);
-    const ap=dirOk+subOk,nv=getNivel(ap),wa=waHref(c.phone),sm=calcSm(ap);
-    const paid=getTotalPaid(c.id);const balance=sm-paid;
-    const sc=(c.subs||[]).length,tr=(c.refs||[]).length;
-    const cd=document.createElement("div");cd.className="client-card";
-    const subHtml=sc>0?`<div class="sub-tree"><p class="sub-tree-title">👥 Indicados vinculados (${sc})</p>${(c.subs||[]).map(sub=>{const sA=(sub.refs||[]).filter(r=>isOk(r.status)).length,sT=(sub.refs||[]).length,sN=getNivel(sA),sW=waHref(sub.phone),sS=calcSm(sA);return`<div class="sub-card"><div class="sub-head" onclick="this.closest('.sub-card').classList.toggle('open')"><div class="sub-left"><div class="sub-av">${initials(sub.name)}</div><div><div class="sub-name">${sub.name||"—"} <span class="role-tag role-indicado" style="font-size:9px;">Indicado</span> <button class="btn-edit-indiquer" onclick="event.stopPropagation();openEditReferrer('${sub.id}')">✏️</button><button class="btn-assign" style="font-size:9px;padding:2px 6px;" onclick="event.stopPropagation();openAssign('${sub.id}','indicado')">🔀</button></div><div class="sub-meta">${sW?`<a class="wa-link" href="${sW}" target="_blank" onclick="event.stopPropagation()" style="font-size:11px;">📱 ${sub.phone}</a>`:sub.phone||"—"} · <strong>${sub.code||"—"}</strong>${sub.email?` · 📧 ${sub.email}`:""} ${sub.cpf?` · 🪪 ${sub.cpf}`:""}</div></div></div><div style="display:flex;align-items:center;gap:6px;"><div class="sub-stats"><span class="nivel-tag ${sN.c}" style="font-size:9px;padding:1px 8px;">${sN.l}</span><span class="stat-pill" style="font-size:10px;">${sT} ind.</span><span class="stat-pill green" style="font-size:10px;">${sA} ok</span><span class="stat-pill" style="font-size:10px;color:#c084fc;">${fmt(sS)}</span></div><div class="sub-chevron">▼</div></div></div>
-      <div class="sub-body">
-        <div class="ref-table-wrap" style="margin-bottom:12px;">
-          <table>
-            <thead>
-              <tr>
-                <th>Nome indicado</th>
-                <th>WhatsApp</th>
-                <th>Perfil/E-mail</th>
-                <th>Status</th>
-                <th>Valor (R$)</th>
-                <th>Nota</th>
-                <th>Data</th>
-                <th>Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                ${(()=>{
-                  const sW=waHref(sub.phone);
-                  const subRef=allRefs.find(r=>r.referrer_id===c.id&&r.indicated_clients&&((r.indicated_clients.phone||"")===(sub.phone||"").replace(/\D/g,"")||r.indicated_clients.name===sub.name));
-                  const cur=subRef?normS(subRef.status):"em_analise";
-                  const m=SOS.find(o=>o.v===cur)||SOS[0];
-                  return `
-                    <td><strong>${sub.name||"—"}</strong></td>
-                    <td>${sW?`<a class="wa-link" href="${sW}" target="_blank">📱 ${sub.phone}</a>`:(sub.phone||"—")}</td>
-                    <td style="color:var(--muted);font-size:12px;">${sub.email||sub.cpf||"—"}</td>
-                    <td>
-                      <select class="status-select ${m.c}" ${subRef?`data-id="${subRef.id}" onchange="onSC(this)"`:'data-direct="1"'}>
-                        ${SOS.map(o=>`<option value="${o.v}"${o.v===cur?" selected":""}>${o.l}</option>`).join("")}
-                      </select>
-                    </td>
-                    <td><input type="text" class="valor-input" value="${subRef&&subRef.amount?fmt(subRef.amount):""}" placeholder="R$ 0,00" oninput="fmtCurrencyInput(this)" onblur="fmtCurrencyBlur(this)"/></td>
-                    <td>${subRef?`<button class="note-btn${subRef.admin_note?" has-note":""}" onclick="openNote('${subRef.id}',this)">${subRef.admin_note?"📝 Ver":"+ Nota"}</button>`:"—"}</td>
-                    <td style="color:var(--muted);font-size:12px;">${fmtDate(sub.created_at)}</td>
-                    <td>
-                      <button class="btn-edit-row" onclick="openEditReferrer('${sub.id}')">✏️</button>
-                      ${subRef
-                        ?`<button class="btn-save-row" onclick="saveRow('${subRef.id}',this)">Salvar</button>`
-                        :`<button class="btn-save-row" onclick="saveSubRowDirect('${c.id}','${sub.id}',this)">Salvar</button>`}
-                    </td>
-                  `;
-                })()}
-              </tr>
-            </tbody>
-          </table>
+    const wa=waHref(c.phone);
+    const cd=document.createElement("div");
+    cd.className="client-card";cd.id=cardId;
+    cd.innerHTML=`
+      <div class="client-header" onclick="toggleCard('${c.id}','indiquer')">
+        <div class="client-left">
+          <div class="client-avatar">${initials(c.name)}</div>
+          <div>
+            <div class="client-name">${c.name||"—"}
+              <span class="role-tag role-indiquer">Indiquer</span>
+              <button class="btn-edit-indiquer" onclick="event.stopPropagation();openEditReferrer('${c.id}')">✏️</button>
+              <button class="btn-assign" onclick="event.stopPropagation();openAssign('${c.id}','indiquer')">🔀 Atribuir</button>
+            </div>
+            <div class="client-meta">
+              ${wa?`<a class="wa-link" href="${wa}" target="_blank" onclick="event.stopPropagation()">📱 ${c.phone}</a>`:c.phone||"—"}
+              · <strong>${c.code||"—"}</strong>
+              ${mod?` · Mod: ${mod.name}`:""}
+              ${c.prefeitura?` · 🏛️ ${c.prefeitura}`:""}
+              · desde ${fmtDate(c.created_at)}
+            </div>
+          </div>
         </div>
-        ${buildTable(sub.refs||[])}
-      </div></div>`;}).join("")}</div>`:"";
-      const balancePill=balance<=0?`<span class="stat-pill" style="color:#4ade80;border-color:rgba(74,222,128,.4);background:rgba(74,222,128,.1);">✅ Quitado</span>`:(paid>0?`<span class="stat-pill" style="color:#facc15;border-color:rgba(250,204,21,.3);">💰 Saldo ${fmt(balance)}</span>`:"");
-      cd.innerHTML=`<div class="client-header" onclick="this.closest('.client-card').classList.toggle('open')"><div class="client-left"><div class="client-avatar">${initials(c.name)}</div><div><div class="client-name">${c.name||"—"} <span class="role-tag role-indiquer">Indiquer</span> <button class="btn-edit-indiquer" onclick="event.stopPropagation();openEditReferrer('${c.id}')">✏️</button><button class="btn-assign" onclick="event.stopPropagation();openAssign('${c.id}','indiquer')">🔀 Atribuir</button></div><div class="client-meta">${wa?`<a class="wa-link" href="${wa}" target="_blank" onclick="event.stopPropagation()">📱 ${c.phone}</a>`:c.phone||"—"} · <strong>${c.code||"—"}</strong>${mod?` · Mod: ${mod.name}`:""} ${c.prefeitura?` · 🏛️ ${c.prefeitura}`:""} · desde ${fmtDate(c.created_at)}</div></div></div><div style="display:flex;align-items:center;gap:8px;"><div class="client-stats"><span class="nivel-tag ${nv.c}">${nv.l}</span>${tr>0?`<span class="stat-pill">${tr} ind.</span>`:""}<span class="stat-pill green">${ap} aprov.</span><span class="stat-pill" style="color:#c084fc;">${sc} indicado${sc!==1?"s":""}</span><span class="stat-pill" style="color:#c084fc;">${fmt(sm)}</span>${balancePill}</div><div class="chevron">▼</div></div></div><div class="client-body">${buildPaySummary(c.id,sm)}<h4 style="font-size:12px;color:#60a5fa;font-weight:700;margin:14px 0 10px;text-transform:uppercase;letter-spacing:.5px;">📨 Indicações diretas (${tr})</h4>${buildTable(c.refs||[])}<button class="btn-add-ref" onclick="event.stopPropagation();openBulkExisting('${c.id}','${(c.name||"").replace(/'/g,"\\'")}','${c.code||""}','${c.phone||""}','${c.email||""}','${c.moderator_id||""}')">➕ Adicionar mais indicações</button>${subHtml}</div>`;
-      ct.appendChild(cd);
-    });
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="client-stats">
+            <span class="stat-pill" style="color:var(--muted);">clique para ver</span>
+          </div>
+          <div class="chevron">▼</div>
+        </div>
+      </div>
+      <div class="client-body" id="card-body-${c.id}">
+        <p style="color:var(--muted);font-size:12px;padding:8px 0;">Clique para carregar indicações.</p>
+      </div>`;
+    fragment.appendChild(cd);
+  });
+  ct.appendChild(fragment);
+  renderLoadMore();
+}
+
+function renderLoadMore(){
+  const ct=document.getElementById("content-area");
+  if(!ct)return;
+  let btn=document.getElementById("btn-load-more-list");
+  const hasMore=curView==="indicados"?_hasMoreInd:_hasMoreInq;
+  if(hasMore){
+    if(!btn){
+      btn=document.createElement("div");btn.id="btn-load-more-list";
+      btn.style.cssText="text-align:center;margin:16px 0 8px;";
+      btn.innerHTML=`<button onclick="loadMoreInq()"
+        style="padding:10px 28px;border-radius:10px;border:1px solid var(--border);
+        background:rgba(255,255,255,.04);color:var(--muted);font-size:13px;font-weight:600;
+        cursor:pointer;font-family:inherit;">Carregar mais ↓</button>`;
+      ct.appendChild(btn);
+    }
+  } else {if(btn)btn.remove();}
 }
 
 function renderInd(){
-  const ct=document.getElementById("content-area");ct.innerHTML="";
-  const fl=getFilteredInd();
-  if(!fl.length){ct.innerHTML="<p class='empty-msg'>Nenhum indicado encontrado.</p>";return;}
-  fl.forEach(c=>{
-    const ap=(c.refs||[]).filter(r=>isOk(r.status)).length,nv=getNivel(ap),wa=waHref(c.phone),sm=calcSm(ap);
-    const pi=allInq.find(i=>i.code===c.ref_origin),tr=(c.refs||[]).length;
-    const cd=document.createElement("div");cd.className="client-card";
-
-    // Sub-indicados: quem criou conta via link deste indicado
-    const subInd=allInd.filter(i=>i.ref_origin===c.code);
-    const subHtml=subInd.length>0?`<div class="sub-tree" style="margin-top:14px;">
-      <p class="sub-tree-title">👥 Sub-indicados vinculados (${subInd.length})</p>
-      ${subInd.map(sub=>{
-        const sW=waHref(sub.phone);
-        const subRef=allRefs.find(r=>r.referrer_id===c.id&&r.indicated_clients&&((r.indicated_clients.phone||"")===(sub.phone||"").replace(/\D/g,"")||r.indicated_clients.name===sub.name));
-        const cur=subRef?normS(subRef.status):"em_analise";
-        const mSub=SOS.find(o=>o.v===cur)||SOS[0];
-        const sA=(sub.refs||[]).filter(r=>isOk(r.status)).length,sN=getNivel(sA),sS=calcSm(sA),sT=(sub.refs||[]).length;
-        return`<div class="sub-card">
-          <div class="sub-head" onclick="this.closest('.sub-card').classList.toggle('open')">
-            <div class="sub-left">
-              <div class="sub-av">${initials(sub.name)}</div>
-              <div>
-                <div class="sub-name">${sub.name||"—"} <span class="role-tag role-indicado" style="font-size:9px;">Indicado</span> <button class="btn-edit-indiquer" onclick="event.stopPropagation();openEditReferrer('${sub.id}')">✏️</button></div>
-                <div class="sub-meta">${sW?`<a class="wa-link" href="${sW}" target="_blank" onclick="event.stopPropagation()" style="font-size:11px;">📱 ${sub.phone}</a>`:sub.phone||"—"} · <strong>${sub.code||"—"}</strong>${sub.email?` · 📧 ${sub.email}`:""}</div>
-              </div>
-            </div>
-            <div style="display:flex;align-items:center;gap:6px;">
-              <div class="sub-stats">
-                <span class="nivel-tag ${sN.c}" style="font-size:9px;padding:1px 8px;">${sN.l}</span>
-                <span class="stat-pill" style="font-size:10px;">${sT} ind.</span>
-                <span class="stat-pill green" style="font-size:10px;">${sA} ok</span>
-                <span class="stat-pill" style="font-size:10px;color:#c084fc;">${fmt(sS)}</span>
-              </div>
-              <div class="sub-chevron">▼</div>
-            </div>
-          </div>
-          <div class="sub-body">
-            <div class="ref-table-wrap" style="margin-bottom:12px;">
-              <table><thead><tr>
-                <th>Nome indicado</th><th>WhatsApp</th><th>Perfil/E-mail</th>
-                <th>Status</th><th>Valor (R$)</th><th>Nota</th><th>Data</th><th>Ações</th>
-              </tr></thead>
-              <tbody><tr>
-                <td><strong>${sub.name||"—"}</strong></td>
-                <td>${sW?`<a class="wa-link" href="${sW}" target="_blank">📱 ${sub.phone}</a>`:(sub.phone||"—")}</td>
-                <td style="color:var(--muted);font-size:12px;">${sub.email||sub.cpf||"—"}</td>
-                <td>
-                  <select class="status-select ${mSub.c}" ${subRef?`data-id="${subRef.id}" onchange="onSC(this)"`:'data-direct="1"'}>
-                    ${SOS.map(o=>`<option value="${o.v}"${o.v===cur?" selected":""}>${o.l}</option>`).join("")}
-                  </select>
-                </td>
-                <td><input type="text" class="valor-input" value="${subRef&&subRef.amount?fmt(subRef.amount):""}" placeholder="R$ 0,00" oninput="fmtCurrencyInput(this)" onblur="fmtCurrencyBlur(this)"/></td>
-                <td>${subRef?`<button class="note-btn${subRef.admin_note?" has-note":""}" onclick="openNote('${subRef.id}',this)">${subRef.admin_note?"📝 Ver":"+ Nota"}</button>`:"—"}</td>
-                <td style="color:var(--muted);font-size:12px;">${fmtDate(sub.created_at)}</td>
-                <td>
-                  <button class="btn-edit-row" onclick="openEditReferrer('${sub.id}')">✏️</button>
-                  ${subRef
-                    ?`<button class="btn-save-row" onclick="saveRow('${subRef.id}',this)">Salvar</button>`
-                    :`<button class="btn-save-row" onclick="saveSubRowDirect('${c.id}','${sub.id}',this)">Salvar</button>`}
-                </td>
-              </tr></tbody></table>
-            </div>
-            ${buildTable(sub.refs||[])}
-          </div>
-        </div>`;
-      }).join("")}
-    </div>`:"";
-
-    cd.innerHTML=`<div class="client-header" onclick="this.closest('.client-card').classList.toggle('open')"><div class="client-left"><div class="client-avatar" style="background:linear-gradient(135deg,rgba(168,85,247,.6),rgba(124,58,237,.5));">${initials(c.name)}</div><div><div class="client-name">${c.name||"—"} <span class="role-tag role-indicado">Indicado</span> <button class="btn-edit-indiquer" onclick="event.stopPropagation();openEditReferrer('${c.id}')">✏️</button><button class="btn-assign" onclick="event.stopPropagation();openAssign('${c.id}','indicado')">🔀 Atribuir</button></div><div class="client-meta">${wa?`<a class="wa-link" href="${wa}" target="_blank" onclick="event.stopPropagation()">📱 ${c.phone}</a>`:c.phone||"—"} · <strong>${c.code||"—"}</strong> · Indiquer: <strong>${pi?.name||"—"}</strong> · desde ${fmtDate(c.created_at)}</div></div></div><div style="display:flex;align-items:center;gap:8px;"><div class="client-stats"><span class="nivel-tag ${nv.c}">${nv.l}</span><span class="stat-pill">${tr} ind.</span><span class="stat-pill green">${ap} aprov.</span><span class="stat-pill" style="color:#c084fc;">${fmt(sm)}</span></div><div class="chevron">▼</div></div></div>
-    <div class="client-body">
-      <h4 style="font-size:12px;color:#c084fc;font-weight:700;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;">📨 Indicações (${tr})</h4>
-      ${buildTable(c.refs||[])}
-      ${subHtml}
-    </div>`;
-    ct.appendChild(cd);
-  });
-}
-
-function renderAll(){
-  const s=(document.getElementById("search-input").value||"").toLowerCase();
-  const mf=document.getElementById("filter-mod").value;
   const ct=document.getElementById("content-area");
-  const aw=allRefs.map(ref=>{const ow=[...allInq,...allInd].find(r=>r.id===ref.referrer_id);return{...ref,oN:ow?.name||"—",oC:ow?.code||"—",oR:ow?.role||"—",oMid:ow?.moderator_id||""};});
-  const fl=aw.filter(r=>{if(mf&&r.oMid!==mf)return false;if(!s)return true;const cl=r.indicated_clients||{};return cl.name?.toLowerCase().includes(s)||r.oN.toLowerCase().includes(s)||r.oC.toLowerCase().includes(s);});
-  if(!fl.length){ct.innerHTML="<p class='empty-msg'>Nenhuma indicação encontrada.</p>";return;}
-  ct.innerHTML=`<div class="ref-table-wrap"><table><thead><tr><th>Indicador</th><th>Código</th><th>Papel</th><th>Nome indicado</th><th>WhatsApp</th><th>Status</th><th>Valor</th><th>Nota</th><th>Data</th><th>Ações</th></tr></thead><tbody>${fl.map(ref=>{const cl=ref.indicated_clients||{};const w=waHref(cl.phone);const cur=normS(ref.status);const m=SOS.find(o=>o.v===cur)||SOS[0];return`<tr><td><strong>${ref.oN}</strong></td><td><code style="font-size:11px;background:rgba(255,255,255,.06);padding:2px 6px;border-radius:4px;">${ref.oC}</code></td><td><span class="role-tag ${ref.oR==="indiquer"?"role-indiquer":"role-indicado"}">${ref.oR}</span></td><td>${cl.name||"—"}</td><td>${w?`<a class="wa-link" href="${w}" target="_blank">📱 ${cl.phone}</a>`:(cl.phone||"—")}</td><td><select class="status-select ${m.c}" data-id="${ref.id}" onchange="onSC(this)">${SOS.map(o=>`<option value="${o.v}"${o.v===cur?" selected":""}>${o.l}</option>`).join("")}</select></td><td><input type="text" class="valor-input" value="${ref.amount?fmt(ref.amount):""}" placeholder="R$ 0,00" oninput="fmtCurrencyInput(this)" onblur="fmtCurrencyBlur(this)"/></td><td><button class="note-btn${ref.admin_note?" has-note":""}" onclick="openNote('${ref.id}',this)">${ref.admin_note?"📝 Ver":"+ Nota"}</button></td><td style="color:var(--muted);font-size:12px;">${fmtDate(ref.created_at)}</td><td><button class="btn-edit-row" onclick="openEditIndicado('${ref.indicated_client_id||""}')">✏️</button><button class="btn-save-row" onclick="saveRow('${ref.id}',this)">Salvar</button></td></tr>`;}).join("")}</tbody></table></div>`;
+  if(!ct)return;
+  if(!allInd.length){
+    ct.innerHTML=`<p class='empty-msg'>Nenhum indicado encontrado${_searchTerm?" para esta busca.":"."}</p>`;
+    renderLoadMore();return;
+  }
+  const existing=new Set([...ct.querySelectorAll(".client-card")].map(el=>el.id));
+  const fragment=document.createDocumentFragment();
+  allInd.forEach(c=>{
+    const cardId=`card-${c.id}`;
+    if(existing.has(cardId))return;
+    const wa=waHref(c.phone);
+    const cd=document.createElement("div");
+    cd.className="client-card";cd.id=cardId;
+    cd.innerHTML=`
+      <div class="client-header" onclick="toggleCard('${c.id}','indicado')">
+        <div class="client-left">
+          <div class="client-avatar" style="background:linear-gradient(135deg,rgba(168,85,247,.6),rgba(124,58,237,.5));">${initials(c.name)}</div>
+          <div>
+            <div class="client-name">${c.name||"—"}
+              <span class="role-tag role-indicado">Indicado</span>
+              <button class="btn-edit-indiquer" onclick="event.stopPropagation();openEditReferrer('${c.id}')">✏️</button>
+              <button class="btn-assign" onclick="event.stopPropagation();openAssign('${c.id}','indicado')">🔀 Atribuir</button>
+            </div>
+            <div class="client-meta">
+              ${wa?`<a class="wa-link" href="${wa}" target="_blank" onclick="event.stopPropagation()">📱 ${c.phone}</a>`:c.phone||"—"}
+              · <strong>${c.code||"—"}</strong>
+              ${c.prefeitura?` · 🏛️ ${c.prefeitura}`:""}
+              · desde ${fmtDate(c.created_at)}
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="client-stats"><span class="stat-pill" style="color:var(--muted);">clique para ver</span></div>
+          <div class="chevron">▼</div>
+        </div>
+      </div>
+      <div class="client-body" id="card-body-${c.id}">
+        <p style="color:var(--muted);font-size:12px;padding:8px 0;">Clique para carregar indicações.</p>
+      </div>`;
+    fragment.appendChild(cd);
+  });
+  ct.appendChild(fragment);
+  renderLoadMore();
 }
 
-document.querySelectorAll(".admin-tab-btn").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".admin-tab-btn").forEach(x=>x.classList.remove("active"));b.classList.add("active");const sec=b.dataset.sec;document.querySelectorAll(".admin-section").forEach(s=>s.classList.toggle("active",s.id===sec));}));
-document.getElementById("search-input")?.addEventListener("input",renderView);
-document.getElementById("btn-refresh")?.addEventListener("click",loadData);
+async function renderAll(){
+  const ct=document.getElementById("content-area");
+  if(!ct)return;
+  ct.innerHTML='<p style="color:var(--muted);font-size:13px;">Carregando…</p>';
+  _allRefsPage=0;_allRefsData=[];
+  await loadAllRefsPage(true);
+}
+
+async function loadAllRefsPage(reset=false){
+  const s=_searchTerm.trim();
+  const mf=_modFilter;
+  const from=_allRefsPage*PAGE_SIZE_REFS;
+  const to=from+PAGE_SIZE_REFS-1;
+  let q=sb.from("referrals")
+    .select(`*,amount,mod_note,admin_note,indicated_client_id,
+      indicated_clients(id,name,phone,cpf,profile_type,observations,prefeitura),
+      referrers!referrals_referrer_id_fkey(id,name,code,role,moderator_id)`,
+      {count:"exact"})
+    .order("created_at",{ascending:false}).range(from,to);
+  if(s)q=q.or(`indicated_clients.name.ilike.%${s}%,referrers.name.ilike.%${s}%,referrers.code.ilike.%${s}%`);
+  const{data:rows,count,error}=await q;
+  if(error){document.getElementById("content-area").innerHTML=`<p style="color:var(--red);font-size:13px;">Erro: ${error.message}</p>`;return;}
+  const batch=rows||[];
+  _allRefsHasMore=batch.length===PAGE_SIZE_REFS;
+  _allRefsPage++;
+  if(reset)_allRefsData=batch;else _allRefsData=[..._allRefsData,...batch];
+  const rowsHtml=_allRefsData.map(ref=>{
+    const cl=ref.indicated_clients||{};const rr=ref.referrers||{};
+    const w=waHref(cl.phone);const cur=normS(ref.status);const m=SOS.find(o=>o.v===cur)||SOS[0];
+    return `<tr>
+      <td><strong>${rr.name||"—"}</strong></td>
+      <td><code style="font-size:11px;background:rgba(255,255,255,.06);padding:2px 6px;border-radius:4px;">${rr.code||"—"}</code></td>
+      <td><span class="role-tag ${rr.role==="indiquer"?"role-indiquer":"role-indicado"}">${rr.role||"—"}</span></td>
+      <td>${cl.name||"—"}</td>
+      <td>${w?`<a class="wa-link" href="${w}" target="_blank">📱 ${cl.phone}</a>`:(cl.phone||"—")}</td>
+      <td style="color:var(--muted);font-size:12px;">${cl.prefeitura||"—"}</td>
+      <td><select class="status-select ${m.c}" data-id="${ref.id}" onchange="onSC(this)">${SOS.map(o=>`<option value="${o.v}"${o.v===cur?" selected":""}>${o.l}</option>`).join("")}</select></td>
+      <td><input type="text" class="valor-input" value="${ref.amount?fmt(ref.amount):""}" placeholder="R$ 0,00" oninput="fmtCurrencyInput(this)" onblur="fmtCurrencyBlur(this)"/></td>
+      <td><button class="note-btn${ref.admin_note?" has-note":""}" onclick="openNote('${ref.id}',this)">${ref.admin_note?"📝 Ver":"+ Nota"}</button></td>
+      <td style="color:var(--muted);font-size:12px;">${fmtDate(ref.created_at)}</td>
+      <td><button class="btn-edit-row" onclick="openEditIndicado('${ref.indicated_client_id||""}')">✏️</button><button class="btn-save-row" onclick="saveRow('${ref.id}',this)">Salvar</button></td>
+    </tr>`;
+  }).join("");
+  const moreBtn=_allRefsHasMore
+    ?`<div style="text-align:center;margin:14px 0;">
+        <button onclick="loadAllRefsPage(false)"
+          style="padding:8px 22px;border-radius:9px;border:1px solid var(--border);
+          background:rgba(255,255,255,.04);color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">
+          Carregar mais ↓</button>
+        <span style="font-size:11px;color:var(--muted);margin-left:10px;">${_allRefsData.length} de ${count??_allRefsData.length}</span>
+      </div>`
+    :`<p class="pagination-info">Total: ${_allRefsData.length} indicação(ões)</p>`;
+  document.getElementById("content-area").innerHTML=`
+    <div class="ref-table-wrap"><table>
+      <thead><tr>
+        <th>Indicador</th><th>Código</th><th>Papel</th><th>Nome indicado</th>
+        <th>WhatsApp</th><th>Prefeitura</th><th>Status</th><th>Valor</th>
+        <th>Nota</th><th>Data</th><th>Ações</th>
+      </tr></thead>
+      <tbody>${rowsHtml}</tbody>
+    </table></div>${moreBtn}`;
+}
+
+document.querySelectorAll(".admin-tab-btn").forEach(b=>b.addEventListener("click",async()=>{
+  document.querySelectorAll(".admin-tab-btn").forEach(x=>x.classList.remove("active"));
+  b.classList.add("active");
+  const sec=b.dataset.sec;
+  document.querySelectorAll(".admin-section").forEach(s=>s.classList.toggle("active",s.id===sec));
+  if(sec==="sec-mods") await loadModSectionData();
+  if(sec==="sec-tree") onTreeTabOpen();
+}));
+document.getElementById("search-input")?.addEventListener("input",searchDebounced);
+document.getElementById("filter-mod")?.addEventListener("change",function(){
+  _modFilter=this.value;loadPage(true);
+});
 document.getElementById("btn-logout")?.addEventListener("click",async()=>{await sb.auth.signOut();location.reload();});
 (async()=>{const{data}=await sb.auth.getSession();if(data?.session?.user)await mountAdmin(data.session.user);})();
+
+async function loadModSectionData(){
+  const modList=document.getElementById("mod-list");
+  if(modList)modList.innerHTML="<p style='color:var(--muted);font-size:13px;'>Carregando…</p>";
+
+  // Busca TUDO que a aba moderadores precisa (sem paginação)
+  const[{data:inqAll},{data:indAll},{data:refsAll},{data:paysAll}]=await Promise.all([
+    sb.from("referrers").select("id,name,phone,email,cpf,code,role,ref_origin,moderator_id,prefeitura,created_at").eq("role","indiquer").order("created_at",{ascending:false}),
+    sb.from("referrers").select("id,name,phone,email,cpf,code,role,ref_origin,moderator_id,prefeitura,created_at").eq("role","indicado").order("created_at",{ascending:false}),
+    sb.from("referrals").select("id,referrer_id,status,amount,mod_note,admin_note,indicated_client_id,indicated_clients(id,name,phone,cpf,profile_type,observations,prefeitura)").order("created_at",{ascending:false}),
+    sb.from("payments").select("*").order("created_at",{ascending:false})
+  ]);
+
+  // Guarda em variáveis temporárias para renderModSection usar
+  window._modSecInq=inqAll||[];
+  window._modSecInd=indAll||[];
+  window._modSecRefs=refsAll||[];
+  window._modSecPays=paysAll||[];
+
+  // Vincula refs e subs
+  const rm={};(refsAll||[]).forEach(r=>{(rm[r.referrer_id]||(rm[r.referrer_id]=[])).push(r);});
+  window._modSecInq.forEach(r=>r.refs=rm[r.id]||[]);
+  window._modSecInd.forEach(r=>r.refs=rm[r.id]||[]);
+  window._modSecInq.forEach(r=>r.subs=(indAll||[]).filter(i=>i.ref_origin===r.code));
+
+  renderModSectionFull();
+}
 
 let _editRefId=null;
 const maskCPFInput=e=>{let v=e.target.value.replace(/\D/g,"");v=v.replace(/(\d{3})(\d)/,"$1.$2").replace(/(\d{3})(\d)/,"$1.$2").replace(/(\d{3})(\d{1,2})/,"$1-$2").replace(/(-\d{2})\d+$/,"$1");e.target.value=v;};
@@ -983,7 +1234,7 @@ document.getElementById("edit-indicado-popup")?.addEventListener("click",e=>{if(
 const CODE_CHARS2="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 function genModCode(){let c="";for(let i=0;i<2;i++)c+=CODE_CHARS2[Math.floor(Math.random()*CODE_CHARS2.length)];return c;}
 function renderCodeSegs(code){if(!code)return"—";const s=`<span style="font-family:monospace;font-size:12px;font-weight:700;">`;if(code.length===2)return s+`<span style="background:rgba(168,85,247,.2);color:#c084fc;padding:2px 4px;border-radius:4px;">${code}</span></span>`;if(code.length===4)return s+`<span style="background:rgba(168,85,247,.2);color:#c084fc;padding:2px 4px;border-radius:4px;">${code.slice(0,2)}</span><span style="background:rgba(96,165,250,.2);color:#60a5fa;padding:2px 4px;border-radius:4px;margin-left:2px;">${code.slice(2)}</span></span>`;if(code.length>=6)return s+`<span style="background:rgba(168,85,247,.2);color:#c084fc;padding:2px 4px;border-radius:4px;">${code.slice(0,2)}</span><span style="background:rgba(96,165,250,.2);color:#60a5fa;padding:2px 4px;border-radius:4px;margin-left:2px;">${code.slice(2,4)}</span><span style="background:rgba(74,222,128,.2);color:#4ade80;padding:2px 4px;border-radius:4px;margin-left:2px;">${code.slice(4)}</span></span>`;return`<code>${code}</code>`;}
-function renderModSection(){const list=document.getElementById("mod-list");if(!list)return;if(!allMods.length){list.innerHTML="<p class='empty-msg'>Nenhum moderador cadastrado ainda.</p>";["km-total","km-inq","km-ind","km-ap"].forEach(id=>document.getElementById(id).textContent="0");renderRanking();return;}let tInq=0,tInd=0,tAp=0;list.innerHTML="";allMods.forEach(mod=>{const modInq=allInq.filter(r=>r.moderator_id===mod.id);const modInd=allInd.filter(r=>{const pi=allInq.find(i=>i.code===r.ref_origin);return pi?.moderator_id===mod.id;});const modRefs=allRefs.filter(r=>{const ow=[...allInq,...allInd].find(x=>x.id===r.referrer_id);return ow&&(ow.moderator_id===mod.id||(modInq.some(i=>i.code===ow.ref_origin)));});const ap=modRefs.filter(r=>isOk(r.status)).length;tInq+=modInq.length;tInd+=modInd.length;tAp+=ap;const linked=!!mod.user_id;const shareLink=`${location.origin}/index.html?ref=${mod.code}`;const card=document.createElement("div");card.className="mod-card";card.innerHTML=`<div class="mod-card-head" onclick="this.closest('.mod-card').classList.toggle('open')"><div class="mod-card-left"><div class="mod-av">${initials(mod.name)}</div><div><div class="mod-name">${mod.name}${!linked?'<span style="font-size:10px;color:var(--yellow);margin-left:6px;">⏳ aguardando 1º acesso</span>':""}</div><div class="mod-email">${mod.email}</div></div></div><div style="display:flex;align-items:center;gap:6px;"><div class="mod-stats"><span class="mstat">${modInq.length} indiquer${modInq.length!==1?"s":""}</span><span class="mstat">${modInd.length} indicado${modInd.length!==1?"s":""}</span><span class="mstat green">${ap} aprovada${ap!==1?"s":""}</span></div><div class="mod-chev">▼</div></div></div><div class="mod-card-body"><div class="mod-link-row"><span style="font-size:11px;text-transform:uppercase;color:rgba(192,132,252,.7);font-weight:600;flex-shrink:0;">Link:</span><input class="mod-link-inp" type="text" readonly value="${shareLink}"/><span class="mod-code-pill">${renderCodeSegs(mod.code)}</span><button class="btn-copy-mod" onclick="copyModLink(this,'${shareLink}')">📋 Copiar</button><button class="btn-del-mod" onclick="deleteMod('${mod.id}','${mod.name.replace(/'/g,"\\'")}')">🗑️ Remover</button></div>${modInq.length>0?`<p style="font-size:11px;text-transform:uppercase;color:rgba(96,165,250,.7);margin:8px 0 6px;font-weight:600;">🤝 Indiquers (${modInq.length})</p>${modInq.map(ind=>`<div class="mod-cl-row"><div><div class="mod-cl-name">${ind.name||"—"} ${renderCodeSegs(ind.code)}</div><div class="mod-cl-meta">${ind.phone||"—"}${ind.email?" · "+ind.email:""}</div></div><div class="mod-stats"><span class="mstat">${(ind.refs||[]).length} ind.</span><span class="mstat green">${(ind.refs||[]).filter(r=>isOk(r.status)).length} aprov.</span></div></div>`).join("")}`:""}${modInd.length>0?`<p style="font-size:11px;text-transform:uppercase;color:rgba(168,85,247,.7);margin:8px 0 6px;font-weight:600;">👤 Indicados (${modInd.length})</p>${modInd.map(ind=>`<div class="mod-cl-row" style="border-color:rgba(168,85,247,.12);"><div><div class="mod-cl-name">${ind.name||"—"} ${renderCodeSegs(ind.code)}</div><div class="mod-cl-meta">${ind.phone||"—"} · via indiquer: <strong>${ind.ref_origin||"—"}</strong></div></div></div>`).join("")}`:""}${modInq.length===0&&modInd.length===0?'<p class="empty-msg" style="padding:10px 0;">Nenhum indiquer cadastrado via este moderador ainda.</p>':""}</div>`;list.appendChild(card);});document.getElementById("km-total").textContent=allMods.length;document.getElementById("km-inq").textContent=tInq;document.getElementById("km-ind").textContent=tInd;document.getElementById("km-ap").textContent=tAp;renderRanking();}
+function renderModSectionFull(){const list=document.getElementById("mod-list");if(!list)return;if(!allMods.length){list.innerHTML="<p class='empty-msg'>Nenhum moderador cadastrado ainda.</p>";["km-total","km-inq","km-ind","km-ap"].forEach(id=>document.getElementById(id).textContent="0");renderRanking();return;}let tInq=0,tInd=0,tAp=0;list.innerHTML="";allMods.forEach(mod=>{const modInq=allInq.filter(r=>r.moderator_id===mod.id);const modInd=allInd.filter(r=>{const pi=allInq.find(i=>i.code===r.ref_origin);return pi?.moderator_id===mod.id;});const modRefs=allRefs.filter(r=>{const ow=[...allInq,...allInd].find(x=>x.id===r.referrer_id);return ow&&(ow.moderator_id===mod.id||(modInq.some(i=>i.code===ow.ref_origin)));});const ap=modRefs.filter(r=>isOk(r.status)).length;tInq+=modInq.length;tInd+=modInd.length;tAp+=ap;const linked=!!mod.user_id;const shareLink=`${location.origin}/index.html?ref=${mod.code}`;const card=document.createElement("div");card.className="mod-card";card.innerHTML=`<div class="mod-card-head" onclick="this.closest('.mod-card').classList.toggle('open')"><div class="mod-card-left"><div class="mod-av">${initials(mod.name)}</div><div><div class="mod-name">${mod.name}${!linked?'<span style="font-size:10px;color:var(--yellow);margin-left:6px;">⏳ aguardando 1º acesso</span>':""}</div><div class="mod-email">${mod.email}</div></div></div><div style="display:flex;align-items:center;gap:6px;"><div class="mod-stats"><span class="mstat">${modInq.length} indiquer${modInq.length!==1?"s":""}</span><span class="mstat">${modInd.length} indicado${modInd.length!==1?"s":""}</span><span class="mstat green">${ap} aprovada${ap!==1?"s":""}</span></div><div class="mod-chev">▼</div></div></div><div class="mod-card-body"><div class="mod-link-row"><span style="font-size:11px;text-transform:uppercase;color:rgba(192,132,252,.7);font-weight:600;flex-shrink:0;">Link:</span><input class="mod-link-inp" type="text" readonly value="${shareLink}"/><span class="mod-code-pill">${renderCodeSegs(mod.code)}</span><button class="btn-copy-mod" onclick="copyModLink(this,'${shareLink}')">📋 Copiar</button><button class="btn-del-mod" onclick="deleteMod('${mod.id}','${mod.name.replace(/'/g,"\\'")}')">🗑️ Remover</button></div>${modInq.length>0?`<p style="font-size:11px;text-transform:uppercase;color:rgba(96,165,250,.7);margin:8px 0 6px;font-weight:600;">🤝 Indiquers (${modInq.length})</p>${modInq.map(ind=>`<div class="mod-cl-row"><div><div class="mod-cl-name">${ind.name||"—"} ${renderCodeSegs(ind.code)}</div><div class="mod-cl-meta">${ind.phone||"—"}${ind.email?" · "+ind.email:""}</div></div><div class="mod-stats"><span class="mstat">${(ind.refs||[]).length} ind.</span><span class="mstat green">${(ind.refs||[]).filter(r=>isOk(r.status)).length} aprov.</span></div></div>`).join("")}`:""}${modInd.length>0?`<p style="font-size:11px;text-transform:uppercase;color:rgba(168,85,247,.7);margin:8px 0 6px;font-weight:600;">👤 Indicados (${modInd.length})</p>${modInd.map(ind=>`<div class="mod-cl-row" style="border-color:rgba(168,85,247,.12);"><div><div class="mod-cl-name">${ind.name||"—"} ${renderCodeSegs(ind.code)}</div><div class="mod-cl-meta">${ind.phone||"—"} · via indiquer: <strong>${ind.ref_origin||"—"}</strong></div></div></div>`).join("")}`:""}${modInq.length===0&&modInd.length===0?'<p class="empty-msg" style="padding:10px 0;">Nenhum indiquer cadastrado via este moderador ainda.</p>':""}</div>`;list.appendChild(card);});document.getElementById("km-total").textContent=allMods.length;document.getElementById("km-inq").textContent=tInq;document.getElementById("km-ind").textContent=tInd;document.getElementById("km-ap").textContent=tAp;renderRanking();}
 function renderRanking(){const tbody=document.getElementById("rank-body");if(!tbody)return;if(!allMods.length){tbody.innerHTML=`<tr><td colspan="8" style="text-align:center;padding:18px;color:var(--muted);">Nenhum moderador.</td></tr>`;return;}const rows=allMods.map(mod=>{const modInq=allInq.filter(r=>r.moderator_id===mod.id).length;const modInd=allInd.filter(r=>{const pi=allInq.find(i=>i.code===r.ref_origin);return pi?.moderator_id===mod.id;}).length;const modRefs=allRefs.filter(r=>{const ow=[...allInq,...allInd].find(x=>x.id===r.referrer_id);return ow&&allInq.some(i=>i.id===ow.id&&i.moderator_id===mod.id||allInq.some(j=>j.code===ow.ref_origin&&j.moderator_id===mod.id));});const ap=modRefs.filter(r=>isOk(r.status)).length;const conv=modRefs.length>0?Math.round(ap/modRefs.length*100):0;return{mod,modInq,modInd,refs:modRefs.length,ap,conv};}).sort((a,b)=>b.ap-a.ap||b.refs-a.refs);tbody.innerHTML=rows.map(({mod,modInq,modInd,refs,ap,conv},i)=>{const p=i+1;const cls=p===1?"r1":p===2?"r2":p===3?"r3":"rn";const medal=p===1?"🥇":p===2?"🥈":p===3?"🥉":"";return`<tr><td><span class="rpos ${cls}">${medal||p}</span></td><td><strong>${mod.name}</strong><br><span style="font-size:11px;color:var(--muted);">${mod.email}</span></td><td>${renderCodeSegs(mod.code)}</td><td>${modInq}</td><td>${modInd}</td><td>${refs}</td><td><strong style="color:var(--green);">${ap}</strong></td><td><span style="font-size:12px;color:var(--muted);">${conv}%</span><span class="conv-bar"><span class="conv-fill" style="width:${conv}%;"></span></span></td></tr>`;}).join("");}
 document.getElementById("btn-create-mod")?.addEventListener("click",async()=>{const name=document.getElementById("new-mod-name").value.trim();const email=document.getElementById("new-mod-email").value.trim().toLowerCase();const fb=document.getElementById("create-mod-fb");fb.style.color="#fb7185";fb.textContent="";if(!name||!email){fb.textContent="Preencha nome e e-mail.";return;}const{data:ex}=await sb.from("moderators").select("id").eq("email",email).maybeSingle();if(ex){fb.textContent="E-mail já cadastrado como moderador.";return;}const btn=document.getElementById("btn-create-mod");btn.textContent="Criando…";btn.disabled=true;let code=genModCode(),att=0;while(att<20){const{data:ck}=await sb.from("moderators").select("id").eq("code",code).maybeSingle();if(!ck)break;code=genModCode();att++;}const{data:nm,error}=await sb.from("moderators").insert({name,email,code}).select().single();btn.textContent="Criar moderador";btn.disabled=false;if(error){fb.textContent="Erro: "+error.message;return;}fb.style.color="#4ade80";fb.textContent=`✅ Moderador criado! Código: ${nm.code}`;document.getElementById("new-mod-name").value="";document.getElementById("new-mod-email").value="";toast(`Moderador ${nm.name} criado! Código: ${nm.code}`);setTimeout(()=>{fb.textContent="";},5000);loadData();});
 function copyModLink(btn,link){navigator.clipboard.writeText(link).then(()=>{btn.textContent="✅ Copiado!";setTimeout(()=>btn.textContent="📋 Copiar",2000);});}
@@ -1020,10 +1271,67 @@ async function saveNote(){const n=document.getElementById("note-ta").value.trim(
 document.getElementById("note-popup")?.addEventListener("click",e=>{if(e.target===document.getElementById("note-popup"))closeNote();});
 
 let _tv='kanban',_tSelId=null;
-function onTreeTabOpen(){const s=document.getElementById('tree-mod-sel');if(!s)return;const c=s.value;s.innerHTML='<option value="">Todos os moderadores</option>'+allMods.map(m=>`<option value="${m.id}"${m.id===c?' selected':''}>${m.name} [${m.code}]</option>`).join('');renderTree();}
+
+async function onTreeTabOpen(){
+  const s=document.getElementById("tree-mod-sel");
+  if(!s)return;
+  const c=s.value;
+  s.innerHTML='<option value="">Todos os moderadores</option>'
+    +allMods.map(m=>`<option value="${m.id}"${m.id===c?" selected":""}>${m.name} [${m.code}]</option>`).join("");
+
+  // Busca todos os indiquers e indicados para a árvore (sem paginação)
+  const[{data:inqAll},{data:indAll},{data:refsAll}]=await Promise.all([
+    sb.from("referrers").select("id,name,phone,email,code,role,ref_origin,moderator_id,created_at").eq("role","indiquer"),
+    sb.from("referrers").select("id,name,phone,email,code,role,ref_origin,moderator_id,created_at").eq("role","indicado"),
+    sb.from("referrals").select("id,referrer_id,status,amount,indicated_client_id,indicated_clients(id,name,phone,cpf,profile_type,observations)").order("created_at",{ascending:false})
+  ]);
+
+  const rm={};(refsAll||[]).forEach(r=>{(rm[r.referrer_id]||(rm[r.referrer_id]=[])).push(r);});
+  window._treeInq=inqAll||[];
+  window._treeInd=indAll||[];
+  window._treeInq.forEach(r=>{r.refs=rm[r.id]||[];r.subs=(indAll||[]).filter(i=>i.ref_origin===r.code);});
+  window._treeInd.forEach(r=>{r.refs=rm[r.id]||[];});
+
+  // Substitui temporariamente allInq/allInd para renderTree usar
+  const _bkInq=allInq,_bkInd=allInd;
+  allInq=window._treeInq;
+  allInd=window._treeInd;
+  renderTree();
+  allInq=_bkInq;
+  allInd=_bkInd;
+}
 function setTreeView(v){_tv=v;document.getElementById('tv-kanban')?.classList.toggle('active',v==='kanban');document.getElementById('tv-graph')?.classList.toggle('active',v==='graph');const kw=document.getElementById('tree-kanban-wrap'),gw=document.getElementById('tree-graph-wrap');if(kw)kw.style.display=v==='kanban'?'block':'none';if(gw)gw.style.display=v==='graph'?'block':'none';renderTree();}
-function renderTree(){const mid=document.getElementById('tree-mod-sel')?.value||'';const mods=mid?allMods.filter(m=>m.id===mid):allMods;const inqs=mid?allInq.filter(i=>i.moderator_id===mid):allInq;const refClients=[];inqs.forEach(inq=>{(inq.refs||[]).forEach(ref=>{const cl=ref.indicated_clients||{};refClients.push({_rid:ref.id,referrerId:inq.id,referrerName:inq.name||'—',referrerCode:inq.code||'—',name:cl.name||cl.phone||'—',phone:cl.phone||'',profile:cl.profile_type||'',obs:cl.observations||'',status:ref.status,amount:ref.amount,adminNote:ref.admin_note,modNote:ref.mod_note});});(inq.subs||[]).forEach(sub=>{const jaExiste=refClients.find(r=>r.referrerId===inq.id&&(r.name===sub.name||(r.phone||"")===(sub.phone||"").replace(/\D/g,""))); if(!jaExiste) {refClients.push({_rid:'sub_'+sub.id,referrerId:inq.id,referrerName:inq.name||'—',referrerCode:inq.code||'—',name:sub.name||sub.phone||'—',phone:sub.phone||'',profile:'',obs:'',status:'em_analise',amount:null,adminNote:null,modNote:null,isSub:true});}});});
-  allInd.forEach(ind=>{
+
+function renderTree(){
+  const mid=document.getElementById('tree-mod-sel')?.value||'';
+  const _srcInq=window._treeInq||allInq;
+  const _srcInd=window._treeInd||allInd;
+  const mods=mid?allMods.filter(m=>m.id===mid):allMods;
+  const inqs=mid?_srcInq.filter(i=>i.moderator_id===mid):_srcInq;
+
+  const refClients=[];
+  inqs.forEach(inq=>{
+    (inq.refs||[]).forEach(ref=>{
+      const cl=ref.indicated_clients||{};
+      refClients.push({
+        _rid:ref.id,referrerId:inq.id,referrerName:inq.name||'—',referrerCode:inq.code||'—',
+        name:cl.name||cl.phone||'—',phone:cl.phone||'',profile:cl.profile_type||'',
+        obs:cl.observations||'',status:ref.status,amount:ref.amount,
+        adminNote:ref.admin_note,modNote:ref.mod_note
+      });
+    });
+    (inq.subs||[]).forEach(sub=>{
+      const jaExiste=refClients.find(r=>r.referrerId===inq.id&&(r.name===sub.name||(r.phone||"")===(sub.phone||"").replace(/\D/g,"")));
+      if(!jaExiste){
+        refClients.push({
+          _rid:'sub_'+sub.id,referrerId:inq.id,referrerName:inq.name||'—',referrerCode:inq.code||'—',
+          name:sub.name||sub.phone||'—',phone:sub.phone||'',profile:'',obs:'',
+          status:'em_analise',amount:null,adminNote:null,modNote:null,isSub:true
+        });
+      }
+    });
+  });
+  _srcInd.forEach(ind=>{
     (ind.refs||[]).forEach(ref=>{
       const cl=ref.indicated_clients||{};
       const jaExiste=refClients.find(r=>r._rid===ref.id);
@@ -1031,14 +1339,18 @@ function renderTree(){const mid=document.getElementById('tree-mod-sel')?.value||
         refClients.push({_rid:ref.id,referrerId:ind.id,referrerName:ind.name||'—',referrerCode:ind.code||'—',name:cl.name||cl.phone||'—',phone:cl.phone||'',profile:cl.profile_type||'',obs:cl.observations||'',status:ref.status,amount:ref.amount,adminNote:ref.admin_note,modNote:ref.mod_note,isIndLevel:true});
       }
     });
-    (allInd.filter(i=>i.ref_origin===ind.code)||[]).forEach(sub=>{
+    (_srcInd.filter(i=>i.ref_origin===ind.code)||[]).forEach(sub=>{
       const jaExiste=refClients.find(r=>r._rid==='sub_'+sub.id);
       if(!jaExiste){
         refClients.push({_rid:'sub_'+sub.id,referrerId:ind.id,referrerName:ind.name||'—',referrerCode:ind.code||'—',name:sub.name||sub.phone||'—',phone:sub.phone||'',profile:'',obs:'',status:'em_analise',amount:null,adminNote:null,modNote:null,isSub:true,isIndLevel:true});
       }
     });
   });
-const ap=refClients.filter(c=>isOk(c.status)).length;const st=document.getElementById('tree-stats');if(st)st.innerHTML=`<span class="tk-stat"><span class="tk-dot" style="background:#7c3aed;"></span>${mods.length} moderador${mods.length!==1?'es':''}</span><span class="tk-stat"><span class="tk-dot" style="background:#10b981;"></span>${inqs.length} indiquer${inqs.length!==1?'s':''}</span><span class="tk-stat"><span class="tk-dot" style="background:#9333ea;"></span>${refClients.length} indicado${refClients.length!==1?'s':''}</span><span class="tk-stat" style="color:#4ade80;border-color:rgba(74,222,128,.25);background:rgba(74,222,128,.06);"><span class="tk-dot" style="background:#4ade80;box-shadow:0 0 5px rgba(74,222,128,.5);"></span>${ap} aprovado${ap!==1?'s':''}</span>`;document.getElementById('tree-node-detail').style.display='none';_tSelId=null;if(_tv==='kanban')_renderKanban(mods,inqs,refClients);else _renderGraph(mods,inqs,refClients);}
+  const statusFilter=document.getElementById("tree-status-sel")?.value||"";
+  const filteredClients=statusFilter
+    ?refClients.filter(c=>normS(c.status)===statusFilter)
+    :refClients;
+const ap=filteredClients.filter(c=>isOk(c.status)).length;const st=document.getElementById('tree-stats');if(st)st.innerHTML=`<span class="tk-stat"><span class="tk-dot" style="background:#7c3aed;"></span>${mods.length} moderador${mods.length!==1?'es':''}</span><span class="tk-stat"><span class="tk-dot" style="background:#10b981;"></span>${inqs.length} indiquer${inqs.length!==1?'s':''}</span><span class="tk-stat"><span class="tk-dot" style="background:#9333ea;"></span>${filteredClients.length} indicado${filteredClients.length!==1?'s':''}</span><span class="tk-stat" style="color:#4ade80;border-color:rgba(74,222,128,.25);background:rgba(74,222,128,.06);"><span class="tk-dot" style="background:#4ade80;box-shadow:0 0 5px rgba(74,222,128,.5);"></span>${ap} aprovado${ap!==1?'s':''}</span>`;document.getElementById('tree-node-detail').style.display='none';_tSelId=null;if(_tv==='kanban')_renderKanban(mods,inqs,filteredClients);else _renderGraph(mods,inqs,filteredClients);}
 function _showNodeDetail(id,type){const det=document.getElementById('tree-node-detail');if(!det)return;if(_tSelId===id){_tSelId=null;det.style.display='none';document.querySelectorAll('.tk-card').forEach(c=>c.classList.remove('sel'));return;}_tSelId=id;document.querySelectorAll('.tk-card').forEach(c=>c.classList.remove('sel'));const el=document.getElementById('tkc-'+id);if(el)el.classList.add('sel');let html='';if(type==='mod'){const m=allMods.find(x=>x.id===id);if(!m)return;const mi=allInq.filter(x=>x.moderator_id===id);const mr=allRefs.filter(r=>mi.some(j=>j.id===r.referrer_id));const map=mr.filter(r=>isOk(r.status)).length;html=`<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;"><div class="tk-av" style="width:40px;height:40px;font-size:14px;background:linear-gradient(135deg,#7c3aed,#4f46e5);flex-shrink:0;">${initials(m.name)}</div><div><div style="font-size:15px;font-weight:700;">${m.name}</div><div style="font-size:11px;color:var(--muted);">Moderador · ${m.email}</div></div></div><div class="tk-det-stats"><span class="tk-det-pill">${mi.length} indiquer${mi.length!==1?'s':''}</span><span class="tk-det-pill">${mr.length} indicação${mr.length!==1?'ões':''}</span><span class="tk-det-pill" style="color:#4ade80;border-color:rgba(74,222,128,.3);">${map} aprovado${map!==1?'s':''}</span></div><div style="font-size:11px;color:var(--muted);">Código raiz: <strong style="color:#c084fc;">${m.code}</strong></div>`;}else if(type==='inq'){const r=allInq.find(x=>x.id===id);if(!r)return;const m=allMods.find(x=>x.id===r.moderator_id);const refs=r.refs||[];const ap=refs.filter(x=>isOk(x.status)).length;const sm=calcSm(ap);const nv=getNivel(ap);const paid=getTotalPaid(r.id);const balance=sm-paid;html=`<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;"><div class="tk-av" style="width:40px;height:40px;font-size:14px;background:linear-gradient(135deg,#059669,#10b981);flex-shrink:0;">${initials(r.name)}</div><div><div style="font-size:15px;font-weight:700;">${r.name||'—'} <span class="nivel-tag ${nv.c}" style="font-size:9px;padding:2px 7px;">${nv.l}</span></div><div style="font-size:11px;color:var(--muted);">Indiquer · via ${m?.name||'—'}</div></div></div><div class="tk-det-stats"><span class="tk-det-pill">${refs.length} indicação${refs.length!==1?'ões':''}</span><span class="tk-det-pill" style="color:#4ade80;border-color:rgba(74,222,128,.3);">${ap} aprovado${ap!==1?'s':''}</span><span class="tk-det-pill" style="color:#c084fc;border-color:rgba(168,85,247,.3);">${fmt(sm)}</span><span class="tk-det-pill" style="color:#facc15;border-color:rgba(250,204,21,.3);">Pago: ${fmt(paid)}</span><span class="tk-det-pill" style="color:${balance<=0?'#fb7185':'#4ade80'};border-color:${balance<=0?'rgba(251,113,133,.3)':'rgba(74,222,128,.3)'};">Saldo: ${fmt(balance)}</span></div><div style="font-size:11px;color:var(--muted);">Código: <strong style="color:#c084fc;">${r.code}</strong>${r.phone?` · 📱 ${r.phone}`:''}</div><div style="display:flex;gap:8px;margin-top:10px;"><button class="btn-edit-indiquer" onclick="openEditReferrer('${r.id}')">✏️ Editar</button><button class="btn-pay" style="margin-left:0;" onclick="openPayModal('${r.id}')">💰 Dar Baixa</button></div>`;}else{
   // ✅ Sub sem referral (cadastro via link)
   if(String(id).startsWith('sub_')){
