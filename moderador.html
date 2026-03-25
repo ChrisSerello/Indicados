@@ -132,6 +132,22 @@
     .btn-pay{padding:7px 16px;border-radius:8px;border:1px solid rgba(74,222,128,.4);background:rgba(74,222,128,.14);color:#4ade80;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;transition:background .2s;}
     .btn-pay:hover{background:rgba(74,222,128,.26);}
 
+    .pay-popup{position:fixed;inset:0;z-index:260;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.78);backdrop-filter:blur(6px);}
+    .pay-modal{width:min(460px,92vw);background:rgba(4,26,14,.98);border:1px solid rgba(74,222,128,.4);border-radius:20px;padding:26px;box-shadow:0 24px 60px rgba(0,0,0,.9);}
+    .pay-modal h3{font-size:17px;font-weight:700;margin-bottom:3px;color:#4ade80;}
+    .pay-modal-sub{font-size:12px;color:var(--muted);margin-bottom:16px;}
+    .pay-balance-chip{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:10px;background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.22);font-size:12px;margin-bottom:16px;flex-wrap:wrap;}
+    .pay-balance-chip span{font-weight:700;}
+    .chip-earned{color:#c084fc;}.chip-paid{color:#facc15;}.chip-bal{color:#4ade80;}
+    .pay-field{margin-bottom:12px;}
+    .pay-field label{display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:rgba(74,222,128,.75);margin-bottom:5px;}
+    .pay-field input{width:100%;padding:10px 12px;border-radius:10px;border:1px solid rgba(74,222,128,.35);background:rgba(4,16,10,.9);color:var(--text);font-family:inherit;font-size:13px;outline:none;}
+    .pay-acts{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;}
+    .pay-fb{font-size:12px;min-height:16px;margin-top:6px;}
+    .btn-pay-save{padding:10px 22px;border-radius:10px;border:none;cursor:pointer;background:linear-gradient(135deg,#4ade80,#16a34a);color:#000;font-size:13px;font-weight:700;font-family:inherit;}
+    .btn-pay-save:disabled{opacity:.6;cursor:not-allowed;}
+    .btn-pay-cancel{padding:10px 16px;border-radius:10px;border:1px solid rgba(255,255,255,.1);background:transparent;color:var(--muted);font-size:13px;font-family:inherit;cursor:pointer;}
+
   </style>
   <link rel="stylesheet" href="onboarding.css" />
 </head>
@@ -462,6 +478,35 @@
   </div>
 </div>
 
+<!-- PAYMENT MODAL -->
+<div class="pay-popup" id="pay-popup" style="display:none;" onclick="if(event.target===this)closePayModal()">
+  <div class="pay-modal">
+    <h3>💰 Dar Baixa — Pagamento</h3>
+    <p class="pay-modal-sub">Registrar pagamento para: <strong id="pay-ref-name">—</strong></p>
+    <div class="pay-balance-chip">
+      <span>💳 Smashcard: <span class="chip-earned" id="pay-chip-earned">—</span></span>
+      &nbsp;·&nbsp;
+      <span>✅ Pago: <span class="chip-paid" id="pay-chip-paid">—</span></span>
+      &nbsp;·&nbsp;
+      <span>💰 Saldo: <span class="chip-bal" id="pay-chip-bal">—</span></span>
+    </div>
+    <div class="pay-field">
+      <label>Valor pago (R$) *</label>
+      <input type="number" id="pay-amount" placeholder="Ex: 200.00" min="0.01" step="0.01"/>
+    </div>
+    <div class="pay-field">
+      <label>Observação (opcional)</label>
+      <input type="text" id="pay-note" placeholder="Ex: Pix 12/03, parcela 1/2…"/>
+    </div>
+    <p class="pay-fb" id="pay-fb"></p>
+    <div class="pay-acts">
+      <button class="btn-pay-cancel" onclick="closePayModal()">Cancelar</button>
+      <button class="btn-pay-save" id="btn-pay-save" onclick="savePayment()">✅ Registrar Pagamento</button>
+    </div>
+  </div>
+</div>
+
+<script src="assign.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -1283,6 +1328,56 @@ function ocrReset(){
   document.getElementById("ocr-btn-analyze").disabled=false;
   document.getElementById("ocr-btn-analyze").textContent="🔍 Extrair dados da imagem";
 }
+
+
+// Modal de pagamento
+let _payRefId=null;
+function openPayModal(referrerId){
+  _payRefId=referrerId;
+  const cache=_refCache[referrerId];
+  const ref=[...allInq,...allInd].find(r=>r.id===referrerId);
+  const ap=(cache?.refs||[]).filter(r=>isOk(r.status)).length;
+  const sm=calcSm(ap);
+  const paid=(cache?.payments||[]).reduce((s,p)=>s+(parseFloat(p.amount)||0),0);
+  const balance=sm-paid;
+  document.getElementById("pay-ref-name").textContent=ref?.name||"—";
+  document.getElementById("pay-chip-earned").textContent=fmt(sm);
+  document.getElementById("pay-chip-paid").textContent=fmt(paid);
+  const balEl=document.getElementById("pay-chip-bal");
+  balEl.textContent=fmt(balance);
+  balEl.style.color=balance<=0?"#fb7185":"#4ade80";
+  document.getElementById("pay-amount").value="";
+  document.getElementById("pay-note").value="";
+  document.getElementById("pay-fb").textContent="";
+  document.getElementById("pay-popup").style.display="flex";
+  setTimeout(()=>document.getElementById("pay-amount").focus(),60);
+}
+function closePayModal(){
+  document.getElementById("pay-popup").style.display="none";
+  _payRefId=null;
+}
+async function savePayment(){
+  if(!_payRefId)return;
+  const amount=parseFloat(String(document.getElementById("pay-amount").value).replace(",","."));
+  const note=document.getElementById("pay-note").value.trim();
+  const fb=document.getElementById("pay-fb");
+  fb.textContent="";
+  if(!amount||amount<=0){fb.style.color="#fb7185";fb.textContent="Informe um valor válido maior que zero.";return;}
+  const btn=document.getElementById("btn-pay-save");
+  btn.textContent="Salvando…";btn.disabled=true;
+  const{error}=await sb.from("payments").insert({referrer_id:_payRefId,amount,note:note||null});
+  btn.textContent="✅ Registrar Pagamento";btn.disabled=false;
+  if(error){fb.style.color="#fb7185";fb.textContent="Erro: "+error.message;return;}
+  toast("💰 Pagamento registrado!");
+  // Atualiza cache local
+  if(_refCache[_payRefId]){
+    _refCache[_payRefId].payments=[..._refCache[_payRefId].payments,{referrer_id:_payRefId,amount,note:note||null,created_at:new Date().toISOString()}];
+    const bodyEl=document.getElementById(`card-body-${_payRefId}`);
+    if(bodyEl)renderCardBody(_payRefId,bodyEl);
+  }
+  closePayModal();
+}
+
 </script>
 <script src="onboarding-mod.js"></script>
 </body>
