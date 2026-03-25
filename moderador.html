@@ -120,6 +120,18 @@
     #btn-copy-csv{background:rgba(96,165,250,.15);color:#60a5fa;border:1px solid rgba(96,165,250,.35);}
     .ocr-progress-bar{height:6px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden;margin-top:8px;}
     .ocr-progress-fill{height:100%;background:linear-gradient(90deg,#34d399,#059669);border-radius:3px;transition:width .3s;width:0%;}
+
+    /* ── Skeleton loading */
+    .card-skeleton{padding:8px 0;}
+    .sk-line{height:12px;border-radius:6px;background:linear-gradient(90deg,
+      rgba(255,255,255,.05) 0%,rgba(255,255,255,.1) 50%,rgba(255,255,255,.05) 100%);
+      background-size:200% 100%;animation:sk-shimmer 1.4s infinite;}
+    @keyframes sk-shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+    .pagination-info{font-size:11px;color:var(--muted);text-align:center;margin-top:6px;padding-bottom:4px;}
+
+    .btn-pay{padding:7px 16px;border-radius:8px;border:1px solid rgba(74,222,128,.4);background:rgba(74,222,128,.14);color:#4ade80;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;transition:background .2s;}
+    .btn-pay:hover{background:rgba(74,222,128,.26);}
+
   </style>
   <link rel="stylesheet" href="onboarding.css" />
 </head>
@@ -171,7 +183,7 @@
       <span class="user-label" id="mod-user-label"></span>
     </div>
     <div style="display:flex;align-items:center;gap:10px;">
-      <button class="btn-refresh-mod" id="btn-refresh">↻ Atualizar</button>
+      <button class="btn-refresh-mod" id="btn-refresh" onclick="loadPage(true)">↻ Atualizar</button>
       <button class="btn-logout-mod" id="btn-logout">Sair</button>
     </div>
   </header>
@@ -474,6 +486,17 @@ function buildTable(refs){if(!refs.length)return'<p class="empty-msg">Sem indica
 function switchTab(t){document.querySelectorAll(".auth-tab").forEach(b=>b.classList.toggle("active",b.getAttribute("onclick").includes(`'${t}'`)));document.getElementById("panel-login").classList.toggle("active",t==="login");document.getElementById("panel-signup").classList.toggle("active",t==="signup");const ri=document.getElementById("reset-inline");if(ri)ri.style.display="none";}
 document.getElementById("btn-show-reset")?.addEventListener("click",()=>{const b=document.getElementById("reset-inline"),v=b.style.display!=="none";b.style.display=v?"none":"block";document.getElementById("btn-show-reset").textContent=v?"Esqueci minha senha":"↑ Fechar";});
 let currentMod=null,allInq=[],allInd=[],allRefs=[],curView="indiquers";
+
+// PAGINAÇÃO
+const PAGE_SIZE_LIST=30;
+const PAGE_SIZE_REFS=50;
+let _pageInq=0,_pageInd=0,_hasMoreInq=false,_hasMoreInd=false;
+let _searchTerm="",_loading=false;
+let _allRefsPage=0,_allRefsHasMore=false,_allRefsData=[];
+
+// Cache de cards
+const _refCache={};
+const _loadingCard={};
 document.getElementById("btn-login")?.addEventListener("click",async()=>{const e=document.getElementById("login-email").value.trim(),p=document.getElementById("login-pass").value,err=document.getElementById("login-error");err.textContent="";if(!e||!p){err.textContent="Preencha e-mail e senha.";return;}const btn=document.getElementById("btn-login");btn.textContent="Entrando…";btn.disabled=true;try{const{data,error}=await sb.auth.signInWithPassword({email:e,password:p});if(error)throw error;await mount(data.user);}catch{err.textContent="Credenciais inválidas.";}finally{btn.textContent="Entrar";btn.disabled=false;}});
 document.getElementById("btn-signup")?.addEventListener("click",async()=>{const nm=document.getElementById("signup-name").value.trim(),em=document.getElementById("signup-email").value.trim(),pw=document.getElementById("signup-pass").value,err=document.getElementById("signup-error");err.textContent="";if(!nm||!em||!pw){err.textContent="Preencha todos os campos.";return;}if(pw.length<6){err.textContent="Senha mínima: 6 caracteres.";return;}const btn=document.getElementById("btn-signup");btn.textContent="Criando…";btn.disabled=true;try{const{data:mr}=await sb.from("moderators").select("id").eq("email",em).maybeSingle();if(!mr)throw new Error("E-mail não cadastrado como moderador.");const{data,error}=await sb.auth.signUp({email:em,password:pw,options:{data:{name:nm}}});if(error)throw error;await sb.from("moderators").update({user_id:data.user.id,name:nm}).eq("id",mr.id);const{data:ld,error:le}=await sb.auth.signInWithPassword({email:em,password:pw});if(le)throw le;await mount(ld.user);}catch(x){err.textContent=x.message||"Erro.";}finally{btn.textContent="Criar conta";btn.disabled=false;}});
 document.getElementById("btn-send-reset")?.addEventListener("click",async()=>{const em=document.getElementById("reset-email").value.trim(),er=document.getElementById("reset-error"),ok=document.getElementById("reset-ok");er.textContent="";ok.style.display="none";if(!em){er.textContent="Informe seu e-mail.";return;}const{data:mr}=await sb.from("moderators").select("id").eq("email",em).maybeSingle();if(!mr){er.textContent="E-mail não encontrado.";return;}const btn=document.getElementById("btn-send-reset");btn.textContent="Enviando…";btn.disabled=true;const{error}=await sb.auth.resetPasswordForEmail(em,{redirectTo:window.location.origin+"/moderador.html"});btn.textContent="Enviar link";btn.disabled=false;if(error)er.textContent="Erro: "+error.message;else{ok.textContent="✅ Link enviado!";ok.style.display="block";}});
@@ -482,67 +505,385 @@ function buildLink(){const l=`${location.origin}/index.html?ref=${currentMod.cod
 document.getElementById("btn-copy-link")?.addEventListener("click",()=>{navigator.clipboard.writeText(document.getElementById("share-link-input").value).then(()=>{const b=document.getElementById("btn-copy-link");b.textContent="✅ Copiado!";b.classList.add("copied");setTimeout(()=>{b.textContent="📋 Copiar";b.classList.remove("copied");},2000);});});
 async function loadData(){
   if(!currentMod)return;
-  document.getElementById("content-area").innerHTML="<p style='color:var(--muted);font-size:13px;'>Carregando…</p>";
-  const{data:rrs}=await sb.from("referrers").select("id,name,phone,email,cpf,code,role,ref_origin,created_at").eq("moderator_id",currentMod.id).order("created_at",{ascending:false});
-  const ar=rrs||[];
-  allInq=ar.filter(r=>r.role==="indiquer");
-  allInd=ar.filter(r=>r.role==="indicado");
-  allRefs=[];
-  if(ar.length){const{data:refs}=await sb.from("referrals").select("*,amount,mod_note,indicated_client_id,indicated_clients(id,name,phone,cpf,profile_type,observations)").in("referrer_id",ar.map(r=>r.id)).order("created_at",{ascending:false});allRefs=refs||[];}
-  const rm={};allRefs.forEach(r=>{(rm[r.referrer_id]||(rm[r.referrer_id]=[])).push(r);});
-  ar.forEach(r=>r.refs=rm[r.id]||[]);
-  allInq.forEach(r=>r.subs=allInd.filter(i=>i.ref_origin===r.code));
-  const ap=allRefs.filter(r=>isOk(r.status));
-  let ts=0;ar.forEach(c=>{const a=(c.refs||[]).filter(r=>isOk(r.status)).length;ts+=calcSm(a);});
-  document.getElementById("k-indiquers").textContent=allInq.length;
-  document.getElementById("k-indicados").textContent=allInd.length;
-  document.getElementById("k-total").textContent=allRefs.length;
-  document.getElementById("k-approved").textContent=ap.length;
-  document.getElementById("k-smashcard").textContent=fmt(ts);
-  renderView();
+  _pageInq=0;_pageInd=0;
+  Object.keys(_refCache).forEach(k=>delete _refCache[k]);
+  await updateKPIs();
+  await loadPage(true);
   window.dispatchEvent(new CustomEvent("mod-ready"));
 }
-document.querySelectorAll(".view-tab").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".view-tab").forEach(x=>x.classList.remove("active"));b.classList.add("active");curView=b.dataset.view;renderView();}));
+
+async function updateKPIs(){
+  const[rInq,rInd,rTotal,rAp]=await Promise.all([
+    sb.from("referrers").select("id",{count:"exact",head:true}).eq("role","indiquer"),
+    sb.from("referrers").select("id",{count:"exact",head:true}).eq("role","indicado"),
+    sb.from("referrals").select("id",{count:"exact",head:true}),
+    sb.from("referrals").select("id",{count:"exact",head:true}).eq("status","aprovado")
+  ]);
+  const s=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v??0;};
+  s("k-indiquers",rInq.count);s("k-indicados",rInd.count);
+  s("k-total",rTotal.count);s("k-approved",rAp.count);
+  // Smashcard: calculado após carregar os dados
+  const el=document.getElementById("k-smashcard");
+  if(el)el.textContent="calculando…";
+}
+
+async function loadPage(reset=false){
+  if(_loading||!currentMod)return;
+  _loading=true;
+  const ct=document.getElementById("content-area");
+  if(reset){
+    _pageInq=0;_pageInd=0;allInq=[];allInd=[];
+    if(ct)ct.innerHTML='<p style="color:var(--muted);font-size:13px;">Carregando…</p>';
+  }
+  const s=_searchTerm.trim();
+  const isInd=curView==="indicados";
+  const page=isInd?_pageInd:_pageInq;
+  const from=page*PAGE_SIZE_LIST;
+  const to=from+PAGE_SIZE_LIST-1;
+  const role=isInd?"indicado":"indiquer";
+  let q=sb.from("referrers")
+    .select("id,name,phone,email,cpf,code,role,ref_origin,prefeitura,created_at")
+    .eq("role",role).order("created_at",{ascending:false}).range(from,to);
+  if(s)q=q.or(`name.ilike.%${s}%,phone.ilike.%${s}%,code.ilike.%${s}%,prefeitura.ilike.%${s}%`);
+  const{data:rows,error}=await q;
+  _loading=false;
+  if(error){if(ct)ct.innerHTML=`<p style="color:var(--red);font-size:13px;">Erro: ${error.message}</p>`;return;}
+  const batch=rows||[];
+  const hasMore=batch.length===PAGE_SIZE_LIST;
+  if(isInd){if(reset)allInd=batch;else allInd=[...allInd,...batch];_hasMoreInd=hasMore;_pageInd++;}
+  else{if(reset)allInq=batch;else allInq=[...allInq,...batch];_hasMoreInq=hasMore;_pageInq++;}
+  renderView();
+}
+
+window.loadMoreInq=function(){loadPage(false);};
+
+async function loadCardData(id){
+  if(_refCache[id]?.loaded||_loadingCard[id])return;
+  _loadingCard[id]=true;
+  const[{data:refs},{data:pays},{count}]=await Promise.all([
+    sb.from("referrals")
+      .select("*,amount,mod_note,indicated_client_id,indicated_clients(id,name,phone,cpf,profile_type,observations,prefeitura)")
+      .eq("referrer_id",id).order("created_at",{ascending:false}).range(0,PAGE_SIZE_REFS-1),
+    sb.from("payments").select("*").eq("referrer_id",id).order("created_at",{ascending:false}),
+    sb.from("referrals").select("id",{count:"exact",head:true}).eq("referrer_id",id)
+  ]);
+  _refCache[id]={refs:refs||[],payments:pays||[],loaded:true,pageRefs:1,
+    totalRefs:count||0,hasMoreRefs:(refs||[]).length===PAGE_SIZE_REFS};
+  delete _loadingCard[id];
+
+  // Atualiza smashcard total
+  let ts=0;
+  [...allInq,...allInd].forEach(c=>{
+    const cache=_refCache[c.id];
+    if(cache){const a=cache.refs.filter(r=>isOk(r.status)).length;ts+=calcSm(a);}
+  });
+  const el=document.getElementById("k-smashcard");
+  if(el)el.textContent=fmt(ts);
+
+  const bodyEl=document.getElementById(`card-body-${id}`);
+  if(bodyEl)renderCardBody(id,bodyEl);
+}
+
+window.loadMoreRefs=async function(id){
+  if(!_refCache[id])return;
+  const cache=_refCache[id];
+  const from=cache.pageRefs*PAGE_SIZE_REFS;
+  const to=from+PAGE_SIZE_REFS-1;
+  const btn=document.getElementById(`btn-more-refs-${id}`);
+  if(btn){btn.textContent="Carregando…";btn.disabled=true;}
+  const{data:refs}=await sb.from("referrals")
+    .select("*,amount,mod_note,indicated_client_id,indicated_clients(id,name,phone,cpf,profile_type,observations,prefeitura)")
+    .eq("referrer_id",id).order("created_at",{ascending:false}).range(from,to);
+  cache.refs=[...cache.refs,...(refs||[])];
+  cache.pageRefs++;
+  cache.hasMoreRefs=(refs||[]).length===PAGE_SIZE_REFS;
+  const bodyEl=document.getElementById(`card-body-${id}`);
+  if(bodyEl)renderCardBody(id,bodyEl);
+};
+
+window.toggleCard=async function(id,role){
+  const card=document.getElementById(`card-${id}`);
+  if(!card)return;
+  const isOpen=card.classList.contains("open");
+  card.classList.toggle("open");
+  if(!isOpen){
+    const bodyEl=document.getElementById(`card-body-${id}`);
+    if(!_refCache[id]?.loaded){
+      if(bodyEl)bodyEl.innerHTML=`<div class="card-skeleton">
+        <div class="sk-line" style="width:60%;margin-bottom:8px;"></div>
+        <div class="sk-line" style="width:100%;margin-bottom:6px;"></div>
+        <div class="sk-line" style="width:80%;"></div></div>`;
+      await loadCardData(id);
+    } else {renderCardBody(id,bodyEl);}
+  }
+};
+
+function renderCardBody(id,bodyEl){
+  if(!bodyEl)return;
+  const cache=_refCache[id];
+  if(!cache){bodyEl.innerHTML="";return;}
+  const ref=[...allInq,...allInd].find(r=>r.id===id);
+  if(!ref){bodyEl.innerHTML="";return;}
+  ref.refs=cache.refs;
+  const ap=cache.refs.filter(r=>isOk(r.status)).length;
+  const sm=calcSm(ap);
+  const nv=getNivel(ap);
+  const isIndiquer=ref.role==="indiquer";
+
+  // Atualiza pills do header
+  const statsEl=document.querySelector(`#card-${id} .client-stats`);
+  if(statsEl){
+    statsEl.innerHTML=`
+      <span class="nivel-tag ${nv.c}">${nv.l}</span>
+      <span class="stat-pill">${cache.totalRefs} ind.</span>
+      <span class="stat-pill green">${ap} aprov.</span>
+      <span class="stat-pill" style="color:#34d399;">${fmt(sm)}</span>
+    `;
+  }
+
+  const moreBtn=cache.hasMoreRefs
+    ?`<div style="text-align:center;margin-top:12px;">
+        <button id="btn-more-refs-${id}" onclick="loadMoreRefs('${id}')"
+          style="padding:8px 20px;border-radius:9px;border:1px solid var(--border);
+          background:transparent;color:var(--muted);font-size:12px;cursor:pointer;font-family:inherit;">
+          Carregar mais (${cache.totalRefs-cache.refs.length} restantes)
+        </button></div>`
+    :"";
+
+  const paid=((_refCache[id]?.payments)||[]).reduce((s,p)=>s+(parseFloat(p.amount)||0),0);
+  const balance=sm-paid;
+  const smPanel=isIndiquer?`
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 14px;
+      padding:12px 14px;background:rgba(74,222,128,.05);border:1px solid rgba(74,222,128,.15);
+      border-radius:10px;">
+      <div style="display:flex;flex-direction:column;gap:2px;">
+        <span style="font-size:10px;text-transform:uppercase;color:var(--muted);font-weight:600;">💳 Smashcard</span>
+        <span style="font-size:14px;font-weight:700;color:#34d399;">${fmt(sm)}</span>
+      </div>
+      <div style="width:1px;height:28px;background:rgba(255,255,255,.08);flex-shrink:0;"></div>
+      <div style="display:flex;flex-direction:column;gap:2px;">
+        <span style="font-size:10px;text-transform:uppercase;color:var(--muted);font-weight:600;">✅ Pago</span>
+        <span style="font-size:14px;font-weight:700;color:#facc15;">${fmt(paid)}</span>
+      </div>
+      <div style="width:1px;height:28px;background:rgba(255,255,255,.08);flex-shrink:0;"></div>
+      <div style="display:flex;flex-direction:column;gap:2px;">
+        <span style="font-size:10px;text-transform:uppercase;color:var(--muted);font-weight:600;">💰 Saldo</span>
+        <span style="font-size:14px;font-weight:700;color:${balance<=0?'#fb7185':'#4ade80'};">${fmt(balance)}</span>
+      </div>
+      <div style="margin-left:auto;">
+        <button class="btn-pay" onclick="event.stopPropagation();openPayModal('${id}')">
+          💰 Dar Baixa
+        </button>
+      </div>
+    </div>`:"";
+
+  bodyEl.innerHTML=`
+    ${isIndiquer?smPanel:""}
+    <h4 style="font-size:12px;color:#60a5fa;font-weight:700;margin:0 0 10px;
+      text-transform:uppercase;letter-spacing:.5px;">
+      📨 Indicações (${cache.totalRefs})
+    </h4>
+    ${buildTable(cache.refs)}
+    ${moreBtn}
+    ${isIndiquer?`<button class="btn-add-ref" onclick="event.stopPropagation();
+      openBulkExisting('${id}','${(ref.name||"").replace(/'/g,"\\'")}',
+      '${ref.code||""}','${ref.phone||""}','${ref.email||""}')" style="margin-top:12px;">
+      ➕ Adicionar mais indicações</button>`:""}
+  `;
+}
+
+let _searchTimer=null;
+function searchDebounced(){
+  clearTimeout(_searchTimer);
+  _searchTimer=setTimeout(()=>{
+    _searchTerm=document.getElementById("search-input")?.value||"";
+    loadPage(true);
+  },400);
+}
+document.querySelectorAll(".view-tab").forEach(b=>b.addEventListener("click",()=>{
+  document.querySelectorAll(".view-tab").forEach(x=>x.classList.remove("active"));
+  b.classList.add("active");
+  curView=b.dataset.view;
+  const ct=document.getElementById("content-area");
+  if(ct)ct.innerHTML="";
+  loadPage(true);
+}));
 function renderView(){if(curView==="indiquers")renderInq();else if(curView==="indicados")renderInd();else renderAll();}
 function renderInq(){
-  const s=(document.getElementById("search-input").value||"").toLowerCase();
-  const ct=document.getElementById("content-area");ct.innerHTML="";
-  const fl=allInq.filter(c=>!s||c.name?.toLowerCase().includes(s)||c.phone?.includes(s)||c.code?.toLowerCase().includes(s));
-  if(!fl.length){ct.innerHTML=`<p class='empty-msg'>Nenhum indiquer encontrado${allInq.length===0?" ainda.":"."}</p>`;return;}
-  fl.forEach(c=>{
-    const dirOk=(c.refs||[]).filter(r=>isOk(r.status)).length;
-    const subOk=(c.subs||[]).reduce((a,s)=>a+(s.refs||[]).filter(r=>isOk(r.status)).length,0);
-    const ap=dirOk+subOk,nv=getNivel(ap),wa=waHref(c.phone),sm=calcSm(ap);
-    const sc=(c.subs||[]).length,tr=(c.refs||[]).length;
-    const cd=document.createElement("div");cd.className="client-card";
-    
-    cd.innerHTML=`<div class="client-header" onclick="this.closest('.client-card').classList.toggle('open')"><div class="client-left"><div class="client-avatar">${initials(c.name)}</div><div><div class="client-name">${c.name||"—"} <span class="role-tag role-indiquer">Indiquer</span> <button class="btn-edit-indiquer" onclick="event.stopPropagation();openEditReferrer('${c.id}')">✏️</button><button class="btn-assign" onclick="event.stopPropagation();openAssign('${c.id}','indiquer')">🔀 Atribuir</button></div><div class="client-meta">${wa?`<a class="wa-link" href="${wa}" target="_blank" onclick="event.stopPropagation()">📱 ${c.phone}</a>`:c.phone||"—"} · <strong>${c.code||"—"}</strong>${c.email?` · ${c.email}`:""} · desde ${fmtDate(c.created_at)}</div></div></div><div style="display:flex;align-items:center;gap:8px;"><div class="client-stats"><span class="nivel-tag ${nv.c}">${nv.l}</span>${tr>0?`<span class="stat-pill">${tr} ind.</span>`:""}<span class="stat-pill green">${ap} aprovado${ap!==1?"s":""}</span><span class="stat-pill" style="color:#c084fc;">${sc} indicado${sc!==1?"s":""}</span><span class="stat-pill" style="color:#34d399;">${fmt(sm)}</span></div><div class="chevron">▼</div></div></div><div class="client-body"><h4 style="font-size:12px;color:#60a5fa;font-weight:700;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;">📨 Indicações diretas (${tr})</h4>${buildTable(c.refs||[])}<button class="btn-add-ref" onclick="event.stopPropagation();openBulkExisting('${c.id}','${(c.name||"").replace(/'/g,"\\'")}','${c.code||""}','${c.phone||""}','${c.email||""}')">➕ Adicionar mais indicações</button></div>`;
-    ct.appendChild(cd);
+  const ct=document.getElementById("content-area");
+  if(!ct)return;
+  if(!allInq.length){
+    ct.innerHTML=`<p class='empty-msg'>Nenhum indiquer encontrado${_searchTerm?" para esta busca.":"."}</p>`;
+    renderLoadMore();return;
+  }
+  const existing=new Set([...ct.querySelectorAll(".client-card")].map(el=>el.id));
+  const fragment=document.createDocumentFragment();
+  allInq.forEach(c=>{
+    const cardId=`card-${c.id}`;
+    if(existing.has(cardId))return;
+    const wa=waHref(c.phone);
+    const cd=document.createElement("div");
+    cd.className="client-card";cd.id=cardId;
+    cd.innerHTML=`
+      <div class="client-header" onclick="toggleCard('${c.id}','indiquer')">
+        <div class="client-left">
+          <div class="client-avatar">${initials(c.name)}</div>
+          <div>
+            <div class="client-name">${c.name||"—"}
+              <span class="role-tag role-indiquer">Indiquer</span>
+              <button class="btn-edit-indiquer" onclick="event.stopPropagation();openEditReferrer('${c.id}')">✏️</button>
+              <button class="btn-assign" onclick="event.stopPropagation();openAssign('${c.id}','indiquer')">🔀 Atribuir</button>
+            </div>
+            <div class="client-meta">
+              ${wa?`<a class="wa-link" href="${wa}" target="_blank" onclick="event.stopPropagation()">📱 ${c.phone}</a>`:c.phone||"—"}
+              · <strong>${c.code||"—"}</strong>
+              ${c.prefeitura?` · 🏛️ ${c.prefeitura}`:""}
+              · desde ${fmtDate(c.created_at)}
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="client-stats">
+            <span class="stat-pill" style="color:var(--muted);">clique para ver</span>
+          </div>
+          <div class="chevron">▼</div>
+        </div>
+      </div>
+      <div class="client-body" id="card-body-${c.id}">
+        <p style="color:var(--muted);font-size:12px;padding:8px 0;">Clique para carregar indicações.</p>
+      </div>`;
+    fragment.appendChild(cd);
   });
+  ct.appendChild(fragment);
+  renderLoadMore();
+}
+
+function renderLoadMore(){
+  const ct=document.getElementById("content-area");
+  if(!ct)return;
+  let btn=document.getElementById("btn-load-more-list");
+  const hasMore=curView==="indicados"?_hasMoreInd:_hasMoreInq;
+  if(hasMore){
+    if(!btn){
+      btn=document.createElement("div");btn.id="btn-load-more-list";
+      btn.style.cssText="text-align:center;margin:16px 0 8px;";
+      btn.innerHTML=`<button onclick="loadMoreInq()"
+        style="padding:10px 28px;border-radius:10px;border:1px solid var(--border);
+        background:rgba(255,255,255,.04);color:var(--muted);font-size:13px;font-weight:600;
+        cursor:pointer;font-family:inherit;">Carregar mais ↓</button>`;
+      ct.appendChild(btn);
+    }
+  } else {if(btn)btn.remove();}
 }
 function renderInd(){
-  const s=(document.getElementById("search-input").value||"").toLowerCase();
-  const ct=document.getElementById("content-area");ct.innerHTML="";
-  const fl=allInd.filter(c=>!s||c.name?.toLowerCase().includes(s)||c.phone?.includes(s)||c.code?.toLowerCase().includes(s));
-  if(!fl.length){ct.innerHTML="<p class='empty-msg'>Nenhum indicado encontrado.</p>";return;}
-  fl.forEach(c=>{
-    const ap=(c.refs||[]).filter(r=>isOk(r.status)).length,nv=getNivel(ap),wa=waHref(c.phone),sm=calcSm(ap);
-    const pi=allInq.find(i=>i.code===c.ref_origin),tr=(c.refs||[]).length;
-    const cd=document.createElement("div");cd.className="client-card";
-    cd.innerHTML=`<div class="client-header" onclick="this.closest('.client-card').classList.toggle('open')"><div class="client-left"><div class="client-avatar" style="background:linear-gradient(135deg,rgba(168,85,247,.6),rgba(139,92,246,.5));">${initials(c.name)}</div><div><div class="client-name">${c.name||"—"} <span class="role-tag role-indicado">Indicado</span> <button class="btn-edit-indiquer" onclick="event.stopPropagation();openEditReferrer('${c.id}')">✏️</button><button class="btn-assign" onclick="event.stopPropagation();openAssign('${c.id}','indicado')">🔀 Atribuir</button></div><div class="client-meta">${wa?`<a class="wa-link" href="${wa}" target="_blank" onclick="event.stopPropagation()">📱 ${c.phone}</a>`:c.phone||"—"} · <strong>${c.code||"—"}</strong> · Indiquer: <strong>${pi?.name||"—"}</strong> · desde ${fmtDate(c.created_at)}</div></div></div><div style="display:flex;align-items:center;gap:8px;"><div class="client-stats"><span class="nivel-tag ${nv.c}">${nv.l}</span><span class="stat-pill">${tr} ind.</span><span class="stat-pill green">${ap} aprov.</span><span class="stat-pill" style="color:#34d399;">${fmt(sm)}</span></div><div class="chevron">▼</div></div></div><div class="client-body"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 14px;padding:12px 14px;background:rgba(74,222,128,.05);border:1px solid rgba(74,222,128,.15);border-radius:10px;"><div style="display:flex;flex-direction:column;gap:2px;"><span style="font-size:10px;text-transform:uppercase;color:var(--muted);font-weight:600;">💳 Smashcard</span><span style="font-size:14px;font-weight:700;color:#34d399;">${fmt(sm)}</span></div><div style="width:1px;height:28px;background:rgba(255,255,255,.08);flex-shrink:0;"></div><div style="display:flex;flex-direction:column;gap:2px;"><span style="font-size:10px;text-transform:uppercase;color:var(--muted);font-weight:600;">📋 Indicador</span><span style="font-size:13px;font-weight:600;color:rgba(255,255,255,.7);">${pi?.name||"—"}</span></div></div><h4 style="font-size:12px;color:#c084fc;font-weight:700;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;">📨 Indicações (${tr})</h4>${buildTable(c.refs||[])}</div>`;
-    ct.appendChild(cd);
-  });
-}
-function renderAll(){
-  const s=(document.getElementById("search-input").value||"").toLowerCase();
   const ct=document.getElementById("content-area");
-  const aw=allRefs.map(ref=>{const ow=[...allInq,...allInd].find(r=>r.id===ref.referrer_id);return{...ref,oN:ow?.name||"—",oC:ow?.code||"—",oR:ow?.role||"—"};});
-  const fl=aw.filter(r=>{if(!s)return true;const cl=r.indicated_clients||{};return cl.name?.toLowerCase().includes(s)||r.oN.toLowerCase().includes(s)||r.oC.toLowerCase().includes(s);});
-  if(!fl.length){ct.innerHTML="<p class='empty-msg'>Nenhuma indicação encontrada.</p>";return;}
-  ct.innerHTML=`<div class="ref-table-wrap"><table><thead><tr><th>Indicador</th><th>Código</th><th>Papel</th><th>Nome indicado</th><th>WhatsApp</th><th>Status</th><th>Valor (R$)</th><th>Nota</th><th>Data</th><th>Ações</th></tr></thead><tbody>${fl.map(ref=>{const cl=ref.indicated_clients||{};const w=waHref(cl.phone);const cur=normS(ref.status);const m=SOS.find(o=>o.v===cur)||SOS[0];return`<tr><td><strong>${ref.oN}</strong></td><td><code style="font-size:11px;background:rgba(255,255,255,.06);padding:2px 6px;border-radius:4px;">${ref.oC}</code></td><td><span class="role-tag ${ref.oR==="indiquer"?"role-indiquer":"role-indicado"}">${ref.oR}</span></td><td>${cl.name||"—"}</td><td>${w?`<a class="wa-link" href="${w}" target="_blank">📱 ${cl.phone}</a>`:(cl.phone||"—")}</td><td><select class="status-select ${m.c}" data-id="${ref.id}" onchange="onSC(this)">${SOS.map(o=>`<option value="${o.v}"${o.v===cur?" selected":""}>${o.l}</option>`).join("")}</select></td><td><input type="text" class="valor-input" value="${ref.amount?fmt(ref.amount):""}" placeholder="R$ 0,00" style="width:100px;"/></td><td><button class="note-btn${ref.mod_note?" has-note":""}" onclick="openNote('${ref.id}',this)">${ref.mod_note?"📝 Ver":"+ Nota"}</button></td><td style="color:var(--muted);font-size:12px;">${fmtDate(ref.created_at)}</td><td><button class="btn-edit-row" onclick="openEditIndicado('${ref.indicated_client_id}')">✏️</button><button class="btn-save-row" onclick="saveRow('${ref.id}',this)">Salvar</button></td></tr>`;}).join("")}</tbody></table></div>`;
+  if(!ct)return;
+  if(!allInd.length){
+    ct.innerHTML=`<p class='empty-msg'>Nenhum indicado encontrado${_searchTerm?" para esta busca.":"."}</p>`;
+    renderLoadMore();return;
+  }
+  const existing=new Set([...ct.querySelectorAll(".client-card")].map(el=>el.id));
+  const fragment=document.createDocumentFragment();
+  allInd.forEach(c=>{
+    const cardId=`card-${c.id}`;
+    if(existing.has(cardId))return;
+    const wa=waHref(c.phone);
+    const cd=document.createElement("div");
+    cd.className="client-card";cd.id=cardId;
+    cd.innerHTML=`
+      <div class="client-header" onclick="toggleCard('${c.id}','indicado')">
+        <div class="client-left">
+          <div class="client-avatar" style="background:linear-gradient(135deg,rgba(168,85,247,.6),rgba(139,92,246,.5));">${initials(c.name)}</div>
+          <div>
+            <div class="client-name">${c.name||"—"}
+              <span class="role-tag role-indicado">Indicado</span>
+              <button class="btn-edit-indiquer" onclick="event.stopPropagation();openEditReferrer('${c.id}')">✏️</button>
+              <button class="btn-assign" onclick="event.stopPropagation();openAssign('${c.id}','indicado')">🔀 Atribuir</button>
+            </div>
+            <div class="client-meta">
+              ${wa?`<a class="wa-link" href="${wa}" target="_blank" onclick="event.stopPropagation()">📱 ${c.phone}</a>`:c.phone||"—"}
+              · <strong>${c.code||"—"}</strong>
+              ${c.prefeitura?` · 🏛️ ${c.prefeitura}`:""}
+              · desde ${fmtDate(c.created_at)}
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="client-stats">
+            <span class="stat-pill" style="color:var(--muted);">clique para ver</span>
+          </div>
+          <div class="chevron">▼</div>
+        </div>
+      </div>
+      <div class="client-body" id="card-body-${c.id}">
+        <p style="color:var(--muted);font-size:12px;padding:8px 0;">Clique para carregar indicações.</p>
+      </div>`;
+    fragment.appendChild(cd);
+  });
+  ct.appendChild(fragment);
+  renderLoadMore();
 }
-document.getElementById("search-input")?.addEventListener("input",renderView);
-document.getElementById("btn-refresh")?.addEventListener("click",loadData);
+async function renderAll(){
+  const ct=document.getElementById("content-area");
+  if(!ct)return;
+  ct.innerHTML='<p style="color:var(--muted);font-size:13px;">Carregando…</p>';
+  _allRefsPage=0;_allRefsData=[];
+  await loadAllRefsPage(true);
+}
+
+async function loadAllRefsPage(reset=false){
+  const s=_searchTerm.trim();
+  const from=_allRefsPage*PAGE_SIZE_REFS;
+  const to=from+PAGE_SIZE_REFS-1;
+  let q=sb.from("referrals")
+    .select(`*,amount,mod_note,indicated_client_id,
+      indicated_clients(id,name,phone,cpf,profile_type,observations,prefeitura),
+      referrers!referrals_referrer_id_fkey(id,name,code,role)`,{count:"exact"})
+    .order("created_at",{ascending:false}).range(from,to);
+  if(s)q=q.or(`indicated_clients.name.ilike.%${s}%,referrers.name.ilike.%${s}%,referrers.code.ilike.%${s}%`);
+  const{data:rows,count,error}=await q;
+  if(error){document.getElementById("content-area").innerHTML=`<p style="color:var(--red);font-size:13px;">Erro: ${error.message}</p>`;return;}
+  const batch=rows||[];
+  _allRefsHasMore=batch.length===PAGE_SIZE_REFS;
+  _allRefsPage++;
+  if(reset)_allRefsData=batch;else _allRefsData=[..._allRefsData,...batch];
+  const rowsHtml=_allRefsData.map(ref=>{
+    const cl=ref.indicated_clients||{};const rr=ref.referrers||{};
+    const w=waHref(cl.phone);const cur=normS(ref.status);const m=SOS.find(o=>o.v===cur)||SOS[0];
+    return `<tr>
+      <td><strong>${rr.name||"—"}</strong></td>
+      <td><code style="font-size:11px;background:rgba(255,255,255,.06);padding:2px 6px;border-radius:4px;">${rr.code||"—"}</code></td>
+      <td><span class="role-tag ${rr.role==="indiquer"?"role-indiquer":"role-indicado"}">${rr.role||"—"}</span></td>
+      <td>${cl.name||"—"}</td>
+      <td>${w?`<a class="wa-link" href="${w}" target="_blank">📱 ${cl.phone}</a>`:(cl.phone||"—")}</td>
+      <td style="color:var(--muted);font-size:12px;">${cl.prefeitura||"—"}</td>
+      <td><select class="status-select ${m.c}" data-id="${ref.id}" onchange="onSC(this)">${SOS.map(o=>`<option value="${o.v}"${o.v===cur?" selected":""}>${o.l}</option>`).join("")}</select></td>
+      <td><input type="text" class="valor-input" value="${ref.amount?fmt(ref.amount):""}" placeholder="R$ 0,00" oninput="fmtCurrencyInput(this)" onblur="fmtCurrencyBlur(this)"/></td>
+      <td><button class="note-btn${ref.mod_note?" has-note":""}" onclick="openNote('${ref.id}',this)">${ref.mod_note?"📝 Ver":"+ Nota"}</button></td>
+      <td style="color:var(--muted);font-size:12px;">${fmtDate(ref.created_at)}</td>
+      <td><button class="btn-edit-row" onclick="openEditIndicado('${ref.indicated_client_id}')">✏️</button><button class="btn-save-row" onclick="saveRow('${ref.id}',this)">Salvar</button></td>
+    </tr>`;
+  }).join("");
+  const moreBtn=_allRefsHasMore
+    ?`<div style="text-align:center;margin:14px 0;">
+        <button onclick="loadAllRefsPage(false)"
+          style="padding:8px 22px;border-radius:9px;border:1px solid var(--border);
+          background:rgba(255,255,255,.04);color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">
+          Carregar mais ↓</button>
+        <span style="font-size:11px;color:var(--muted);margin-left:10px;">${_allRefsData.length} de ${count??_allRefsData.length}</span>
+      </div>`
+    :`<p class="pagination-info">Total: ${_allRefsData.length} indicação(ões)</p>`;
+  document.getElementById("content-area").innerHTML=`
+    <div class="ref-table-wrap"><table>
+      <thead><tr>
+        <th>Indicador</th><th>Código</th><th>Papel</th><th>Nome indicado</th>
+        <th>WhatsApp</th><th>Prefeitura</th><th>Status</th><th>Valor</th>
+        <th>Nota</th><th>Data</th><th>Ações</th>
+      </tr></thead>
+      <tbody>${rowsHtml}</tbody>
+    </table></div>${moreBtn}`;
+}
+document.getElementById("search-input")?.addEventListener("input",searchDebounced);
 document.getElementById("btn-logout")?.addEventListener("click",async()=>{await sb.auth.signOut();location.reload();});
 (async()=>{const h=location.hash;if(h.includes("type=recovery")){const np=prompt("Nova senha (mín. 6 caracteres):");if(!np||np.length<6){alert("Senha muito curta.");return;}const{error}=await sb.auth.updateUser({password:np});alert(error?"Erro: "+error.message:"✅ Senha definida!");location.hash="";}})();
 (async()=>{const{data}=await sb.auth.getSession();if(data?.session?.user){try{await mount(data.session.user);}catch(e){}}})();
