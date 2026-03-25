@@ -567,9 +567,22 @@ async function updateKPIs(){
   const s=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v??0;};
   s("k-indiquers",rInq.count);s("k-indicados",rInd.count);
   s("k-total",rTotal.count);s("k-approved",rAp.count);
-  // Smashcard: calculado após carregar os dados
-  const el=document.getElementById("k-smashcard");
-  if(el)el.textContent="calculando…";
+
+  // Calcula Smashcard: busca aprovados agrupados por referrer
+  const{data:apRows}=await sb.from("referrals")
+    .select("referrer_id")
+    .eq("status","aprovado");
+
+  if(apRows){
+    // Conta aprovados por referrer e soma smashcard
+    const countMap={};
+    apRows.forEach(r=>{
+      countMap[r.referrer_id]=(countMap[r.referrer_id]||0)+1;
+    });
+    const total=Object.values(countMap).reduce((sum,n)=>sum+calcSm(n),0);
+    const el=document.getElementById("k-smashcard");
+    if(el)el.textContent=fmt(total);
+  }
 }
 
 async function loadPage(reset=false){
